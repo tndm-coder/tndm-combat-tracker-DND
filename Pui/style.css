@@ -1,0 +1,163 @@
+/* ================= RESET ================= */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, #05060c 0%, #020309 75%);
+  color: #e6ecff;
+  font-family: "MyFont", system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* ================= TITLE ================= */
+.combat-title {
+  position: fixed;
+  top: 20px;
+  font-size: 28px;
+  letter-spacing: 0.12em;
+  z-index: 3;
+  text-shadow: 0 0 20px rgba(255,120,40,0.6);
+}
+
+/* ================= UI ROOT ================= */
+.ui-root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 80px 40px;
+}
+
+.ui-root.two-columns {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 48px;
+}
+
+/* ================= ROW ================= */
+.combat-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.combat-row[data-column="right"] {
+  justify-self: start;
+}
+
+/* ================= TURN INDICATOR ================= */
+.turn-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(120,180,255,0.25);
+  opacity: 0.3;
+}
+
+.turn-active .turn-indicator {
+  opacity: 1;
+  background: #7fc8ff;
+  box-shadow: 0 0 18px rgba(140,200,255,0.9);
+  animation: turnPulse 1.1s infinite ease-in-out;
+}
+
+@keyframes turnPulse {
+  50% { transform: scale(1.7); }
+}
+
+/* ================= EMOJI BAR ================= */
+.emoji-bar {
+  width: 70px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.emoji-pulse {
+  animation: emojiPulse 1s infinite;
+}
+
+@keyframes emojiPulse {
+  50% { transform: scale(1.25); }
+}
+
+.emoji-float {
+  animation: emojiFloat 0.6s ease-out forwards;
+}
+
+@keyframes emojiFloat {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-16px); }
+}
+
+/* ================= NAME CARD ================= */
+.name-card {
+  width: 360px;
+  padding: 12px 18px;
+  background: linear-gradient(
+    180deg,
+    rgba(12,15,28,0.95),
+    rgba(6,8,16,0.95)
+  );
+  border-radius: 14px;
+  text-align: center;
+  letter-spacing: 0.05em;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.03),
+    0 10px 30px rgba(0,0,0,0.6);
+}
+
+/* ================= EFFECTS CARD ================= */
+.effects-card {
+  min-width: 190px;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* ================= FLASH ================= */
+.flash-damage .name-card {
+  box-shadow: 0 0 30px rgba(255,60,60,0.8);
+}
+
+.flash-heal .name-card {
+  box-shadow: 0 0 30px rgba(80,255,120,0.7);
+}
+
+/* ================= STATES ================= */
+.state-dead {
+  opacity: 0.25;
+  filter: grayscale(1);
+}
+
+.state-unconscious,
+.state-incapacitated {
+  opacity: 0.55;
+  filter: grayscale(0.8);
+}
+
+.glow-purple .name-card {
+  box-shadow:
+    0 0 22px rgba(170,110,255,0.6),
+    0 0 40px rgba(140,90,255,0.35);
+}
+
+/* ================= PULSES ================= */
+.pulse-lowhp .name-card {
+  animation: lowHpPulse 1s infinite;
+}
+
+@keyframes lowHpPulse {
+  50% { box-shadow: 0 0 20px rgba(255,80,80,0.7); }
+}
+
+.pulse-unconscious .name-card {
+  animation: unconsciousPulse 3s infinite;
+}
+
+@keyframes unconsciousPulse {
+  10%,30% { box-shadow: 0 0 26px rgba(255,0,0,0.8); }
+}

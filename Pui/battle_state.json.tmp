@@ -1,0 +1,98 @@
+{
+  "running": true,
+  "timestamp": 1768675707.228041,
+  "round": 1,
+  "current_index": 3,
+  "combatants": [
+    {
+      "id": "id_2171330857680",
+      "name": "Гоблин Дыд 1",
+      "hp": 7,
+      "max_hp": 7,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false,
+        "damage": false,
+        "heal": false
+      }
+    },
+    {
+      "id": "id_2171320572880",
+      "name": "Гоблин Дыд 2",
+      "hp": 7,
+      "max_hp": 7,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false,
+        "damage": false,
+        "heal": false
+      }
+    },
+    {
+      "id": "id_2171320573200",
+      "name": "Гоблин Дыд 3",
+      "hp": 6,
+      "max_hp": 6,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false,
+        "damage": false,
+        "heal": false
+      }
+    },
+    {
+      "id": "id_2171330857344",
+      "name": "Сарк",
+      "hp": 5,
+      "max_hp": 10,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false,
+        "damage": false,
+        "heal": false
+      }
+    },
+    {
+      "id": "id_2171320664144",
+      "name": "Рукачука 1",
+      "hp": 10,
+      "max_hp": 10,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false,
+        "damage": false,
+        "heal": false
+      }
+    },
+    {
+      "id": "id_2171320666272",
+      "name": "Рукачука 2",
+      "hp": 2,
+      "max_hp": 2,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false,
+        "damage": false,
+        "heal": false
+      }
+    }
+  ]
+}

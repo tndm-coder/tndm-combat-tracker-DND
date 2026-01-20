@@ -1,0 +1,382 @@
+from PySide6.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout,
+    QPushButton, QTableWidget, QTableWidgetItem,
+    QLineEdit, QLabel, QSpinBox, QCheckBox, QComboBox
+)
+from PySide6.QtCore import Qt
+from battle_engine import BattleEngine
+from combatant_factory import CombatantFactory
+import sys
+from battle_state_exporter import BattleStateExporter
+
+TABLE_HEADERS = [
+    "", "Имя", "HP", "Врем. HP", "AC",
+    "Инициатива", "Эффекты", "Концентрация", "Недееспособен", "Состояние"]
+
+class MasterUI(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.observers = []
+        self.setWindowTitle("tndm/dnd/tracker")
+        self.resize(1250, 750)
+        self.factory = CombatantFactory()
+        self.battle_engine = BattleEngine()
+        self.current_initiative_group = None
+        self.round_counter = 0
+        self.turn_started = set()
+        self.player_name_input = QLineEdit()
+        self.player_hp_input = QLineEdit()
+        self.player_ac_input = QLineEdit()
+        self.player_initiative_input = QLineEdit()
+        self.monster_name_input = QLineEdit()
+        self.monster_custom_name_input = QLineEdit()
+        self.monster_count_input = QSpinBox()
+        self.monster_hp_input = QLineEdit()
+        self.monster_ac_input = QLineEdit()
+        self.monster_initiative_input = QLineEdit()
+        self.effect_name_input = QLineEdit()
+        self.effect_duration_input = QSpinBox()
+        self.damage_input = QSpinBox()
+        self.temp_set_input = QSpinBox()
+        self.heal_input = QSpinBox()
+        self.round_label = QLabel("Раунд: 0")
+        self.start_btn = QPushButton("Начать бой")
+        self.table = QTableWidget(0, len(TABLE_HEADERS))
+        self.init_ui()
+        self.state_exporter = BattleStateExporter(
+            self.battle_engine,
+            interval=0.5
+        )
+
+    def init_ui(self):
+        layout = QVBoxLayout()
+
+        player_layout = QHBoxLayout()
+
+        self.player_name_input.setPlaceholderText("Имя игрока")
+        self.player_hp_input.setPlaceholderText("HP")
+
+        self.player_ac_input.setPlaceholderText("AC")
+        self.player_initiative_input.setPlaceholderText("Инициатива")
+        add_player_btn = QPushButton("Добавить игрока")
+        add_player_btn.clicked.connect(self.add_player)
+        for w in [QLabel("Игрок:"), self.player_name_input,
+                  QLabel("HP"), self.player_hp_input,
+                  QLabel("AC"), self.player_ac_input,
+                  QLabel("Init"), self.player_initiative_input,
+                  add_player_btn]:
+            player_layout.addWidget(w)
+        layout.addLayout(player_layout)
+
+        monster_layout = QHBoxLayout()
+
+        self.monster_name_input.setPlaceholderText("Название монстра")
+        self.monster_custom_name_input.setPlaceholderText("Кастомное имя")
+        self.monster_count_input.setRange(1, 99)
+        self.monster_count_input.setValue(1)
+        self.monster_hp_input.setPlaceholderText("HP")
+        self.monster_ac_input.setPlaceholderText("AC")
+        self.monster_initiative_input.setPlaceholderText("Инициатива")
+        add_monster_btn = QPushButton("Добавить монстров")
+        add_monster_btn.clicked.connect(self.add_monsters)
+        for w in [QLabel("Монстр:"), self.monster_name_input,
+                  QLabel("Имя:"), self.monster_custom_name_input,
+                  QLabel("Кол-во"), self.monster_count_input,
+                  QLabel("HP"), self.monster_hp_input,
+                  QLabel("AC"), self.monster_ac_input,
+                  QLabel("Init"), self.monster_initiative_input,
+                  add_monster_btn]:
+            monster_layout.addWidget(w)
+        layout.addLayout(monster_layout)
+
+        self.table.setHorizontalHeaderLabels(TABLE_HEADERS)
+        self.table.setColumnWidth(0, 20)
+        self.table.setColumnWidth(1, 250)
+        self.table.setColumnWidth(5, 100)
+        self.table.setColumnWidth(6, 120)
+        self.table.setColumnWidth(7, 150)
+        self.table.setColumnWidth(8, 120)
+        self.table.setColumnWidth(3, 100)
+        self.table.setColumnWidth(2, 100)
+        self.table.setColumnWidth(4, 100)
+        layout.addWidget(self.table)
+
+        effect_layout = QHBoxLayout()
+
+        self.effect_name_input.setPlaceholderText("Название эффекта")
+        self.effect_duration_input.setRange(0, 999)
+        self.effect_duration_input.setSpecialValueText("вечный")
+        add_effect_btn = QPushButton("Добавить эффект")
+        add_effect_btn.clicked.connect(self.add_effect)
+        remove_effect_name_input = QLineEdit()
+        remove_effect_name_input.setPlaceholderText("Название эффекта для удаления")
+        remove_effect_btn = QPushButton("Убрать эффект")
+        remove_effect_btn.clicked.connect(
+            lambda: self.remove_effect(remove_effect_name_input.text().strip())
+        )
+        for w in [QLabel("Эффект:"), self.effect_name_input,
+                  QLabel("Длительность:"), self.effect_duration_input,
+                  add_effect_btn,
+                  QLabel("Удалить эффект:"), remove_effect_name_input, remove_effect_btn]:
+            effect_layout.addWidget(w)
+        layout.addLayout(effect_layout)
+
+        layout.addWidget(self.round_label)
+
+        action_layout = QHBoxLayout()
+        self.damage_input.setRange(1, 999)
+        self.damage_input.setValue(1)
+        dmg_btn = QPushButton("Атаковать")
+        dmg_btn.clicked.connect(self.attack)
+
+        self.heal_input.setRange(1, 999)
+        self.heal_input.setValue(1)
+        heal_btn = QPushButton("Лечить")
+        heal_btn.clicked.connect(self.heal)
+
+        next_btn = QPushButton("Следующий ход")
+        next_btn.clicked.connect(self.next_turn)
+        end_btn = QPushButton("Завершить бой")
+        end_btn.clicked.connect(self.end_battle)
+
+        self.temp_set_input.setRange(0, 999)
+        self.temp_set_input.setValue(0)
+        temp_set_btn = QPushButton("Добавить временные HP")
+        temp_set_btn.clicked.connect(self.set_temp_hp)
+
+        for w in [
+            QLabel("Урон:"), self.damage_input, dmg_btn,
+            QLabel("Лечение:"), self.heal_input, heal_btn,
+            next_btn, end_btn,
+            QLabel("Временные HP:"), self.temp_set_input, temp_set_btn
+        ]:
+            action_layout.addWidget(w)
+
+        layout.addLayout(action_layout)
+
+        self.start_btn.clicked.connect(self.start_battle)
+        layout.addWidget(self.start_btn)
+
+        self.setLayout(layout)
+
+    @property
+    def get_selected_combatants(self):
+            selected = []
+            for i in range(self.table.rowCount()):
+                cb = self.table.cellWidget(i, 0)
+                if cb and cb.isChecked():
+                    selected.append(self.battle_engine.combatants[i])
+            return selected
+
+    def attack(self):
+            damage = self.damage_input.value()
+            for combatant in self.get_selected_combatants:
+                combatant.take_damage(damage)
+            self.refresh_table()
+
+    def heal(self):
+        amount = self.heal_input.value()
+        for combatant in self.get_selected_combatants:
+            combatant.heal(amount)
+        self.refresh_table()
+
+    def set_temp_hp(self):
+        amount = self.temp_set_input.value()
+        for combatant in self.get_selected_combatants:
+            combatant.add_temp_hp(amount)
+        self.refresh_table()
+
+    def add_player(self):
+        name = self.player_name_input.text().strip()
+        if not name:
+            return
+        hp_text = self.player_hp_input.text().strip()
+        ac_text = self.player_ac_input.text().strip()
+        initiative_text = self.player_initiative_input.text().strip()
+        hp = int(hp_text) if hp_text else None
+        ac = int(ac_text) if ac_text else None
+        initiative = int(initiative_text) if initiative_text else None
+        player = self.factory.create_player(
+            name=name,
+            hp=hp,
+            ac=ac,
+            initiative=initiative
+        )
+        self.battle_engine.add_combatant(player)
+        self.refresh_table()
+        self.player_name_input.clear()
+        self.player_hp_input.clear()
+        self.player_ac_input.clear()
+        self.player_initiative_input.clear()
+
+    def add_monsters(self):
+        name = self.monster_name_input.text().strip()
+        if not name:
+            return
+        count = self.monster_count_input.value()
+        custom_name = self.monster_custom_name_input.text().strip() or None
+        hp_input = self.monster_hp_input.text().strip() or None
+        ac = int(self.monster_ac_input.text()) if self.monster_ac_input.text().strip() else None
+        initiative = int(
+            self.monster_initiative_input.text()) if self.monster_initiative_input.text().strip() else None
+        monsters = self.factory.create_monster(
+            name=name,
+            count=count,
+            initiative=initiative,
+            custom_name=custom_name,
+            ac=ac,
+            hp_input=hp_input
+        )
+        for m in monsters:
+            self.battle_engine.add_combatant(m)
+        self.refresh_table()
+        self.monster_name_input.clear()
+        self.monster_custom_name_input.clear()
+        self.monster_count_input.setValue(1)
+        self.monster_hp_input.clear()
+        self.monster_ac_input.clear()
+        self.monster_initiative_input.clear()
+
+    def start_battle(self):
+        self.battle_engine.start_combat()
+        self.state_exporter.start()
+        self.round_counter = self.battle_engine.round
+        self.current_initiative_group = self.battle_engine.current_initiative_group
+        self.round_label.setText(f"Раунд: {self.round_counter}")
+        self.refresh_table()
+
+    def next_turn(self):
+        group = self.battle_engine.next_turn()
+        if not group:
+            return
+
+        self.current_initiative_group = group[0].initiative
+        self.round_counter = self.battle_engine.round
+        self.round_label.setText(f"Раунд: {self.round_counter}")
+
+        self.refresh_table()
+
+    def add_effect(self):
+        name = self.effect_name_input.text().strip()
+        if not name:
+            return
+        dur = self.effect_duration_input.value()
+        dur = None if dur == 0 else dur
+        selected = self.get_selected_combatants
+        for combat in selected:
+            effects = combat.effects.setdefault("custom_effects", {})
+            effects[name] = {
+                "value": True,
+                "duration": dur,
+                "applied_round": self.battle_engine.round
+            }
+        self.refresh_table()
+
+    def remove_effect(self, name):
+        if not name:
+            return
+        selected = self.get_selected_combatants
+        if selected:
+            for combat in selected:
+                effects = combat.effects.get("custom_effects", {})
+                if name in effects:
+                    del effects[name]
+        else:
+            for combat in self.battle_engine.combatants:
+                effects = combat.effects.get("custom_effects", {})
+                if name in effects:
+                    del effects[name]
+        self.refresh_table()
+
+        self.refresh_table()
+
+    def refresh_table(self):
+        self.table.setRowCount(0)
+        state_mapping = {
+            "alive": "Жив",
+            "unconscious": "Без сознания",
+            "dead": "Мертв",
+            "left": "Покинул бой"
+        }
+        for i, c in enumerate(self.battle_engine.combatants):
+            self.table.insertRow(i)
+            cb = QCheckBox()
+            self.table.setCellWidget(i, 0, cb)
+            self.table.setItem(i, 1, QTableWidgetItem(str(c.custom_name or c.name)))
+            self.table.setItem(i, 2, QTableWidgetItem(str(c.hp)))
+            self.table.setItem(i, 3, QTableWidgetItem(str(c.temp_hp)))
+            self.table.setItem(i, 4, QTableWidgetItem(str(c.ac)))
+            self.table.setItem(i, 5, QTableWidgetItem(str(c.initiative)))
+            effs_list = []
+            custom_effects = c.effects.get("custom_effects", {})
+            for eff_name, eff_data in custom_effects.items():
+                dur = eff_data["duration"]
+                if dur is None:
+                    effs_list.append(f"{eff_name}")
+                else:
+                    effs_list.append(f"{eff_name} ({dur})")
+            self.table.setItem(i, 6, QTableWidgetItem(", ".join(effs_list)))
+            conc_cb = QCheckBox()
+            conc_cb.setChecked(c.effects.get("concentration", False))
+            conc_cb.stateChanged.connect(lambda _, combat=c: self.toggle_concentration(combat))
+
+            self.table.setCellWidget(i, 7, conc_cb)
+            inc_cb = QCheckBox()
+            inc_cb.setChecked(c.incapacitated)
+            inc_cb.stateChanged.connect(lambda state, combat=c: self.toggle_incapacitated(combat, state))
+            self.table.setCellWidget(i, 8, inc_cb)
+            state_cb = QComboBox()
+            state_cb.addItems(list(state_mapping.values()))
+            state_cb.setCurrentText(state_mapping.get(c.state, "Жив"))
+            state_cb.currentTextChanged.connect(lambda text, combat=c: self.change_state(combat, text))
+            self.table.setCellWidget(i, 9, state_cb)
+            current_init = self.current_initiative_group
+            is_current = current_init is not None and c.initiative == current_init
+            color = Qt.yellow if is_current else Qt.white
+            for col in range(1, 6):
+                item = self.table.item(i, col)
+                if item:
+                    item.setForeground(color)
+
+    def toggle_concentration(self, combat):
+        if combat.effects.get("incapacitated", False):
+            if combat.has_concentration():
+                self.battle_engine.remove_concentration(combat)
+        else:
+            if combat.has_concentration():
+                self.battle_engine.remove_concentration(combat)
+            else:
+                self.battle_engine.add_concentration(combat)
+
+    def change_state(self, combat, text):
+        mapping = {
+            "Мертв": "dead",
+            "Без сознания": "unconscious",
+            "Покинул бой": "left",
+            "Жив": "alive"
+        }
+        new_state = mapping.get(text)
+        if new_state:
+            self.battle_engine.set_state(combat, new_state)
+            self.refresh_table()
+
+    def toggle_incapacitated(self, combatant, state):
+        checked = bool(state)
+        combatant.manually_disabled = checked
+        self.refresh_table()
+
+    def end_battle(self):
+        self.battle_engine.end_combat()
+        self.state_exporter.stop()
+        self.battle_engine.combatants.clear()
+        self.current_initiative_group = None
+        self.round_counter = 0
+        self.round_label.setText(f"Раунд: {self.round_counter}")
+        self.refresh_table()
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MasterUI()
+    window.show()
+    sys.exit(app.exec())

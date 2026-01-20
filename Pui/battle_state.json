@@ -1,0 +1,112 @@
+{
+  "running": true,
+  "timestamp": 1768747684.2168546,
+  "round": 11,
+  "active_ids": [
+    "id_2143919914448"
+  ],
+  "combatants": [
+    {
+      "id": "id_2143919914640",
+      "name": "Герман",
+      "hp": 118,
+      "max_hp": 129,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2143917423792",
+      "name": "Ебола с щупальцами 1",
+      "hp": 0,
+      "max_hp": 75,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": true,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2143919914448",
+      "name": "Эш",
+      "hp": 43,
+      "max_hp": 137,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2143919914256",
+      "name": "Тремелла",
+      "hp": 14,
+      "max_hp": 70,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2143918693680",
+      "name": "Мозги в банке на спине 1",
+      "hp": 0,
+      "max_hp": 60,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": true,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2143918693456",
+      "name": "Мозги в банке на спине 2",
+      "hp": 0,
+      "max_hp": 46,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": true,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2143918693232",
+      "name": "Мозги в банке на спине 3",
+      "hp": 0,
+      "max_hp": 47,
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": true,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {
+        "Запрет на хил": {
+          "duration": 1
+        }
+      }
+    }
+  ]
+}
