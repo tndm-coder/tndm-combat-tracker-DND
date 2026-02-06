@@ -80,12 +80,14 @@ class BattleStateExporter:
                 "name": c.custom_name or c.name,
                 "hp": c.hp,
                 "max_hp": c.max_hp,
+                "temp_hp": c.temp_hp,
+                "state": c.state,
                 "effects": {
-                    "temp_hp": c.temp_hp > 0,
+                    "temp_hp": c.hp is not None and c.temp_hp > 0,
                     "concentration": bool(c.concentration),
                     "dead": c.state == "dead",
                     "unconscious": c.state == "unconscious",
-                    "incapacitated": c.effects.get("incapacitated", False),
+                    "incapacitated": c.incapacitated,
                 },
                 "custom_effects": self._export_custom_effects(c),
             }
@@ -124,7 +126,7 @@ class BattleStateExporter:
         return [
             self._combatant_id(c)
             for c in group
-            if not c.effects.get("incapacitated", False)
+            if not c.incapacitated
         ]
 
     # =========================

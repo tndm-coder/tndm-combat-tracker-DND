@@ -116,12 +116,12 @@ function updateRow(row, data, prev) {
 
   if (!prev) return;
 
-  if (data.hp < prev.hp) {
+  if (typeof data.hp === "number" && typeof prev.hp === "number" && data.hp < prev.hp) {
     transient(row, TRANSIENT.damage);
     flash(row, "damage");
   }
 
-  if (data.hp > prev.hp) {
+  if (typeof data.hp === "number" && typeof prev.hp === "number" && data.hp > prev.hp) {
     transient(row, TRANSIENT.heal);
     flash(row, "heal");
   }
@@ -151,7 +151,7 @@ function updateEmojiBar(row, data) {
   if (e.temp_hp) bar.append(createEmoji(VISUAL_EFFECTS.temp_hp));
   if (e.concentration) bar.append(createEmoji(VISUAL_EFFECTS.concentration));
 
-  if (isLowHP(data.hp, data.max_hp) && !e.dead && !e.unconscious) {
+  if (typeof data.hp === "number" && typeof data.max_hp === "number" && isLowHP(data.hp, data.max_hp) && !e.dead && !e.unconscious) {
     const el = createEmoji("❤️");
     el.classList.add("pulse-lowhp");
     bar.append(el);

@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTableWidget, QTableWidgetItem,
-    QLineEdit, QLabel, QSpinBox, QCheckBox, QComboBox
+    QLineEdit, QLabel, QSpinBox, QCheckBox, QComboBox,
+    QFrame, QToolButton, QSizePolicy
 )
 from PySide6.QtCore import Qt
 from battle_engine import BattleEngine
@@ -25,8 +26,6 @@ class MasterUI(QWidget):
         self.round_counter = 0
         self.turn_started = set()
         self.player_name_input = QLineEdit()
-        self.player_hp_input = QLineEdit()
-        self.player_ac_input = QLineEdit()
         self.player_initiative_input = QLineEdit()
         self.monster_name_input = QLineEdit()
         self.monster_custom_name_input = QLineEdit()
@@ -54,15 +53,10 @@ class MasterUI(QWidget):
         player_layout = QHBoxLayout()
 
         self.player_name_input.setPlaceholderText("Имя игрока")
-        self.player_hp_input.setPlaceholderText("HP")
-
-        self.player_ac_input.setPlaceholderText("AC")
         self.player_initiative_input.setPlaceholderText("Инициатива")
         add_player_btn = QPushButton("Добавить игрока")
         add_player_btn.clicked.connect(self.add_player)
         for w in [QLabel("Игрок:"), self.player_name_input,
-                  QLabel("HP"), self.player_hp_input,
-                  QLabel("AC"), self.player_ac_input,
                   QLabel("Init"), self.player_initiative_input,
                   add_player_btn]:
             player_layout.addWidget(w)
@@ -88,6 +82,55 @@ class MasterUI(QWidget):
                   add_monster_btn]:
             monster_layout.addWidget(w)
         layout.addLayout(monster_layout)
+
+        player_ui_container = QFrame()
+        player_ui_container.setFrameShape(QFrame.StyledPanel)
+        player_ui_container.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        player_ui_container.setStyleSheet("QFrame { border-radius: 6px; }")
+        player_ui_layout = QVBoxLayout()
+        player_ui_layout.setContentsMargins(8, 6, 8, 8)
+
+        player_ui_toggle = QToolButton()
+        player_ui_toggle.setText("Player UI")
+        player_ui_toggle.setCheckable(True)
+        player_ui_toggle.setChecked(False)
+        player_ui_toggle.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        player_ui_toggle.setArrowType(Qt.RightArrow)
+        player_ui_toggle.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+
+        player_ui_panel = QFrame()
+        player_ui_panel.setVisible(False)
+        panel_layout = QVBoxLayout()
+        panel_layout.setContentsMargins(0, 6, 0, 0)
+
+        open_here_btn = QPushButton("Открыть на этом мониторе")
+        open_other_btn = QPushButton("Открыть на другом мониторе")
+        borderless_btn = QPushButton("Окно/Без рамок")
+        fullscreen_btn = QPushButton("Полный экран/Окно")
+        open_here_btn.clicked.connect(self.open_player_ui_current_monitor)
+        open_other_btn.clicked.connect(self.open_player_ui_other_monitor)
+        borderless_btn.clicked.connect(self.toggle_player_ui_borderless)
+        fullscreen_btn.clicked.connect(self.toggle_player_ui_fullscreen)
+        for w in [open_here_btn, open_other_btn, borderless_btn, fullscreen_btn]:
+            panel_layout.addWidget(w)
+        panel_layout.addStretch(1)
+        player_ui_panel.setLayout(panel_layout)
+
+        player_ui_layout.addWidget(player_ui_toggle)
+        player_ui_layout.addWidget(player_ui_panel)
+        player_ui_container.setLayout(player_ui_layout)
+
+        header_row = QHBoxLayout()
+        header_row.addStretch(1)
+        header_row.addWidget(player_ui_container)
+        layout.addLayout(header_row)
+
+        def _toggle_player_panel(checked):
+            player_ui_panel.setVisible(checked)
+            player_ui_toggle.setArrowType(Qt.DownArrow if checked else Qt.RightArrow)
+
+        player_ui_toggle.toggled.connect(_toggle_player_panel)
+
 
         self.table.setHorizontalHeaderLabels(TABLE_HEADERS)
         self.table.setColumnWidth(0, 20)
@@ -190,23 +233,15 @@ class MasterUI(QWidget):
         name = self.player_name_input.text().strip()
         if not name:
             return
-        hp_text = self.player_hp_input.text().strip()
-        ac_text = self.player_ac_input.text().strip()
         initiative_text = self.player_initiative_input.text().strip()
-        hp = int(hp_text) if hp_text else None
-        ac = int(ac_text) if ac_text else None
         initiative = int(initiative_text) if initiative_text else None
         player = self.factory.create_player(
             name=name,
-            hp=hp,
-            ac=ac,
             initiative=initiative
         )
         self.battle_engine.add_combatant(player)
         self.refresh_table()
         self.player_name_input.clear()
-        self.player_hp_input.clear()
-        self.player_ac_input.clear()
         self.player_initiative_input.clear()
 
     def add_monsters(self):
@@ -304,9 +339,12 @@ class MasterUI(QWidget):
             self.table.setCellWidget(i, 0, cb)
             self.table.setItem(i, 1, QTableWidgetItem(str(c.custom_name or c.name)))
             self.table.setItem(i, 2, QTableWidgetItem(str(c.hp)))
-            self.table.setItem(i, 3, QTableWidgetItem(str(c.temp_hp)))
-            self.table.setItem(i, 4, QTableWidgetItem(str(c.ac)))
-            self.table.setItem(i, 5, QTableWidgetItem(str(c.initiative)))
+            hp_value = "-" if c.hp is None else str(c.hp)
+            temp_hp_value = "-" if c.hp is None else str(c.temp_hp)
+            ac_value = "-" if c.ac is None else str(c.ac)
+            self.table.setItem(i, 2, QTableWidgetItem(hp_value))
+            self.table.setItem(i, 3, QTableWidgetItem(temp_hp_value))
+            self.table.setItem(i, 4, QTableWidgetItem(ac_value))
             effs_list = []
             custom_effects = c.effects.get("custom_effects", {})
             for eff_name, eff_data in custom_effects.items():
@@ -317,8 +355,8 @@ class MasterUI(QWidget):
                     effs_list.append(f"{eff_name} ({dur})")
             self.table.setItem(i, 6, QTableWidgetItem(", ".join(effs_list)))
             conc_cb = QCheckBox()
-            conc_cb.setChecked(c.effects.get("concentration", False))
-            conc_cb.stateChanged.connect(lambda _, combat=c: self.toggle_concentration(combat))
+            conc_cb.setChecked(c.has_concentration())
+            conc_cb.stateChanged.connect(lambda state, combat=c: self.toggle_concentration(combat, state))
 
             self.table.setCellWidget(i, 7, conc_cb)
             inc_cb = QCheckBox()
@@ -338,15 +376,16 @@ class MasterUI(QWidget):
                 if item:
                     item.setForeground(color)
 
-    def toggle_concentration(self, combat):
-        if combat.effects.get("incapacitated", False):
-            if combat.has_concentration():
-                self.battle_engine.remove_concentration(combat)
-        else:
-            if combat.has_concentration():
-                self.battle_engine.remove_concentration(combat)
-            else:
-                self.battle_engine.add_concentration(combat)
+    def toggle_concentration(self, combat, state):
+        checked = bool(state)
+        if combat.incapacitated:
+            checked = False
+
+        has_concentration = combat.has_concentration()
+        if checked and not has_concentration:
+            self.battle_engine.add_concentration(combat)
+        elif not checked and has_concentration:
+            self.battle_engine.remove_concentration(combat)
 
     def change_state(self, combat, text):
         mapping = {
@@ -374,6 +413,17 @@ class MasterUI(QWidget):
         self.round_label.setText(f"Раунд: {self.round_counter}")
         self.refresh_table()
 
+    def open_player_ui_current_monitor(self):
+        print("TODO: открыть Player UI на текущем мониторе")
+
+    def open_player_ui_other_monitor(self):
+        print("TODO: открыть Player UI на другом мониторе")
+
+    def toggle_player_ui_borderless(self):
+        print("TODO: переключить режим окно/без рамок для Player UI")
+
+    def toggle_player_ui_fullscreen(self):
+        print("TODO: переключить режим полный экран/окно для Player UI")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

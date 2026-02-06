@@ -18,17 +18,16 @@ class Combatant:
     def incapacitated(self):
         return (
                 self.effects.get("incapacitated", False) or
-                self.effects.get("manual_unconscious", False) or
-                self.state in ("dead", "left"))
+                self.state in ("dead", "unconscious", "left"))
 
     @property
     def manually_disabled(self):
-        return self.effects.get("manual_unconscious", False)
+        return self.effects.get("incapacitated", False)
 
 
     @manually_disabled.setter
     def manually_disabled(self, value):
-        self.effects["manual_unconscious"] = bool(value)
+        self.effects["incapacitated"] = bool(value)
 
     def has_concentration(self):
         return self.concentration
@@ -41,6 +40,8 @@ class Combatant:
 
     @property
     def is_alive(self):
+        if self.hp is None:
+            return self.state == "alive"
         return self.state == "alive" and self.hp > 0
 
     def take_damage(self, amount):
@@ -71,16 +72,31 @@ class Combatant:
             self.temp_hp = amount
 
     def __repr__(self):
+        if self.hp is None:
+            return f"{self.custom_name or self.name}: Init={self.initiative}, Player"
         temp_part = f"+{self.temp_hp} temp" if self.temp_hp > 0 else ""
         return f"{self.custom_name or self.name}: Init={self.initiative}, HP={self.hp}/{self.max_hp} {temp_part}, AC={self.ac}"
 
 
 class Player(Combatant):
-    def __init__(self, name, initiative=None, hp=0, ac=0, effects=None, custom_name=""):
-        super().__init__(name, initiative, hp, ac, effects, custom_name)
+    def __init__(self, name, initiative=None, effects=None, custom_name=""):
+        super().__init__(name, initiative, hp=1, ac=0, effects=effects, custom_name=custom_name)
+        self.max_hp = None
+        self.hp = None
+        self.temp_hp = 0
+        self.ac = None
         self.saving_throws = {}
         self.spells = []
         self.id: int | None = None
+
+    def take_damage(self, amount):
+        return
+
+    def heal(self, amount):
+        return
+
+    def add_temp_hp(self, amount):
+        return
 
 
 class Monster(Combatant):

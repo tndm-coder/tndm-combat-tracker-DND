@@ -116,26 +116,22 @@ class BattleEngine:
         combat.effects["concentration"] = False
 
         if new_state == "dead":
-            combat.hp = 0
+            if combat.hp is not None:
+                combat.hp = 0
             combat.effects["incapacitated"] = True
-            combat.effects["manual_unconscious"] = False
 
         elif new_state == "unconscious":
-            combat.hp = 0
-            combat.effects["manual_unconscious"] = True
-            if not combat.effects.get("incapacitated", False):
-                combat.effects["incapacitated"] = True
+            if combat.hp is not None:
+                combat.hp = 0
+            combat.effects["incapacitated"] = True
 
         elif new_state == "left":
-            combat.effects["manual_unconscious"] = False
             combat.effects["incapacitated"] = True
 
         elif new_state == "alive":
-            if old_state in ("dead", "unconscious"):
+            if old_state in ("dead", "unconscious") and combat.hp is not None:
                 combat.hp = 1
-            combat.effects["manual_unconscious"] = False
-            if not combat.effects.get("manual_disabled", False):
-                combat.effects["incapacitated"] = False
+            combat.effects["incapacitated"] = False
 
     def add_effect(self, combat, name, duration):
         effects = combat.effects.get("custom_effects", {})

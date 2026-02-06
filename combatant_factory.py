@@ -19,14 +19,10 @@ class CombatantFactory:
         self,
         name: str,
         initiative: int | None = None,
-        ac: int | None = None,
-        hp: int | None = None
     ):
         players = []
         player = Player(
             name=name,
-            hp=hp if hp is not None else 10,
-            ac=ac if ac is not None else 10,
             initiative=initiative if initiative is not None else random.randint(1, 20)
         )
         self._assign_id(player)
