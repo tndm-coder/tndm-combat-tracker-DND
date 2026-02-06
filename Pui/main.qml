@@ -67,22 +67,21 @@ ApplicationWindow {
     }
 
     GridView {
-        id: grid
-        anchors.top: header.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.margins: 24
-        cellWidth: Math.floor((width - (columns - 1) * columnGap) / columns)
-        cellHeight: cardHeight
-        model: playerModel
-        spacing: rowGap
-        flow: GridView.TopToBottom
-        layoutDirection: Qt.LeftToRight
-        delegate: Rectangle {
-            id: card
-            width: grid.cellWidth
-            height: grid.cellHeight
+    id: grid
+    anchors.top: header.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    anchors.margins: 24
+    model: playerModel
+    cellWidth: Math.floor((width - (columns - 1) * columnGap) / columns)
+    cellHeight: cardHeight + rowGap
+    flow: GridView.TopToBottom
+    layoutDirection: Qt.LeftToRight
+    delegate: Rectangle {
+        id: card
+        width: grid.cellWidth
+        height: grid.cellHeight - rowGap
             radius: 10
             color: "#1a1f2a"
             border.width: is_active ? 2 : 1
