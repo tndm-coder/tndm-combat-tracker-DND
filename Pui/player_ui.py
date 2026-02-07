@@ -16,6 +16,8 @@ class CombatantModel(QAbstractListModel):
     ACTIVE_ROLE = Qt.UserRole + 6
     EFFECTS_ROLE = Qt.UserRole + 7
     CUSTOM_EFFECTS_ROLE = Qt.UserRole + 8
+    KIND_ROLE = Qt.UserRole + 9
+    DISPLAY_NAME_ROLE = Qt.UserRole + 10
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -44,6 +46,10 @@ class CombatantModel(QAbstractListModel):
             return item["effects"]
         if role == self.CUSTOM_EFFECTS_ROLE:
             return item["custom_effects"]
+        if role == self.KIND_ROLE:
+            return item["kind"]
+        if role == self.DISPLAY_NAME_ROLE:
+            return item["display_name"]
         return None
 
     def roleNames(self):
@@ -56,6 +62,8 @@ class CombatantModel(QAbstractListModel):
             self.ACTIVE_ROLE: b"is_active",
             self.EFFECTS_ROLE: b"effects",
             self.CUSTOM_EFFECTS_ROLE: b"custom_effects",
+            self.KIND_ROLE: b"kind",
+            self.DISPLAY_NAME_ROLE: b"display_name",
         }
 
     def update_items(self, combatants, active_ids):
@@ -73,6 +81,8 @@ class CombatantModel(QAbstractListModel):
                     "active": combatant.get("id") in active_ids,
                     "effects": effects,
                     "custom_effects": combatant.get("custom_effects", {}),
+                    "kind": combatant.get("kind", "combatant"),
+                    "display_name": combatant.get("display_name", combatant.get("name", "—")),
                 }
             )
         self._items = updated

@@ -1,5 +1,120 @@
 {
-  "running": false,
-  "combatants": [],
-  "active_ids": []
+  "running": true,
+  "timestamp": 1770404945.4064996,
+  "round": 2,
+  "active_ids": [],
+  "combatants": [
+    {
+      "id": "id_1973390994128",
+      "name": "ИГРОК",
+      "hp": null,
+      "max_hp": null,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_1973402566256",
+      "name": "МОНСТР 1",
+      "hp": 0,
+      "max_hp": 9,
+      "temp_hp": 0,
+      "state": "dead",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": true,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_1973402564464",
+      "name": "ДЬЯВОЛ 1",
+      "hp": 1,
+      "max_hp": 4,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_1973464698224",
+      "name": "ДЬЯВОЛ 2",
+      "hp": 1,
+      "max_hp": 4,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_1973464698448",
+      "name": "ДЬЯВОЛ 3",
+      "hp": 0,
+      "max_hp": 9,
+      "temp_hp": 0,
+      "state": "unconscious",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": true,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_1973464698672",
+      "name": "ДЬЯВОЛ 4",
+      "hp": 0,
+      "max_hp": 3,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_1973464698896",
+      "name": "ДЬЯВОЛ 5",
+      "hp": 0,
+      "max_hp": 3,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    }
+  ]
 }

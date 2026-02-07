@@ -1,9 +1,11 @@
 import json
+import re
 import time
 import threading
 import os
 from copy import deepcopy
 
+from combatants import Monster, Player
 
 EXPORT_DIR = r"C:\Users\8twii\PycharmProjects\CombatTracker\pui"
 EXPORT_FILE = os.path.join(EXPORT_DIR, "battle_state.json")
@@ -75,9 +77,16 @@ class BattleStateExporter:
         result = []
 
         for c in self.engine.combatants:
+            kind = "combatant"
+            if isinstance(c, Player):
+                kind = "player"
+            elif isinstance(c, Monster):
+                kind = "monster"
             entry = {
                 "id": self._combatant_id(c),
                 "name": c.custom_name or c.name,
+                "display_name": self._display_name(c),
+                "kind": kind,
                 "hp": c.hp,
                 "max_hp": c.max_hp,
                 "temp_hp": c.temp_hp,
@@ -95,6 +104,13 @@ class BattleStateExporter:
             result.append(entry)
 
         return result
+
+    def _display_name(self, combatant):
+        name = combatant.custom_name or combatant.name
+        if isinstance(combatant, Monster):
+            cleaned = re.sub(r"\s*\d+$", "", name).strip()
+            return cleaned if cleaned else name
+        return name
 
     def _export_custom_effects(self, combatant):
         effects = combatant.effects.get("custom_effects", {})
