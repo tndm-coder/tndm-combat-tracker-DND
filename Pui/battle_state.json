@@ -1,98 +1,23 @@
 {
   "running": true,
-  "timestamp": 1770555540.8420987,
+  "timestamp": 1770563947.3210385,
   "round": 1,
   "active_ids": [
-    "id_1345792725344",
-    "id_1345782604944",
-    "id_1345782605264",
-    "id_1345782726736"
+    "id_2326606073872"
   ],
   "combatants": [
     {
-      "id": "id_1345792725344",
-      "name": "Динозаврик 1",
-      "display_name": "Динозаврик",
+      "id": "id_2326606073872",
+      "name": "Bkmz 1",
+      "display_name": "Bkmz",
       "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
+      "hp": 8,
+      "max_hp": 8,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
         "temp_hp": false,
         "concentration": true,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1345782604944",
-      "name": "Динозаврик 2",
-      "display_name": "Динозаврик",
-      "kind": "monster",
-      "hp": 2,
-      "max_hp": 2,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1345782605264",
-      "name": "Динозаврик 3",
-      "display_name": "Динозаврик",
-      "kind": "monster",
-      "hp": 9,
-      "max_hp": 9,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1345782726736",
-      "name": "Динозаврик 4",
-      "display_name": "Динозаврик",
-      "kind": "monster",
-      "hp": 4,
-      "max_hp": 4,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1345792725008",
-      "name": "Санек",
-      "display_name": "Санек",
-      "kind": "player",
-      "hp": null,
-      "max_hp": null,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
         "dead": false,
         "unconscious": false,
         "incapacitated": false

@@ -298,6 +298,8 @@ ApplicationWindow {
             property real tempHpScaleX: concentrationCanvasWidth / tempHpFrameWidth
             property real tempHpScaleY: concentrationCanvasHeight / tempHpFrameHeight
             property bool useAlternateFrame: false
+            property real primaryTargetOpacity: 1.0
+            property real secondaryTargetOpacity: 0.0
             property int overlayRightTrim: 8
             property bool incapacitatedActive: effects && effects.incapacitated
             property bool lastIncapacitated: incapacitatedActive
@@ -457,8 +459,11 @@ ApplicationWindow {
                     fillMode: Image.Stretch
                     smooth: true
                     visible: concentrationActive
-                    opacity: useAlternateFrame ? 0.0 : 1.0
+                    opacity: 1.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                    }
                 }
 
                 Image {
@@ -469,8 +474,11 @@ ApplicationWindow {
                     fillMode: Image.Stretch
                     smooth: true
                     visible: concentrationActive
-                    opacity: useAlternateFrame ? 1.0 : 0.0
+                    opacity: 0.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                    }
                 }
 
                 Image {
@@ -486,7 +494,7 @@ ApplicationWindow {
 
                 Timer {
                     id: concentrationTimer
-                    interval: 1667
+                    interval: 1000
                     running: concentrationActive && concentrationFrames.length > 0
                     repeat: true
                     triggeredOnStart: true
@@ -496,56 +504,30 @@ ApplicationWindow {
                             useAlternateFrame = false
                             concentrationFramePrimary.opacity = 1.0
                             concentrationFrameSecondary.opacity = 0.0
+                            primaryTargetOpacity = 1.0
+                            secondaryTargetOpacity = 0.0
                             concentrationPrimarySource = concentrationFrames[concentrationFrameIndex]
                             concentrationSecondarySource = concentrationFrames[concentrationFrameIndex]
-                            console.log("[concentration] start", {
-                                index: concentrationFrameIndex,
-                                primary: concentrationPrimarySource,
-                                secondary: concentrationSecondarySource,
-                                useAlternateFrame: useAlternateFrame
-                            })
                         }
                     }
                     onTriggered: {
                         concentrationFrameIndex = (concentrationFrameIndex + 1) % concentrationFrames.length
                         if (useAlternateFrame) {
                             concentrationPrimarySource = concentrationFrames[concentrationFrameIndex]
+                            primaryTargetOpacity = 1.0
+                            secondaryTargetOpacity = 0.0
                         } else {
                             concentrationSecondarySource = concentrationFrames[concentrationFrameIndex]
+                            primaryTargetOpacity = 0.0
+                            secondaryTargetOpacity = 1.0
                         }
+                        concentrationFramePrimary.opacity = primaryTargetOpacity
+                        concentrationFrameSecondary.opacity = secondaryTargetOpacity
                         useAlternateFrame = !useAlternateFrame
-                        concentrationFrameFade.restart()
-                        console.log("[concentration] tick", {
-                            index: concentrationFrameIndex,
-                            primary: concentrationPrimarySource,
-                            secondary: concentrationSecondarySource,
-                            useAlternateFrame: useAlternateFrame
-                        })
                     }
                 }
 
-                SequentialAnimation {
-                    id: concentrationFrameFade
-                    running: false
-                    ParallelAnimation {
-                        NumberAnimation {
-                            target: concentrationFramePrimary
-                            property: "opacity"
-                            from: useAlternateFrame ? 1.0 : 0.0
-                            to: useAlternateFrame ? 0.0 : 1.0
-                            duration: 900
-                            easing.type: Easing.InOutQuad
-                        }
-                        NumberAnimation {
-                            target: concentrationFrameSecondary
-                            property: "opacity"
-                            from: useAlternateFrame ? 0.0 : 1.0
-                            to: useAlternateFrame ? 1.0 : 0.0
-                            duration: 900
-                            easing.type: Easing.InOutQuad
-                        }
-                    }
-                }
+                // Opacity transition is handled via Behavior on each concentration frame.
             }
 
             Item {

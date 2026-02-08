@@ -18,6 +18,7 @@ class CombatantModel(QAbstractListModel):
     CUSTOM_EFFECTS_ROLE = Qt.UserRole + 8
     KIND_ROLE = Qt.UserRole + 9
     DISPLAY_NAME_ROLE = Qt.UserRole + 10
+    ID_ROLE = Qt.UserRole + 11
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -50,6 +51,8 @@ class CombatantModel(QAbstractListModel):
             return item["kind"]
         if role == self.DISPLAY_NAME_ROLE:
             return item["display_name"]
+        if role == self.ID_ROLE:
+            return item["id"]
         return None
 
     def roleNames(self):
@@ -64,29 +67,50 @@ class CombatantModel(QAbstractListModel):
             self.CUSTOM_EFFECTS_ROLE: b"custom_effects",
             self.KIND_ROLE: b"kind",
             self.DISPLAY_NAME_ROLE: b"display_name",
+            self.ID_ROLE: b"id",
         }
 
-    def update_items(self, combatants, active_ids):
+    @staticmethod
+    def _build_item(combatant, active_ids):
+        effects = combatant.get("effects", {})
+        return {
+            "id": combatant.get("id"),
+            "name": combatant.get("name", "—"),
+            "hp": combatant.get("hp"),
+            "max_hp": combatant.get("max_hp"),
+            "temp_hp": combatant.get("temp_hp", 0),
+            "state": combatant.get("state", "alive"),
+            "active": combatant.get("id") in active_ids,
+            "effects": effects,
+            "custom_effects": combatant.get("custom_effects", {}),
+            "kind": combatant.get("kind", "combatant"),
+            "display_name": combatant.get("display_name", combatant.get("name", "—")),
+        }
+
+    def _full_reset(self, combatants, active_ids):
         self.beginResetModel()
-        updated = []
-        for combatant in combatants:
-            effects = combatant.get("effects", {})
-            updated.append(
-                {
-                    "name": combatant.get("name", "—"),
-                    "hp": combatant.get("hp"),
-                    "max_hp": combatant.get("max_hp"),
-                    "temp_hp": combatant.get("temp_hp", 0),
-                    "state": combatant.get("state", "alive"),
-                    "active": combatant.get("id") in active_ids,
-                    "effects": effects,
-                    "custom_effects": combatant.get("custom_effects", {}),
-                    "kind": combatant.get("kind", "combatant"),
-                    "display_name": combatant.get("display_name", combatant.get("name", "—")),
-                }
-            )
-        self._items = updated
+        self._items = [self._build_item(combatant, active_ids) for combatant in combatants]
         self.endResetModel()
+
+    def update_items(self, combatants, active_ids):
+        # Preserve delegates (and ongoing QML animations) by avoiding full model
+        # resets when the combatant list shape is unchanged.
+        if len(combatants) != len(self._items):
+            self._full_reset(combatants, active_ids)
+            return
+
+        incoming_ids = [combatant.get("id") for combatant in combatants]
+        current_ids = [item.get("id") for item in self._items]
+        if incoming_ids != current_ids:
+            self._full_reset(combatants, active_ids)
+            return
+
+        for row, combatant in enumerate(combatants):
+            updated_item = self._build_item(combatant, active_ids)
+            if self._items[row] != updated_item:
+                self._items[row] = updated_item
+                model_index = self.index(row, 0)
+                self.dataChanged.emit(model_index, model_index, list(self.roleNames().keys()))
 
 
 class PlayerUiState(QObject):
