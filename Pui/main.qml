@@ -242,6 +242,8 @@ ApplicationWindow {
             }
             property var hpValue: hp
             property real hpRatio: (max_hp && hp !== null) ? Math.max(0, Math.min(1, hp / max_hp)) : 0
+            property real displayedHpRatio: hpRatio
+            property real pendingDamageHpRatio: hpRatio
             property real lastHpRatio: hpRatio
             property var lastHp: hpValue
             property color flashColor: "transparent"
@@ -308,11 +310,13 @@ ApplicationWindow {
                 "textures/temphp3.png"
             ]
             property bool concentrationTempActive: concentrationActive && tempHpValue > 0
-            property int concentrationTempFrameWidth: 1122
-            property int concentrationTempFrameHeight: 555
-            property real concentrationTempScaleX: concentrationCanvasWidth / concentrationTempFrameWidth
-            property real concentrationTempScaleY: concentrationCanvasHeight / concentrationTempFrameHeight
+            property int concentrationTempTargetFrameWidth: concentrationFrameWidth
+            property int concentrationTempTargetFrameHeight: concentrationFrameHeight
+            property var concentrationTempFrameWidths: [1187, 1152, 1173]
+            property var concentrationTempFrameHeights: [547, 510, 492]
             property int concentrationTempFrameIndex: 0
+            property int concentrationTempPrimaryFrameMetaIndex: 0
+            property int concentrationTempSecondaryFrameMetaIndex: 0
             property string concentrationTempPrimarySource: ""
             property string concentrationTempSecondarySource: ""
             property var concentrationTempFrames: [
@@ -335,6 +339,23 @@ ApplicationWindow {
             property real incapacitatedOpacity: incapacitatedActive ? 1 : 0
             property real activeGlowOpacity: 0.0
             property real overlayInset: 0
+            property int damageFrameIndex: -1
+            property string damageFrameSource: ""
+            property var damageFrames: [
+                "textures/dmg1.png",
+                "textures/dmg2.png",
+                "textures/dmg3.png",
+                "textures/dmg4.png",
+                "textures/dmg5.png"
+            ]
+
+            function startDamageSequence(targetRatio) {
+                pendingDamageHpRatio = targetRatio
+                damageFrameIndex = 0
+                damageFrameSource = damageFrames[0]
+                damageFrameTimer.restart()
+                damageShakeAnim.restart()
+            }
 
             transform: [
                 Translate { x: shakeOffset; y: liftOffset }
@@ -549,7 +570,12 @@ ApplicationWindow {
                     smooth: true
                     visible: concentrationTempActive
                     opacity: 1.0
-                    transform: Scale { xScale: concentrationTempScaleX; yScale: concentrationTempScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    transform: Scale {
+                        xScale: (concentrationCanvasWidth / concentrationTempTargetFrameWidth) * (concentrationTempTargetFrameWidth / concentrationTempFrameWidths[concentrationTempPrimaryFrameMetaIndex])
+                        yScale: (concentrationCanvasHeight / concentrationTempTargetFrameHeight) * (concentrationTempTargetFrameHeight / concentrationTempFrameHeights[concentrationTempPrimaryFrameMetaIndex])
+                        origin.x: width / 2
+                        origin.y: height / 2
+                    }
                     Behavior on opacity {
                         NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
                     }
@@ -564,7 +590,12 @@ ApplicationWindow {
                     smooth: true
                     visible: concentrationTempActive
                     opacity: 0.0
-                    transform: Scale { xScale: concentrationTempScaleX; yScale: concentrationTempScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    transform: Scale {
+                        xScale: (concentrationCanvasWidth / concentrationTempTargetFrameWidth) * (concentrationTempTargetFrameWidth / concentrationTempFrameWidths[concentrationTempSecondaryFrameMetaIndex])
+                        yScale: (concentrationCanvasHeight / concentrationTempTargetFrameHeight) * (concentrationTempTargetFrameHeight / concentrationTempFrameHeights[concentrationTempSecondaryFrameMetaIndex])
+                        origin.x: width / 2
+                        origin.y: height / 2
+                    }
                     Behavior on opacity {
                         NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
                     }
@@ -586,16 +617,20 @@ ApplicationWindow {
                             concentrationTempSecondaryTargetOpacity = 0.0
                             concentrationTempPrimarySource = concentrationTempFrames[concentrationTempFrameIndex]
                             concentrationTempSecondarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                            concentrationTempPrimaryFrameMetaIndex = concentrationTempFrameIndex
+                            concentrationTempSecondaryFrameMetaIndex = concentrationTempFrameIndex
                         }
                     }
                     onTriggered: {
                         concentrationTempFrameIndex = (concentrationTempFrameIndex + 1) % concentrationTempFrames.length
                         if (useAlternateConcentrationTempFrame) {
                             concentrationTempPrimarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                            concentrationTempPrimaryFrameMetaIndex = concentrationTempFrameIndex
                             concentrationTempPrimaryTargetOpacity = 1.0
                             concentrationTempSecondaryTargetOpacity = 0.0
                         } else {
                             concentrationTempSecondarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                            concentrationTempSecondaryFrameMetaIndex = concentrationTempFrameIndex
                             concentrationTempPrimaryTargetOpacity = 0.0
                             concentrationTempSecondaryTargetOpacity = 1.0
                         }
@@ -676,6 +711,59 @@ ApplicationWindow {
                 }
 
                 // Opacity transition is handled via Behavior on each concentration frame.
+            }
+
+            Item {
+                id: damageOverlayLayer
+                anchors.fill: parent
+                z: 6
+                visible: damageFrameIndex >= 0
+
+                Image {
+                    id: damageFrameImage
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                    source: damageFrameSource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: damageFrameIndex >= 0
+                }
+
+                Timer {
+                    id: damageFrameTimer
+                    interval: 100
+                    repeat: true
+                    running: false
+                    onTriggered: {
+                        if (damageFrameIndex === 2) {
+                            displayedHpRatio = pendingDamageHpRatio
+                        }
+
+                        damageFrameIndex += 1
+                        if (damageFrameIndex >= damageFrames.length) {
+                            running = false
+                            damageFrameIndex = -1
+                            damageFrameSource = ""
+                        } else {
+                            damageFrameSource = damageFrames[damageFrameIndex]
+                        }
+                    }
+                }
+
+                SequentialAnimation {
+                    id: damageShakeAnim
+                    running: false
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 0; to: -2; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: -2; to: 2; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 2; to: -2; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: -2; to: 2; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 2; to: -1; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: -1; to: 1; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 1; to: -1; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: -1; to: 1; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 1; to: 0; duration: 100; easing.type: Easing.OutQuad }
+                }
             }
 
             Item {
@@ -765,12 +853,9 @@ ApplicationWindow {
                             anchors.left: parent.left
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
-                            width: parent.width * hpRatio
+                            width: parent.width * displayedHpRatio
                             radius: 0
                             color: hpRatio > 0.5 ? "#76c07a" : hpRatio > 0.2 ? "#d9b45a" : "#c46856"
-                            Behavior on width {
-                                NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
-                            }
                         }
 
                         Rectangle {
@@ -885,22 +970,31 @@ ApplicationWindow {
                 if (hpValue === null || lastHp === null || hpValue === undefined || lastHp === undefined) {
                     lastHp = hpValue
                     lastHpRatio = hpRatio
+                    displayedHpRatio = hpRatio
+                    pendingDamageHpRatio = hpRatio
                     return
                 }
                 if (hpValue < lastHp) {
                     flashColor = "#b84a3a"
                     flashPeak = 0.35
                     flashAnim.restart()
-                    shakeAnim.restart()
                     hpLossTrail.x = hpBar.width * hpRatio
                     hpLossTrail.width = Math.max(0, hpBar.width * (lastHpRatio - hpRatio))
                     hpLossTrail.opacity = 0.8
                     hpLossTrailAnimation.restart()
+                    startDamageSequence(hpRatio)
                 } else if (hpValue > lastHp) {
                     flashColor = "#4fa96f"
                     flashPeak = 0.28
                     flashAnim.restart()
                     liftAnim.restart()
+                    displayedHpRatio = hpRatio
+                    pendingDamageHpRatio = hpRatio
+                    if (damageFrameTimer.running) {
+                        damageFrameTimer.stop()
+                        damageFrameIndex = -1
+                        damageFrameSource = ""
+                    }
                 }
                 lastHp = hpValue
                 lastHpRatio = hpRatio
@@ -922,6 +1016,12 @@ ApplicationWindow {
                 }
                 if (tempHpValue <= 0 && lastTempHp > 0) {
                     shardBurst.restart()
+                }
+                if (tempHpValue < lastTempHp && !(hpValue < lastHp) && !damageFrameTimer.running) {
+                    flashColor = "#b84a3a"
+                    flashPeak = 0.35
+                    flashAnim.restart()
+                    startDamageSequence(hpRatio)
                 }
                 lastTempHp = tempHpValue
             }
