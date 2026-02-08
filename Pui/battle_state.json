@@ -1,13 +1,13 @@
 {
   "running": true,
-  "timestamp": 1770489385.8040953,
+  "timestamp": 1770511152.7732425,
   "round": 1,
   "active_ids": [
-    "id_2238123730064"
+    "id_1937426074064"
   ],
   "combatants": [
     {
-      "id": "id_2238133849792",
+      "id": "id_1937426074064",
       "name": "Илья",
       "display_name": "Илья",
       "kind": "player",
@@ -25,30 +25,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2238123730064",
-      "name": "Саня",
-      "display_name": "Саня",
-      "kind": "player",
-      "hp": null,
-      "max_hp": null,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2238133850128",
-      "name": "Школьник 1",
-      "display_name": "Школьник",
+      "id": "id_1937425890864",
+      "name": "Жопочник 1",
+      "display_name": "Жопочник",
       "kind": "monster",
       "hp": 0,
-      "max_hp": 8,
+      "max_hp": 4,
       "temp_hp": 0,
       "state": "unconscious",
       "effects": {
@@ -61,48 +43,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2238123730384",
-      "name": "Школьник 2",
-      "display_name": "Школьник",
-      "kind": "monster",
-      "hp": 7,
-      "max_hp": 7,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2238123730704",
-      "name": "Школьник 3",
-      "display_name": "Школьник",
-      "kind": "monster",
-      "hp": 1,
-      "max_hp": 1,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2238123851856",
-      "name": "Школьник 4",
-      "display_name": "Школьник",
+      "id": "id_1937425512064",
+      "name": "Жопочник 2",
+      "display_name": "Жопочник",
       "kind": "monster",
       "hp": 0,
-      "max_hp": 6,
+      "max_hp": 7,
       "temp_hp": 0,
       "state": "dead",
       "effects": {
@@ -115,30 +61,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2238123853984",
-      "name": "Школьник 5",
-      "display_name": "Школьник",
-      "kind": "monster",
-      "hp": 10,
-      "max_hp": 10,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2238123669648",
-      "name": "Школьник 6",
-      "display_name": "Школьник",
-      "kind": "monster",
-      "hp": 4,
-      "max_hp": 4,
+      "id": "id_1937425951440",
+      "name": "Иван",
+      "display_name": "Иван",
+      "kind": "player",
+      "hp": null,
+      "max_hp": null,
       "temp_hp": 0,
       "state": "left",
       "effects": {
@@ -151,12 +79,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2238123292288",
-      "name": "Школьник 7",
-      "display_name": "Школьник",
+      "id": "id_1937425512336",
+      "name": "Крышеш 1",
+      "display_name": "Крышеш",
       "kind": "monster",
-      "hp": 10,
-      "max_hp": 10,
+      "hp": 2,
+      "max_hp": 2,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
@@ -169,17 +97,17 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2238123292560",
-      "name": "Школьник 8",
-      "display_name": "Школьник",
+      "id": "id_1937436230992",
+      "name": "Крышеш 2",
+      "display_name": "Крышеш",
       "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
+      "hp": 2,
+      "max_hp": 2,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
         "temp_hp": false,
-        "concentration": true,
+        "concentration": false,
         "dead": false,
         "unconscious": false,
         "incapacitated": false
@@ -187,9 +115,9 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2238134011216",
-      "name": "Школьник 9",
-      "display_name": "Школьник",
+      "id": "id_1937436231248",
+      "name": "Крышеш 3",
+      "display_name": "Крышеш",
       "kind": "monster",
       "hp": 10,
       "max_hp": 10,
@@ -200,7 +128,7 @@
         "concentration": false,
         "dead": false,
         "unconscious": false,
-        "incapacitated": true
+        "incapacitated": false
       },
       "custom_effects": {}
     }

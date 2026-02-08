@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 
 ApplicationWindow {
     id: root
@@ -11,7 +12,7 @@ ApplicationWindow {
 
     FontLoader {
         id: pixelFont
-        source: "fonts/8bitoperatorJVE.ttf"
+        source: "fonts/8bitoperator_jve.ttf"
     }
 
     property int columns: {
@@ -45,6 +46,7 @@ ApplicationWindow {
     property color accentCool: "#a6d3ff"
     property color accentViolet: "#b49add"
     property color accentSmoke: "#3b3126"
+    property color accentTemp: "#8fa7bf"
     property real heartbeatPhase: 0
 
     NumberAnimation on heartbeatPhase {
@@ -70,78 +72,132 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         spacing: 10
-        padding: 24
+        padding: 20
 
-        Row {
-            spacing: 14
             Rectangle {
-                id: sigil
-                width: 40
-                height: 40
-                radius: 8
+                id: headerPanel
+                width: Math.min(parent.width - 40, parent.width * 0.92)
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: 82
+                radius: 12
                 color: panelDark
                 border.width: 1
                 border.color: panelEdge
 
-                Rectangle {
-                    anchors.centerIn: parent
-                    width: 28
-                    height: 28
-                    radius: 6
-                    color: "#2a231c"
-                    border.width: 1
-                    border.color: accentWarm
-                    rotation: sigilSpin.rotation
+            Rectangle {
+                id: headerGlow
+                anchors.verticalCenter: parent.verticalCenter
+                width: 160
+                height: parent.height - 14
+                radius: 10
+                color: "#3f2f1e"
+                opacity: 0.4
+                x: headerSweep.value
+            }
+
+            NumberAnimation {
+                id: headerSweep
+                target: headerGlow
+                property: "x"
+                from: 10
+                to: headerPanel.width - headerGlow.width - 10
+                duration: 2600
+                loops: Animation.Infinite
+                easing.type: Easing.InOutQuad
+                running: true
+            }
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 16
+                spacing: 16
+
+                Item {
+                    id: sigil
+                    width: 46
+                    height: 46
+
+                    Image {
+                        id: timeSigil
+                        anchors.fill: parent
+                        source: "textures/time.png" // TODO: заменить на локальную иконку песочных часов (textures/time.png).
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                        rotation: sigilSpin.rotation
+                        visible: status === Image.Ready
+                    }
+
+                    Rectangle {
+                        id: sigilFallback
+                        anchors.fill: parent
+                        radius: 10
+                        color: panelMid
+                        border.width: 1
+                        border.color: panelEdge
+                        visible: timeSigil.status !== Image.Ready
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "⟲"
+                            color: accentBright
+                            font.pixelSize: 16
+                            font.family: pixelFont.name
+                        }
+                    }
 
                     RotationAnimator on rotation {
                         id: sigilSpin
                         from: 0
                         to: 360
-                        duration: 2400
+                        duration: 4200
                         loops: Animation.Infinite
                         running: true
                     }
+                }
 
+                Column {
+                    spacing: 4
                     Text {
-                        anchors.centerIn: parent
-                        text: "⟲"
-                        color: accentBright
-                        font.pixelSize: 16
+                        text: "Хроника"
+                        color: inkLight
+                        font.pixelSize: 26
+                        font.family: pixelFont.name
+                    }
+                    Text {
+                        text: (playerState && playerState.running) ? ("Раунд " + playerState.round) : "Ожидание боя"
+                        color: (playerState && playerState.running) ? accentBright : inkSoft
+                        font.pixelSize: 18
                         font.family: pixelFont.name
                     }
                 }
-            }
 
-            Column {
-                spacing: 4
-                Text {
-                    text: "Хроника"
-                    color: inkLight
-                    font.pixelSize: 26
-                    font.family: pixelFont.name
+                Item {
+                    width: 1
+                    height: 1
+                    Layout.fillWidth: true
                 }
-                Text {
-                    text: (playerState && playerState.running) ? ("Раунд " + playerState.round) : "Ожидание боя"
-                    color: (playerState && playerState.running) ? accentBright : inkSoft
-                    font.pixelSize: 18
-                    font.family: pixelFont.name
+
+                Row {
+                    spacing: 10
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+
+                    Image {
+                        id: battleStateIcon
+                        width: 26
+                        height: 26
+                        source: (playerState && playerState.running) ? "textures/battle.png" : "textures/calm.png"
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                        visible: status === Image.Ready
+                    }
+
+                    Text {
+                        text: (playerState && playerState.running) ? "Идет бой" : "Тишина"
+                        color: inkLight
+                        font.pixelSize: 26
+                        font.family: pixelFont.name
+                    }
                 }
-            }
-
-            Rectangle {
-                width: 1
-                height: 34
-                color: panelEdge
-                opacity: 0.6
-                anchors.verticalCenter: parent.verticalCenter
-            }
-
-            Text {
-                text: (playerState && playerState.running) ? "Бой идет" : "Тишина"
-                color: inkMuted
-                font.pixelSize: 16
-                font.family: pixelFont.name
-                anchors.verticalCenter: parent.verticalCenter
             }
         }
     }
@@ -190,11 +246,11 @@ ApplicationWindow {
             property color statusFlashColor: "transparent"
             property real statusFlashPeak: 0.4
             property bool isActive: is_active
-            property string stateValue: state
+            property string stateValue: model.state ? model.state : "alive"
             property int tempHpValue: temp_hp
             property string lastState: stateValue
             property var lastTempHp: tempHpValue
-            property int maxEffects: 6
+            property int maxEffects: 10
             property var effectList: {
                 var list = []
                 if (effects) {
@@ -213,11 +269,17 @@ ApplicationWindow {
             }
             property var visibleEffects: {
                 if (effectList.length > maxEffects) {
-                    var remaining = effectList.length - (maxEffects - 1)
-                    return effectList.slice(0, maxEffects - 1).concat(["+" + remaining])
+                    return effectList.slice(0, maxEffects - 1).concat(["…"])
                 }
                 return effectList
             }
+            property bool concentrationActive: effects && effects.concentration
+            property bool lastConcentration: concentrationActive
+            property real concentrationOpacity: concentrationActive ? 1 : 0
+            property bool incapacitatedActive: effects && effects.incapacitated
+            property bool lastIncapacitated: incapacitatedActive
+            property real incapacitatedOpacity: incapacitatedActive ? 1 : 0
+            property real activeGlowOpacity: 0.0
 
             transform: [
                 Translate { x: shakeOffset; y: liftOffset }
@@ -225,7 +287,7 @@ ApplicationWindow {
 
             Rectangle {
                 id: statusBar
-                height: 28
+                height: 36
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.top: parent.top
@@ -234,23 +296,14 @@ ApplicationWindow {
                 color: isActive ? accentWarm : panelDark
                 border.width: 1
                 border.color: isActive ? accentBright : panelEdge
-                scale: statusPulse.scale
 
                 Text {
                     anchors.centerIn: parent
-                    text: isActive ? "ХОДИТ" : (stateValue === "dead" ? "МЕРТВ" : stateValue === "unconscious" ? "БЕЗ СОЗН." : stateValue === "left" ? "ПОКИНУЛ" : "ГОТОВ")
+                    text: isActive ? "Ходит" : (stateValue === "dead" ? "Мертв" : stateValue === "unconscious" ? "Без сознания" : stateValue === "left" ? "Покинул бой" : "Жив")
                     color: isActive ? "#1d1407" : inkMuted
-                    font.pixelSize: 13
+                    font.pixelSize: 17
                     font.family: pixelFont.name
                 }
-            }
-
-            SequentialAnimation {
-                id: statusPulse
-                property real scale: 1
-                running: false
-                NumberAnimation { target: statusPulse; property: "scale"; from: 1; to: 1.05; duration: 120; easing.type: Easing.OutQuad }
-                NumberAnimation { target: statusPulse; property: "scale"; to: 1; duration: 220; easing.type: Easing.OutQuad }
             }
 
             Rectangle {
@@ -258,15 +311,25 @@ ApplicationWindow {
                 anchors.fill: parent
                 radius: 12
                 color: accentBright
-                opacity: 0.0
-                visible: isActive
+                opacity: activeGlowOpacity
+                visible: activeGlowOpacity > 0.01
                 z: -1
-                SequentialAnimation on opacity {
-                    running: isActive
-                    loops: Animation.Infinite
-                    NumberAnimation { from: 0.0; to: 0.18; duration: 700; easing.type: Easing.InOutQuad }
-                    NumberAnimation { from: 0.18; to: 0.0; duration: 700; easing.type: Easing.InOutQuad }
-                }
+            }
+
+            SequentialAnimation {
+                id: activeTransition
+                running: false
+                NumberAnimation { target: card; property: "activeGlowOpacity"; from: 0.0; to: 0.22; duration: 240; easing.type: Easing.OutQuad }
+                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.1; duration: 520; easing.type: Easing.InOutQuad }
+                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.2; duration: 520; easing.type: Easing.InOutQuad }
+                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.1; duration: 520; easing.type: Easing.InOutQuad }
+                ScriptAction { script: if (isActive) activeTransition.restart() }
+            }
+
+            SequentialAnimation {
+                id: activeExit
+                running: false
+                NumberAnimation { target: card; property: "activeGlowOpacity"; from: activeGlowOpacity; to: 0.0; duration: 180; easing.type: Easing.OutQuad }
             }
 
             Rectangle {
@@ -350,27 +413,21 @@ ApplicationWindow {
                 color: "#1f170f"
                 opacity: statusDim
                 visible: statusDim > 0
-            }
-
-            Rectangle {
-                id: unconsciousPulse
-                anchors.fill: parent
-                radius: 10
-                color: "#2a241d"
-                visible: stateValue === "unconscious"
-                opacity: stateValue === "unconscious" ? (0.18 + 0.12 * (Math.max(0, Math.sin(root.heartbeatPhase)) + 0.6 * Math.max(0, Math.sin(root.heartbeatPhase * 2.2 - 0.6)))) : 0
+                Behavior on opacity {
+                    NumberAnimation { duration: 240; easing.type: Easing.OutQuad }
+                }
             }
 
             Item {
                 id: contentArea
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.top: statusBar.bottom
+                anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 anchors.leftMargin: 14
                 anchors.rightMargin: 14
                 anchors.bottomMargin: 12
-                anchors.topMargin: 8
+                anchors.topMargin: statusBar.height + 16
 
                 Text {
                     id: nameText
@@ -452,7 +509,7 @@ ApplicationWindow {
                             radius: 0
                             color: hpRatio > 0.5 ? "#76c07a" : hpRatio > 0.2 ? "#d9b45a" : "#c46856"
                             Behavior on width {
-                                NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+                                NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
                             }
                         }
 
@@ -463,7 +520,7 @@ ApplicationWindow {
                             anchors.bottom: parent.bottom
                             width: tempHpValue > 0 ? Math.min(parent.width * 0.25, parent.width * (tempHpValue / (max_hp || 1))) : 0
                             radius: 0
-                            color: "#8aa2b8"
+                            color: accentTemp
                             visible: tempHpValue > 0
                             opacity: tempHpPulse.opacity
                             Behavior on width {
@@ -490,7 +547,7 @@ ApplicationWindow {
                                     width: 6
                                     height: 2
                                     radius: 0
-                                    color: "#9ab0c4"
+                                    color: accentTemp
                                     x: (index % 3) * 18 + 12 + shardBurst.progress * ((index % 3) - 1) * 14
                                     y: Math.floor(index / 3) * 6 + 2 + shardBurst.progress * ((index % 2) ? -8 : 8)
                                     opacity: 1 - shardBurst.progress
@@ -513,7 +570,8 @@ ApplicationWindow {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         height: 18
-                        visible: effects && effects.concentration
+                        visible: concentrationOpacity > 0.01
+                        opacity: concentrationOpacity
 
                         Rectangle {
                             anchors.centerIn: parent
@@ -542,6 +600,22 @@ ApplicationWindow {
                                 NumberAnimation { from: 0.0; to: 0.45; duration: 900; easing.type: Easing.InOutQuad }
                                 NumberAnimation { from: 0.45; to: 0.0; duration: 900; easing.type: Easing.InOutQuad }
                             }
+                        }
+                    }
+
+                    Item {
+                        id: incapacitatedField
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 10
+                        visible: incapacitatedOpacity > 0.01
+                        opacity: incapacitatedOpacity
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: parent.width * 0.7
+                            height: 2
+                            color: "#6d5a42"
+                            opacity: 0.5
                         }
                     }
 
@@ -577,19 +651,12 @@ ApplicationWindow {
                 }
             }
 
-            Text {
-                anchors.centerIn: parent
-                text: stateValue === "dead" ? "Мертв" :
-                      stateValue === "unconscious" ? "Без сознания" :
-                      stateValue === "left" ? "Покинул бой" : ""
-                color: inkLight
-                font.pixelSize: 20
-                font.family: pixelFont.name
-                visible: stateValue !== "alive"
-            }
-
             onIsActiveChanged: {
-                statusPulse.restart()
+                if (isActive) {
+                    activeTransition.restart()
+                } else {
+                    activeExit.restart()
+                }
             }
 
             onHpValueChanged: {
@@ -605,7 +672,7 @@ ApplicationWindow {
                     shakeAnim.restart()
                     hpLossTrail.x = hpBar.width * hpRatio
                     hpLossTrail.width = Math.max(0, hpBar.width * (lastHpRatio - hpRatio))
-                    hpLossTrail.opacity = 0.7
+                    hpLossTrail.opacity = 0.8
                     hpLossTrailAnimation.restart()
                 } else if (hpValue > lastHp) {
                     flashColor = "#4fa96f"
@@ -620,7 +687,7 @@ ApplicationWindow {
             SequentialAnimation {
                 id: hpLossTrailAnimation
                 running: false
-                PropertyAnimation { target: hpLossTrail; property: "opacity"; from: 0.7; to: 0.0; duration: 120; easing.type: Easing.OutQuad }
+                PropertyAnimation { target: hpLossTrail; property: "opacity"; from: 0.8; to: 0.0; duration: 100; easing.type: Easing.OutQuad }
             }
 
             onTempHpValueChanged: {
@@ -640,7 +707,58 @@ ApplicationWindow {
             SequentialAnimation {
                 id: tempHpAppear
                 running: false
-                PropertyAnimation { target: tempHpFill; property: "opacity"; from: 0.0; to: 1.0; duration: 120; easing.type: Easing.OutQuad }
+                PropertyAnimation { target: tempHpFill; property: "opacity"; from: 0.0; to: 1.0; duration: 90; easing.type: Easing.OutQuad }
+            }
+
+            onConcentrationActiveChanged: {
+                if (lastConcentration === concentrationActive) {
+                    return
+                }
+                if (concentrationActive) {
+                    concentrationAppear.restart()
+                } else {
+                    concentrationFade.restart()
+                }
+                lastConcentration = concentrationActive
+            }
+
+            SequentialAnimation {
+                id: concentrationAppear
+                running: false
+                PropertyAnimation { target: card; property: "concentrationOpacity"; from: 0.0; to: 1.0; duration: 420; easing.type: Easing.InOutQuad }
+            }
+
+            SequentialAnimation {
+                id: concentrationFade
+                running: false
+                PropertyAnimation { target: card; property: "concentrationOpacity"; from: 1.0; to: 0.3; duration: 80; easing.type: Easing.OutQuad }
+                PropertyAnimation { target: card; property: "concentrationOpacity"; to: 0.8; duration: 80; easing.type: Easing.OutQuad }
+                PropertyAnimation { target: card; property: "concentrationOpacity"; to: 0.2; duration: 80; easing.type: Easing.OutQuad }
+                PropertyAnimation { target: card; property: "concentrationOpacity"; to: 0.0; duration: 120; easing.type: Easing.OutQuad }
+            }
+
+            onIncapacitatedActiveChanged: {
+                if (lastIncapacitated === incapacitatedActive) {
+                    return
+                }
+                if (incapacitatedActive) {
+                    incapacitatedAppear.restart()
+                } else {
+                    incapacitatedFade.restart()
+                }
+                lastIncapacitated = incapacitatedActive
+            }
+
+            SequentialAnimation {
+                id: incapacitatedAppear
+                running: false
+                PropertyAnimation { target: card; property: "incapacitatedOpacity"; from: 0.0; to: 1.0; duration: 240; easing.type: Easing.OutQuad }
+            }
+
+            SequentialAnimation {
+                id: incapacitatedFade
+                running: false
+                PropertyAnimation { target: card; property: "incapacitatedOpacity"; from: 1.0; to: 0.0; duration: 180; easing.type: Easing.OutQuad }
             }
 
             onStateValueChanged: {
@@ -658,17 +776,13 @@ ApplicationWindow {
                     statusFlashAnim.restart()
                     statusDim = 0.55
                 } else if (stateValue === "left") {
-                    smokeFadeIn.restart()
-                    statusDim = 0.3
+                    statusDim = 0
                 } else if (stateValue === "alive") {
                     if (lastState === "dead" || lastState === "unconscious") {
                         statusFlashColor = "#e8d26f"
                         statusFlashPeak = 0.4
                         statusFlashAnim.restart()
                         liftAnim.restart()
-                    }
-                    if (lastState === "left") {
-                        smokeFadeOut.restart()
                     }
                     statusDim = 0
                 }
