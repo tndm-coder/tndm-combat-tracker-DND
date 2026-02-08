@@ -93,7 +93,7 @@ ApplicationWindow {
                 radius: 10
                 color: "#3f2f1e"
                 opacity: 0.4
-                x: headerSweep.value
+                x: 10
             }
 
             NumberAnimation {
@@ -124,7 +124,7 @@ ApplicationWindow {
                         source: "textures/time.png" // TODO: заменить на локальную иконку песочных часов (textures/time.png).
                         fillMode: Image.PreserveAspectFit
                         smooth: true
-                        rotation: sigilSpin.rotation
+                        rotation: 0
                         visible: status === Image.Ready
                     }
 
@@ -280,6 +280,8 @@ ApplicationWindow {
             property bool concentrationActive: effects && effects.concentration
             property bool lastConcentration: concentrationActive
             property int concentrationFrameIndex: 0
+            property string concentrationPrimarySource: ""
+            property string concentrationSecondarySource: ""
             property var concentrationFrames: [
                 "textures/conc1.png",
                 "textures/conc2.png",
@@ -451,7 +453,7 @@ ApplicationWindow {
                     id: concentrationFramePrimary
                     anchors.fill: parent
                     anchors.rightMargin: overlayRightTrim
-                    source: concentrationFrames[concentrationFrameIndex]
+                    source: concentrationPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
                     visible: concentrationActive
@@ -463,7 +465,7 @@ ApplicationWindow {
                     id: concentrationFrameSecondary
                     anchors.fill: parent
                     anchors.rightMargin: overlayRightTrim
-                    source: concentrationFrames[concentrationFrameIndex]
+                    source: concentrationSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
                     visible: concentrationActive
@@ -484,7 +486,7 @@ ApplicationWindow {
 
                 Timer {
                     id: concentrationTimer
-                    interval: 900
+                    interval: 1667
                     running: concentrationActive && concentrationFrames.length > 0
                     repeat: true
                     triggeredOnStart: true
@@ -494,19 +496,31 @@ ApplicationWindow {
                             useAlternateFrame = false
                             concentrationFramePrimary.opacity = 1.0
                             concentrationFrameSecondary.opacity = 0.0
-                            concentrationFramePrimary.source = concentrationFrames[concentrationFrameIndex]
-                            concentrationFrameSecondary.source = concentrationFrames[concentrationFrameIndex]
+                            concentrationPrimarySource = concentrationFrames[concentrationFrameIndex]
+                            concentrationSecondarySource = concentrationFrames[concentrationFrameIndex]
+                            console.log("[concentration] start", {
+                                index: concentrationFrameIndex,
+                                primary: concentrationPrimarySource,
+                                secondary: concentrationSecondarySource,
+                                useAlternateFrame: useAlternateFrame
+                            })
                         }
                     }
                     onTriggered: {
                         concentrationFrameIndex = (concentrationFrameIndex + 1) % concentrationFrames.length
                         if (useAlternateFrame) {
-                            concentrationFramePrimary.source = concentrationFrames[concentrationFrameIndex]
+                            concentrationPrimarySource = concentrationFrames[concentrationFrameIndex]
                         } else {
-                            concentrationFrameSecondary.source = concentrationFrames[concentrationFrameIndex]
+                            concentrationSecondarySource = concentrationFrames[concentrationFrameIndex]
                         }
                         useAlternateFrame = !useAlternateFrame
                         concentrationFrameFade.restart()
+                        console.log("[concentration] tick", {
+                            index: concentrationFrameIndex,
+                            primary: concentrationPrimarySource,
+                            secondary: concentrationSecondarySource,
+                            useAlternateFrame: useAlternateFrame
+                        })
                     }
                 }
 
@@ -519,16 +533,16 @@ ApplicationWindow {
                             property: "opacity"
                             from: useAlternateFrame ? 1.0 : 0.0
                             to: useAlternateFrame ? 0.0 : 1.0
-                            duration: 420
-                            easing.type: Easing.OutQuad
+                            duration: 900
+                            easing.type: Easing.InOutQuad
                         }
                         NumberAnimation {
                             target: concentrationFrameSecondary
                             property: "opacity"
                             from: useAlternateFrame ? 0.0 : 1.0
                             to: useAlternateFrame ? 1.0 : 0.0
-                            duration: 420
-                            easing.type: Easing.OutQuad
+                            duration: 900
+                            easing.type: Easing.InOutQuad
                         }
                     }
                 }
