@@ -293,13 +293,26 @@ ApplicationWindow {
             property int concentrationCanvasHeight: 1024
             property real overlayScaleX: concentrationCanvasWidth / concentrationFrameWidth
             property real overlayScaleY: concentrationCanvasHeight / concentrationFrameHeight
-            property int tempHpFrameWidth: 1265
-            property int tempHpFrameHeight: 527
-            property real tempHpScaleX: concentrationCanvasWidth / tempHpFrameWidth
-            property real tempHpScaleY: concentrationCanvasHeight / tempHpFrameHeight
+            property int tempHpFrameWidth: 1290
+            property int tempHpFrameHeight: 526
+            property real tempHpScaleAdjustX: 1.018
+            property real tempHpScaleAdjustY: 1.008
+            property real tempHpScaleX: (concentrationCanvasWidth / tempHpFrameWidth) * tempHpScaleAdjustX
+            property real tempHpScaleY: (concentrationCanvasHeight / tempHpFrameHeight) * tempHpScaleAdjustY
+            property int tempHpFrameIndex: 0
+            property string tempHpPrimarySource: ""
+            property string tempHpSecondarySource: ""
+            property var tempHpFrames: [
+                "textures/temphp1.png",
+                "textures/temphp2.png",
+                "textures/temphp3.png"
+            ]
             property bool useAlternateFrame: false
             property real primaryTargetOpacity: 1.0
             property real secondaryTargetOpacity: 0.0
+            property bool useAlternateTempHpFrame: false
+            property real tempHpPrimaryTargetOpacity: 1.0
+            property real tempHpSecondaryTargetOpacity: 0.0
             property int overlayRightTrim: 8
             property bool incapacitatedActive: effects && effects.incapacitated
             property bool lastIncapacitated: incapacitatedActive
@@ -482,14 +495,68 @@ ApplicationWindow {
                 }
 
                 Image {
-                    id: tempHpFrame
+                    id: tempHpFramePrimary
                     anchors.fill: parent
                     anchors.rightMargin: overlayRightTrim
-                    source: "textures/temphp.png"
+                    source: tempHpPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
                     visible: tempHpValue > 0
+                    opacity: 1.0
                     transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Image {
+                    id: tempHpFrameSecondary
+                    anchors.fill: parent
+                    anchors.rightMargin: overlayRightTrim
+                    source: tempHpSecondarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: tempHpValue > 0
+                    opacity: 0.0
+                    transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Timer {
+                    id: tempHpTimer
+                    interval: 1000
+                    running: tempHpValue > 0 && tempHpFrames.length > 0
+                    repeat: true
+                    triggeredOnStart: true
+                    onRunningChanged: {
+                        if (running) {
+                            tempHpFrameIndex = 0
+                            useAlternateTempHpFrame = false
+                            tempHpFramePrimary.opacity = 1.0
+                            tempHpFrameSecondary.opacity = 0.0
+                            tempHpPrimaryTargetOpacity = 1.0
+                            tempHpSecondaryTargetOpacity = 0.0
+                            tempHpPrimarySource = tempHpFrames[tempHpFrameIndex]
+                            tempHpSecondarySource = tempHpFrames[tempHpFrameIndex]
+                        }
+                    }
+                    onTriggered: {
+                        tempHpFrameIndex = (tempHpFrameIndex + 1) % tempHpFrames.length
+                        if (useAlternateTempHpFrame) {
+                            tempHpPrimarySource = tempHpFrames[tempHpFrameIndex]
+                            tempHpPrimaryTargetOpacity = 1.0
+                            tempHpSecondaryTargetOpacity = 0.0
+                        } else {
+                            tempHpSecondarySource = tempHpFrames[tempHpFrameIndex]
+                            tempHpPrimaryTargetOpacity = 0.0
+                            tempHpSecondaryTargetOpacity = 1.0
+                        }
+                        tempHpFramePrimary.opacity = tempHpPrimaryTargetOpacity
+                        tempHpFrameSecondary.opacity = tempHpSecondaryTargetOpacity
+                        useAlternateTempHpFrame = !useAlternateTempHpFrame
+                    }
                 }
 
                 Timer {
