@@ -1,18 +1,146 @@
 {
   "running": true,
-  "timestamp": 1770511152.7732425,
-  "round": 1,
+  "timestamp": 1770519989.6516476,
+  "round": 2,
   "active_ids": [
-    "id_1937426074064"
+    "id_1937498957296"
   ],
   "combatants": [
     {
-      "id": "id_1937426074064",
-      "name": "Илья",
-      "display_name": "Илья",
-      "kind": "player",
-      "hp": null,
-      "max_hp": null,
+      "id": "id_1937498957744",
+      "name": "Алкоголь 1",
+      "display_name": "Алкоголь",
+      "kind": "monster",
+      "hp": 0,
+      "max_hp": 1,
+      "temp_hp": 0,
+      "state": "dead",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": true,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {
+        "КАСТОМНЫЙ ЭФФЕКТ": {
+          "duration": null
+        }
+      }
+    },
+    {
+      "id": "id_1937498957520",
+      "name": "Алкоголь 2",
+      "display_name": "Алкоголь",
+      "kind": "monster",
+      "hp": 1,
+      "max_hp": 2,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": true,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {
+        "КАСТОМНЫЙ ЭФФЕКТ": {
+          "duration": null
+        }
+      }
+    },
+    {
+      "id": "id_1937498957296",
+      "name": "Наркотики 1",
+      "display_name": "Наркотики",
+      "kind": "monster",
+      "hp": 4,
+      "max_hp": 4,
+      "temp_hp": 100,
+      "state": "alive",
+      "effects": {
+        "temp_hp": true,
+        "concentration": true,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {
+        "КАСТОМНЫЙ ЭФФЕКТ": {
+          "duration": null
+        }
+      }
+    },
+    {
+      "id": "id_1937426043424",
+      "name": "Сигареты 1",
+      "display_name": "Сигареты",
+      "kind": "monster",
+      "hp": 2,
+      "max_hp": 2,
+      "temp_hp": 100,
+      "state": "alive",
+      "effects": {
+        "temp_hp": true,
+        "concentration": true,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {
+        "КАСТОМНЫЙ ЭФФЕКТ": {
+          "duration": null
+        }
+      }
+    },
+    {
+      "id": "id_1937498963344",
+      "name": "Сигареты 2",
+      "display_name": "Сигареты",
+      "kind": "monster",
+      "hp": 10,
+      "max_hp": 10,
+      "temp_hp": 100,
+      "state": "alive",
+      "effects": {
+        "temp_hp": true,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {
+        "КАСТОМНЫЙ ЭФФЕКТ": {
+          "duration": null
+        }
+      }
+    },
+    {
+      "id": "id_1937498958192",
+      "name": "Сигареты 3",
+      "display_name": "Сигареты",
+      "kind": "monster",
+      "hp": 3,
+      "max_hp": 3,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_1937498957968",
+      "name": "Сигареты 4",
+      "display_name": "Сигареты",
+      "kind": "monster",
+      "hp": 8,
+      "max_hp": 8,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
@@ -26,66 +154,12 @@
     },
     {
       "id": "id_1937425890864",
-      "name": "Жопочник 1",
-      "display_name": "Жопочник",
-      "kind": "monster",
-      "hp": 0,
-      "max_hp": 4,
-      "temp_hp": 0,
-      "state": "unconscious",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": true,
-        "incapacitated": true
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1937425512064",
-      "name": "Жопочник 2",
-      "display_name": "Жопочник",
-      "kind": "monster",
-      "hp": 0,
-      "max_hp": 7,
-      "temp_hp": 0,
-      "state": "dead",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": true,
-        "unconscious": false,
-        "incapacitated": true
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1937425951440",
       "name": "Иван",
       "display_name": "Иван",
       "kind": "player",
       "hp": null,
       "max_hp": null,
       "temp_hp": 0,
-      "state": "left",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": true
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1937425512336",
-      "name": "Крышеш 1",
-      "display_name": "Крышеш",
-      "kind": "monster",
-      "hp": 2,
-      "max_hp": 2,
-      "temp_hp": 0,
       "state": "alive",
       "effects": {
         "temp_hp": false,
@@ -97,30 +171,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_1937436230992",
-      "name": "Крышеш 2",
-      "display_name": "Крышеш",
-      "kind": "monster",
-      "hp": 2,
-      "max_hp": 2,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1937436231248",
-      "name": "Крышеш 3",
-      "display_name": "Крышеш",
-      "kind": "monster",
-      "hp": 10,
-      "max_hp": 10,
+      "id": "id_1937425512064",
+      "name": "Маша",
+      "display_name": "Маша",
+      "kind": "player",
+      "hp": null,
+      "max_hp": null,
       "temp_hp": 0,
       "state": "alive",
       "effects": {

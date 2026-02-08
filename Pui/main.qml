@@ -48,6 +48,7 @@ ApplicationWindow {
     property color accentSmoke: "#3b3126"
     property color accentTemp: "#8fa7bf"
     property real heartbeatPhase: 0
+    property real headerIconSize: headerPanel.height * 0.6
 
     NumberAnimation on heartbeatPhase {
         from: 0
@@ -114,8 +115,8 @@ ApplicationWindow {
 
                 Item {
                     id: sigil
-                    width: 46
-                    height: 46
+                    width: headerIconSize
+                    height: headerIconSize
 
                     Image {
                         id: timeSigil
@@ -180,22 +181,25 @@ ApplicationWindow {
                 Row {
                     spacing: 10
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-
-                    Image {
-                        id: battleStateIcon
-                        width: 26
-                        height: 26
-                        source: (playerState && playerState.running) ? "textures/battle.png" : "textures/calm.png"
-                        fillMode: Image.PreserveAspectFit
-                        smooth: true
-                        visible: status === Image.Ready
-                    }
+                    height: headerIconSize
 
                     Text {
                         text: (playerState && playerState.running) ? "Идет бой" : "Тишина"
                         color: inkLight
                         font.pixelSize: 26
                         font.family: pixelFont.name
+                        verticalAlignment: Text.AlignVCenter
+                        height: headerIconSize
+                    }
+
+                    Image {
+                        id: battleStateIcon
+                        width: headerIconSize
+                        height: headerIconSize
+                        source: (playerState && playerState.running) ? "textures/battle.png" : "textures/calm.png"
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                        visible: status === Image.Ready
                     }
                 }
             }
@@ -222,6 +226,8 @@ ApplicationWindow {
             color: panelMid
             border.width: isActive ? 2 : 1
             border.color: isActive ? accentWarm : panelEdge
+            scale: 0.9
+            transformOrigin: Item.TopLeft
 
             property bool isPlayer: kind === "player" || (hp === null && max_hp === null)
             property bool isMonster: kind === "monster" || (hp !== null && max_hp !== null)
@@ -257,8 +263,6 @@ ApplicationWindow {
                     if (effects.list && effects.list.length) {
                         list = effects.list.slice(0)
                     } else {
-                        if (effects.temp_hp) list.push("Временные HP")
-                        if (effects.concentration) list.push("Концентрация")
                         if (effects.incapacitated) list.push("Недеесп.")
                     }
                     if (effects.other && effects.other.length) {
@@ -275,11 +279,29 @@ ApplicationWindow {
             }
             property bool concentrationActive: effects && effects.concentration
             property bool lastConcentration: concentrationActive
-            property real concentrationOpacity: concentrationActive ? 1 : 0
+            property int concentrationFrameIndex: 0
+            property var concentrationFrames: [
+                "textures/conc1.png",
+                "textures/conc2.png",
+                "textures/conc3.png"
+            ]
+            property int concentrationFrameWidth: 1179
+            property int concentrationFrameHeight: 694
+            property int concentrationCanvasWidth: 1536
+            property int concentrationCanvasHeight: 1024
+            property real overlayScaleX: concentrationCanvasWidth / concentrationFrameWidth
+            property real overlayScaleY: concentrationCanvasHeight / concentrationFrameHeight
+            property int tempHpFrameWidth: 1265
+            property int tempHpFrameHeight: 527
+            property real tempHpScaleX: concentrationCanvasWidth / tempHpFrameWidth
+            property real tempHpScaleY: concentrationCanvasHeight / tempHpFrameHeight
+            property bool useAlternateFrame: false
+            property int overlayRightTrim: 8
             property bool incapacitatedActive: effects && effects.incapacitated
             property bool lastIncapacitated: incapacitatedActive
             property real incapacitatedOpacity: incapacitatedActive ? 1 : 0
             property real activeGlowOpacity: 0.0
+            property real overlayInset: 0
 
             transform: [
                 Translate { x: shakeOffset; y: liftOffset }
@@ -415,6 +437,100 @@ ApplicationWindow {
                 visible: statusDim > 0
                 Behavior on opacity {
                     NumberAnimation { duration: 240; easing.type: Easing.OutQuad }
+                }
+            }
+
+            Item {
+                id: statusOverlays
+                anchors.fill: parent
+                anchors.margins: overlayInset
+                z: 4
+                visible: concentrationActive || tempHpValue > 0
+
+                Image {
+                    id: concentrationFramePrimary
+                    anchors.fill: parent
+                    anchors.rightMargin: overlayRightTrim
+                    source: concentrationFrames[concentrationFrameIndex]
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: concentrationActive
+                    opacity: useAlternateFrame ? 0.0 : 1.0
+                    transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
+                }
+
+                Image {
+                    id: concentrationFrameSecondary
+                    anchors.fill: parent
+                    anchors.rightMargin: overlayRightTrim
+                    source: concentrationFrames[concentrationFrameIndex]
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: concentrationActive
+                    opacity: useAlternateFrame ? 1.0 : 0.0
+                    transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
+                }
+
+                Image {
+                    id: tempHpFrame
+                    anchors.fill: parent
+                    anchors.rightMargin: overlayRightTrim
+                    source: "textures/temphp.png"
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: tempHpValue > 0
+                    transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
+                }
+
+                Timer {
+                    id: concentrationTimer
+                    interval: 900
+                    running: concentrationActive && concentrationFrames.length > 0
+                    repeat: true
+                    triggeredOnStart: true
+                    onRunningChanged: {
+                        if (running) {
+                            concentrationFrameIndex = 0
+                            useAlternateFrame = false
+                            concentrationFramePrimary.opacity = 1.0
+                            concentrationFrameSecondary.opacity = 0.0
+                            concentrationFramePrimary.source = concentrationFrames[concentrationFrameIndex]
+                            concentrationFrameSecondary.source = concentrationFrames[concentrationFrameIndex]
+                        }
+                    }
+                    onTriggered: {
+                        concentrationFrameIndex = (concentrationFrameIndex + 1) % concentrationFrames.length
+                        if (useAlternateFrame) {
+                            concentrationFramePrimary.source = concentrationFrames[concentrationFrameIndex]
+                        } else {
+                            concentrationFrameSecondary.source = concentrationFrames[concentrationFrameIndex]
+                        }
+                        useAlternateFrame = !useAlternateFrame
+                        concentrationFrameFade.restart()
+                    }
+                }
+
+                SequentialAnimation {
+                    id: concentrationFrameFade
+                    running: false
+                    ParallelAnimation {
+                        NumberAnimation {
+                            target: concentrationFramePrimary
+                            property: "opacity"
+                            from: useAlternateFrame ? 1.0 : 0.0
+                            to: useAlternateFrame ? 0.0 : 1.0
+                            duration: 420
+                            easing.type: Easing.OutQuad
+                        }
+                        NumberAnimation {
+                            target: concentrationFrameSecondary
+                            property: "opacity"
+                            from: useAlternateFrame ? 0.0 : 1.0
+                            to: useAlternateFrame ? 1.0 : 0.0
+                            duration: 420
+                            easing.type: Easing.OutQuad
+                        }
+                    }
                 }
             }
 
@@ -566,44 +682,6 @@ ApplicationWindow {
                     }
 
                     Item {
-                        id: concentrationField
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        height: 18
-                        visible: concentrationOpacity > 0.01
-                        opacity: concentrationOpacity
-
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: parent.width * 0.9
-                            height: 2
-                            color: accentViolet
-                            opacity: 0.0
-                            rotation: 12
-                            SequentialAnimation on opacity {
-                                running: concentrationField.visible
-                                loops: Animation.Infinite
-                                NumberAnimation { from: 0.0; to: 0.6; duration: 900; easing.type: Easing.InOutQuad }
-                                NumberAnimation { from: 0.6; to: 0.0; duration: 900; easing.type: Easing.InOutQuad }
-                            }
-                        }
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: parent.width * 0.85
-                            height: 2
-                            color: accentViolet
-                            opacity: 0.0
-                            rotation: -12
-                            SequentialAnimation on opacity {
-                                running: concentrationField.visible
-                                loops: Animation.Infinite
-                                NumberAnimation { from: 0.0; to: 0.45; duration: 900; easing.type: Easing.InOutQuad }
-                                NumberAnimation { from: 0.45; to: 0.0; duration: 900; easing.type: Easing.InOutQuad }
-                            }
-                        }
-                    }
-
-                    Item {
                         id: incapacitatedField
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -715,26 +793,9 @@ ApplicationWindow {
                     return
                 }
                 if (concentrationActive) {
-                    concentrationAppear.restart()
-                } else {
-                    concentrationFade.restart()
+                    concentrationFrameIndex = 0
                 }
                 lastConcentration = concentrationActive
-            }
-
-            SequentialAnimation {
-                id: concentrationAppear
-                running: false
-                PropertyAnimation { target: card; property: "concentrationOpacity"; from: 0.0; to: 1.0; duration: 420; easing.type: Easing.InOutQuad }
-            }
-
-            SequentialAnimation {
-                id: concentrationFade
-                running: false
-                PropertyAnimation { target: card; property: "concentrationOpacity"; from: 1.0; to: 0.3; duration: 80; easing.type: Easing.OutQuad }
-                PropertyAnimation { target: card; property: "concentrationOpacity"; to: 0.8; duration: 80; easing.type: Easing.OutQuad }
-                PropertyAnimation { target: card; property: "concentrationOpacity"; to: 0.2; duration: 80; easing.type: Easing.OutQuad }
-                PropertyAnimation { target: card; property: "concentrationOpacity"; to: 0.0; duration: 120; easing.type: Easing.OutQuad }
             }
 
             onIncapacitatedActiveChanged: {
