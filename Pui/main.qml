@@ -307,6 +307,22 @@ ApplicationWindow {
                 "textures/temphp2.png",
                 "textures/temphp3.png"
             ]
+            property bool concentrationTempActive: concentrationActive && tempHpValue > 0
+            property int concentrationTempFrameWidth: 1122
+            property int concentrationTempFrameHeight: 555
+            property real concentrationTempScaleX: concentrationCanvasWidth / concentrationTempFrameWidth
+            property real concentrationTempScaleY: concentrationCanvasHeight / concentrationTempFrameHeight
+            property int concentrationTempFrameIndex: 0
+            property string concentrationTempPrimarySource: ""
+            property string concentrationTempSecondarySource: ""
+            property var concentrationTempFrames: [
+                "textures/conctemp1.png",
+                "textures/conctemp2.png",
+                "textures/conctemp3.png"
+            ]
+            property bool useAlternateConcentrationTempFrame: false
+            property real concentrationTempPrimaryTargetOpacity: 1.0
+            property real concentrationTempSecondaryTargetOpacity: 0.0
             property bool useAlternateFrame: false
             property real primaryTargetOpacity: 1.0
             property real secondaryTargetOpacity: 0.0
@@ -471,7 +487,7 @@ ApplicationWindow {
                     source: concentrationPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationActive
+                    visible: concentrationActive && !concentrationTempActive
                     opacity: 1.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
@@ -486,7 +502,7 @@ ApplicationWindow {
                     source: concentrationSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationActive
+                    visible: concentrationActive && !concentrationTempActive
                     opacity: 0.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
@@ -501,7 +517,7 @@ ApplicationWindow {
                     source: tempHpPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: tempHpValue > 0
+                    visible: tempHpValue > 0 && !concentrationTempActive
                     opacity: 1.0
                     transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
@@ -516,11 +532,76 @@ ApplicationWindow {
                     source: tempHpSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: tempHpValue > 0
+                    visible: tempHpValue > 0 && !concentrationTempActive
                     opacity: 0.0
                     transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
                         NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Image {
+                    id: concentrationTempFramePrimary
+                    anchors.fill: parent
+                    anchors.rightMargin: overlayRightTrim
+                    source: concentrationTempPrimarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: concentrationTempActive
+                    opacity: 1.0
+                    transform: Scale { xScale: concentrationTempScaleX; yScale: concentrationTempScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Image {
+                    id: concentrationTempFrameSecondary
+                    anchors.fill: parent
+                    anchors.rightMargin: overlayRightTrim
+                    source: concentrationTempSecondarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: concentrationTempActive
+                    opacity: 0.0
+                    transform: Scale { xScale: concentrationTempScaleX; yScale: concentrationTempScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Timer {
+                    id: concentrationTempTimer
+                    interval: 1000
+                    running: concentrationTempActive && concentrationTempFrames.length > 0
+                    repeat: true
+                    triggeredOnStart: true
+                    onRunningChanged: {
+                        if (running) {
+                            concentrationTempFrameIndex = 0
+                            useAlternateConcentrationTempFrame = false
+                            concentrationTempFramePrimary.opacity = 1.0
+                            concentrationTempFrameSecondary.opacity = 0.0
+                            concentrationTempPrimaryTargetOpacity = 1.0
+                            concentrationTempSecondaryTargetOpacity = 0.0
+                            concentrationTempPrimarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                            concentrationTempSecondarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                        }
+                    }
+                    onTriggered: {
+                        concentrationTempFrameIndex = (concentrationTempFrameIndex + 1) % concentrationTempFrames.length
+                        if (useAlternateConcentrationTempFrame) {
+                            concentrationTempPrimarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                            concentrationTempPrimaryTargetOpacity = 1.0
+                            concentrationTempSecondaryTargetOpacity = 0.0
+                        } else {
+                            concentrationTempSecondarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                            concentrationTempPrimaryTargetOpacity = 0.0
+                            concentrationTempSecondaryTargetOpacity = 1.0
+                        }
+                        concentrationTempFramePrimary.opacity = concentrationTempPrimaryTargetOpacity
+                        concentrationTempFrameSecondary.opacity = concentrationTempSecondaryTargetOpacity
+                        useAlternateConcentrationTempFrame = !useAlternateConcentrationTempFrame
                     }
                 }
 
