@@ -1,6 +1,6 @@
 {
   "running": true,
-  "timestamp": 1770658759.874053,
+  "timestamp": 1770664058.9847004,
   "round": 1,
   "active_ids": [
     "id_2326606073872"
@@ -31,7 +31,7 @@
       "kind": "monster",
       "hp": 7,
       "max_hp": 9,
-      "temp_hp": 90,
+      "temp_hp": 89,
       "state": "alive",
       "effects": {
         "temp_hp": true,
@@ -56,7 +56,7 @@
         "concentration": false,
         "dead": false,
         "unconscious": false,
-        "incapacitated": false
+        "incapacitated": true
       },
       "custom_effects": {}
     },
