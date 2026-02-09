@@ -358,6 +358,17 @@ ApplicationWindow {
                 "textures/heal4.png",
                 "textures/heal5.png"
             ]
+            property var incapacitatedFrames: [
+                "textures/incap1.png",
+                "textures/incap2.png",
+                "textures/incap3.png",
+                "textures/incap4.png",
+                "textures/incap5.png"
+            ]
+            property var incapacitatedFrameWidths: [1337, 1337, 1337, 1337, 605]
+            property var incapacitatedFrameHeights: [585, 585, 585, 585, 227]
+            property int incapacitatedFrameIndex: 0
+            property string incapacitatedFrameSource: ""
 
             function startDamageSequence(targetRatio) {
                 if (healFrameTimer.running) {
@@ -795,6 +806,29 @@ ApplicationWindow {
             }
 
             Item {
+                id: incapacitatedOverlayLayer
+                anchors.fill: parent
+                z: 5
+                visible: incapacitatedOpacity > 0.01
+
+                Image {
+                    id: incapacitatedFrameImage
+                    anchors.centerIn: parent
+                    width: incapacitatedFrameWidths[incapacitatedFrameIndex]
+                    height: incapacitatedFrameHeights[incapacitatedFrameIndex]
+                    source: incapacitatedFrameSource
+                    smooth: true
+                    opacity: incapacitatedOpacity
+                    transform: Scale {
+                        xScale: card.width / incapacitatedFrameWidths[incapacitatedFrameIndex]
+                        yScale: card.height / incapacitatedFrameHeights[incapacitatedFrameIndex]
+                        origin.x: width / 2
+                        origin.y: height / 2
+                    }
+                }
+            }
+
+            Item {
                 id: healOverlayLayer
                 anchors.fill: parent
                 z: 7
@@ -1146,6 +1180,24 @@ ApplicationWindow {
                 id: incapacitatedFade
                 running: false
                 PropertyAnimation { target: card; property: "incapacitatedOpacity"; from: 1.0; to: 0.0; duration: 180; easing.type: Easing.OutQuad }
+            }
+
+            Timer {
+                id: incapacitatedTimer
+                interval: 1000
+                running: incapacitatedActive && incapacitatedFrames.length > 0
+                repeat: true
+                triggeredOnStart: true
+                onRunningChanged: {
+                    if (running) {
+                        incapacitatedFrameIndex = 0
+                        incapacitatedFrameSource = incapacitatedFrames[incapacitatedFrameIndex]
+                    }
+                }
+                onTriggered: {
+                    incapacitatedFrameIndex = (incapacitatedFrameIndex + 1) % incapacitatedFrames.length
+                    incapacitatedFrameSource = incapacitatedFrames[incapacitatedFrameIndex]
+                }
             }
 
             onStateValueChanged: {
