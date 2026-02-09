@@ -943,11 +943,11 @@ ApplicationWindow {
                 Image {
                     id: incapacitatedFrameImage
                     anchors.centerIn: parent
+                    anchors.verticalCenterOffset: 6
                     width: parent.width
                     height: parent.height
                     source: incapacitatedFrameSource
                     fillMode: Image.Stretch
-                    smooth: true
                     visible: incapacitatedFrameIndex >= 0
                     transform: Scale {
                         xScale: incapacitatedScaleX
