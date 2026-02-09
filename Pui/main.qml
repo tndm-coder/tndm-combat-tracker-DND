@@ -244,6 +244,7 @@ ApplicationWindow {
             property real hpRatio: (max_hp && hp !== null) ? Math.max(0, Math.min(1, hp / max_hp)) : 0
             property real displayedHpRatio: hpRatio
             property real pendingDamageHpRatio: hpRatio
+            property real pendingHealHpRatio: hpRatio
             property real lastHpRatio: hpRatio
             property var lastHp: hpValue
             property color flashColor: "transparent"
@@ -348,13 +349,40 @@ ApplicationWindow {
                 "textures/dmg4.png",
                 "textures/dmg5.png"
             ]
+            property int healFrameIndex: -1
+            property string healFrameSource: ""
+            property var healFrames: [
+                "textures/heal1.png",
+                "textures/heal2.png",
+                "textures/heal3.png",
+                "textures/heal4.png",
+                "textures/heal5.png"
+            ]
 
             function startDamageSequence(targetRatio) {
+                if (healFrameTimer.running) {
+                    healFrameTimer.stop()
+                    healFrameIndex = -1
+                    healFrameSource = ""
+                }
                 pendingDamageHpRatio = targetRatio
                 damageFrameIndex = 0
                 damageFrameSource = damageFrames[0]
                 damageFrameTimer.restart()
                 damageShakeAnim.restart()
+            }
+
+            function startHealSequence(targetRatio) {
+                if (damageFrameTimer.running) {
+                    damageFrameTimer.stop()
+                    damageFrameIndex = -1
+                    damageFrameSource = ""
+                }
+                pendingHealHpRatio = targetRatio
+                healFrameIndex = 0
+                healFrameSource = healFrames[0]
+                healFrameTimer.restart()
+                healShakeAnim.restart()
             }
 
             transform: [
@@ -767,6 +795,59 @@ ApplicationWindow {
             }
 
             Item {
+                id: healOverlayLayer
+                anchors.fill: parent
+                z: 7
+                visible: healFrameIndex >= 0
+
+                Image {
+                    id: healFrameImage
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                    source: healFrameSource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: healFrameIndex >= 0
+                }
+
+                Timer {
+                    id: healFrameTimer
+                    interval: 100
+                    repeat: true
+                    running: false
+                    onTriggered: {
+                        if (healFrameIndex === 2) {
+                            displayedHpRatio = pendingHealHpRatio
+                        }
+
+                        healFrameIndex += 1
+                        if (healFrameIndex >= healFrames.length) {
+                            running = false
+                            healFrameIndex = -1
+                            healFrameSource = ""
+                        } else {
+                            healFrameSource = healFrames[healFrameIndex]
+                        }
+                    }
+                }
+
+                SequentialAnimation {
+                    id: healShakeAnim
+                    running: false
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 0; to: -2; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: -2; to: 2; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 2; to: -2; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: -2; to: 2; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 2; to: -1; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: -1; to: 1; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 1; to: -1; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: -1; to: 1; duration: 50; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: card; property: "shakeOffset"; from: 1; to: 0; duration: 100; easing.type: Easing.OutQuad }
+                }
+            }
+
+            Item {
                 id: contentArea
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -972,6 +1053,7 @@ ApplicationWindow {
                     lastHpRatio = hpRatio
                     displayedHpRatio = hpRatio
                     pendingDamageHpRatio = hpRatio
+                    pendingHealHpRatio = hpRatio
                     return
                 }
                 if (hpValue < lastHp) {
@@ -988,13 +1070,7 @@ ApplicationWindow {
                     flashPeak = 0.28
                     flashAnim.restart()
                     liftAnim.restart()
-                    displayedHpRatio = hpRatio
-                    pendingDamageHpRatio = hpRatio
-                    if (damageFrameTimer.running) {
-                        damageFrameTimer.stop()
-                        damageFrameIndex = -1
-                        damageFrameSource = ""
-                    }
+                    startHealSequence(hpRatio)
                 }
                 lastHp = hpValue
                 lastHpRatio = hpRatio
@@ -1022,6 +1098,12 @@ ApplicationWindow {
                     flashPeak = 0.35
                     flashAnim.restart()
                     startDamageSequence(hpRatio)
+                }
+                if (tempHpValue > lastTempHp && !(hpValue > lastHp) && !healFrameTimer.running) {
+                    flashColor = "#4fa96f"
+                    flashPeak = 0.28
+                    flashAnim.restart()
+                    startHealSequence(hpRatio)
                 }
                 lastTempHp = tempHpValue
             }
