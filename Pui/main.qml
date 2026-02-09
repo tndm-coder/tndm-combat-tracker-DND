@@ -338,7 +338,9 @@ ApplicationWindow {
             property int overlayRightTrim: 8
             property bool incapacitatedActive: effects && effects.incapacitated
             property bool incapacitatedEligible: incapacitatedActive && stateValue === "alive"
+            property bool tempIncapActive: incapacitatedEligible && tempHpValue > 0
             property bool lastIncapacitated: incapacitatedActive
+            property bool lastTempIncapActive: tempIncapActive
             property real incapacitatedOpacity: incapacitatedEligible ? 1 : 0
             property real incapacitatedDim: 0.0
             property real incapacitatedScaleFactor: 1.0
@@ -374,6 +376,27 @@ ApplicationWindow {
             property real incapacitatedScaleY: incapacitatedCanvasHeight / activeIncapacitatedFrameHeight
             property real incapacitatedShrinkPx: 4
             property real incapacitatedShrinkScale: width > 0 ? (width - incapacitatedShrinkPx * 2) / width : 1.0
+            property int tempIncapFrameIndex: -1
+            property string tempIncapPrimarySource: ""
+            property string tempIncapSecondarySource: ""
+            property bool useAlternateTempIncapFrame: false
+            property real tempIncapPrimaryTargetOpacity: 1.0
+            property real tempIncapSecondaryTargetOpacity: 0.0
+            property int tempIncapFrameWidth: 1140
+            property int tempIncapFrameHeight: 415
+            property int tempIncapCanvasWidth: 1536
+            property int tempIncapCanvasHeight: 1024
+            property real tempIncapScaleX: tempIncapCanvasWidth / tempIncapFrameWidth
+            property real tempIncapScaleY: tempIncapCanvasHeight / tempIncapFrameHeight
+            property var tempIncapFrames: [
+                "textures/tempincap1.png",
+                "textures/tempincap2.png",
+                "textures/tempincap3.png",
+                "textures/tempincap4.png",
+                "textures/tempincap5it1.png",
+                "textures/tempincap5it2.png",
+                "textures/tempincap5it3.png"
+            ]
             property string pendingStateVisual: ""
             property real activeGlowOpacity: 0.0
             property real overlayInset: 0
@@ -451,9 +474,31 @@ ApplicationWindow {
                 incapacitatedFrameSource = (index >= 0 && index < incapacitatedFrames.length) ? incapacitatedFrames[index] : ""
             }
 
+            function setTempIncapFrame(index) {
+                tempIncapFrameIndex = index
+                var source = (index >= 0 && index < tempIncapFrames.length) ? tempIncapFrames[index] : ""
+                tempIncapPrimarySource = source
+                tempIncapSecondarySource = source
+                tempIncapPrimaryTargetOpacity = 1.0
+                tempIncapSecondaryTargetOpacity = 0.0
+                if (tempIncapFramePrimary) {
+                    tempIncapFramePrimary.opacity = 1.0
+                }
+                if (tempIncapFrameSecondary) {
+                    tempIncapFrameSecondary.opacity = 0.0
+                }
+                useAlternateTempIncapFrame = false
+            }
+
             function stopIncapacitatedAnimations() {
                 incapacitatedForward.stop()
                 incapacitatedReverse.stop()
+            }
+
+            function stopTempIncapAnimations() {
+                tempIncapForward.stop()
+                tempIncapReverse.stop()
+                tempIncapIdleTimer.stop()
             }
 
             function startIncapacitatedForward() {
@@ -470,6 +515,26 @@ ApplicationWindow {
                     setIncapacitatedFrame(4)
                 }
                 incapacitatedReverse.restart()
+            }
+
+            function startTempIncapForward() {
+                stopTempIncapAnimations()
+                stopIncapacitatedAnimations()
+                setIncapacitatedFrame(-1)
+                incapacitatedDim = 0.0
+                incapacitatedScaleFactor = 1.0
+                setTempIncapFrame(0)
+                tempIncapForward.restart()
+            }
+
+            function startTempIncapReverse() {
+                stopTempIncapAnimations()
+                stopIncapacitatedAnimations()
+                setIncapacitatedFrame(-1)
+                if (tempIncapFrameIndex < 0) {
+                    setTempIncapFrame(4)
+                }
+                tempIncapReverse.restart()
             }
 
             transform: [
@@ -614,7 +679,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: overlayInset
                 z: 4
-                visible: concentrationActive || tempHpValue > 0
+                visible: concentrationActive || (tempHpValue > 0 && !tempIncapActive && tempIncapFrameIndex < 0)
 
                 Image {
                     id: concentrationFramePrimary
@@ -653,7 +718,7 @@ ApplicationWindow {
                     source: tempHpPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: tempHpValue > 0 && !concentrationTempActive
+                    visible: tempHpValue > 0 && !concentrationTempActive && !tempIncapActive && tempIncapFrameIndex < 0
                     opacity: 1.0
                     transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
@@ -668,7 +733,7 @@ ApplicationWindow {
                     source: tempHpSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: tempHpValue > 0 && !concentrationTempActive
+                    visible: tempHpValue > 0 && !concentrationTempActive && !tempIncapActive && tempIncapFrameIndex < 0
                     opacity: 0.0
                     transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
@@ -758,7 +823,7 @@ ApplicationWindow {
                 Timer {
                     id: tempHpTimer
                     interval: 1000
-                    running: tempHpValue > 0 && tempHpFrames.length > 0
+                    running: tempHpValue > 0 && tempHpFrames.length > 0 && !tempIncapActive && tempIncapFrameIndex < 0
                     repeat: true
                     triggeredOnStart: true
                     onRunningChanged: {
@@ -935,10 +1000,94 @@ ApplicationWindow {
             }
 
             Item {
-                id: incapacitatedOverlayLayer
+                id: tempIncapOverlayLayer
                 anchors.fill: parent
                 z: 8
-                visible: incapacitatedFrameIndex >= 0
+                visible: tempIncapFrameIndex >= 0
+
+                Image {
+                    id: tempIncapFramePrimary
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: 6
+                    width: parent.width
+                    height: parent.height
+                    source: tempIncapPrimarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: tempIncapFrameIndex >= 0
+                    opacity: 1.0
+                    transform: Scale {
+                        xScale: tempIncapScaleX
+                        yScale: tempIncapScaleY
+                        origin.x: width / 2
+                        origin.y: height / 2
+                    }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Image {
+                    id: tempIncapFrameSecondary
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: 6
+                    width: parent.width
+                    height: parent.height
+                    source: tempIncapSecondarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: tempIncapFrameIndex >= 0
+                    opacity: 0.0
+                    transform: Scale {
+                        xScale: tempIncapScaleX
+                        yScale: tempIncapScaleY
+                        origin.x: width / 2
+                        origin.y: height / 2
+                    }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Timer {
+                    id: tempIncapIdleTimer
+                    interval: 1000
+                    running: false
+                    repeat: true
+                    triggeredOnStart: true
+                    onRunningChanged: {
+                        if (running) {
+                            useAlternateTempIncapFrame = false
+                            tempIncapFramePrimary.opacity = 1.0
+                            tempIncapFrameSecondary.opacity = 0.0
+                            tempIncapPrimaryTargetOpacity = 1.0
+                            tempIncapSecondaryTargetOpacity = 0.0
+                            tempIncapPrimarySource = tempIncapFrames[5]
+                            tempIncapSecondarySource = tempIncapFrames[5]
+                        }
+                    }
+                    onTriggered: {
+                        if (useAlternateTempIncapFrame) {
+                            tempIncapPrimarySource = tempIncapFrames[5]
+                            tempIncapPrimaryTargetOpacity = 1.0
+                            tempIncapSecondaryTargetOpacity = 0.0
+                        } else {
+                            tempIncapSecondarySource = tempIncapFrames[6]
+                            tempIncapPrimaryTargetOpacity = 0.0
+                            tempIncapSecondaryTargetOpacity = 1.0
+                        }
+                        tempIncapFramePrimary.opacity = tempIncapPrimaryTargetOpacity
+                        tempIncapFrameSecondary.opacity = tempIncapSecondaryTargetOpacity
+                        useAlternateTempIncapFrame = !useAlternateTempIncapFrame
+                    }
+                }
+            }
+
+            Item {
+                id: incapacitatedOverlayLayer
+                anchors.fill: parent
+                z: 9
+                visible: incapacitatedFrameIndex >= 0 && !tempIncapActive
 
                 Image {
                     id: incapacitatedFrameImage
@@ -1219,6 +1368,25 @@ ApplicationWindow {
                 lastTempHp = tempHpValue
             }
 
+            onTempIncapActiveChanged: {
+                if (lastTempIncapActive === tempIncapActive) {
+                    return
+                }
+                if (tempIncapActive) {
+                    startTempIncapForward()
+                } else if (incapacitatedActive && stateValue === "alive") {
+                    stopTempIncapAnimations()
+                    setTempIncapFrame(-1)
+                    stopIncapacitatedAnimations()
+                    incapacitatedDim = 0.28
+                    incapacitatedScaleFactor = incapacitatedShrinkScale
+                    setIncapacitatedFrame(4)
+                } else {
+                    startTempIncapReverse()
+                }
+                lastTempIncapActive = tempIncapActive
+            }
+
             SequentialAnimation {
                 id: tempHpAppear
                 running: false
@@ -1237,6 +1405,10 @@ ApplicationWindow {
 
             onIncapacitatedActiveChanged: {
                 if (lastIncapacitated === incapacitatedActive) {
+                    return
+                }
+                if (tempIncapActive || tempIncapFrameIndex >= 0) {
+                    lastIncapacitated = incapacitatedActive
                     return
                 }
                 if (incapacitatedActive && stateValue === "alive") {
@@ -1284,17 +1456,61 @@ ApplicationWindow {
                 ScriptAction { script: setIncapacitatedFrame(-1) }
             }
 
+            SequentialAnimation {
+                id: tempIncapForward
+                running: false
+                ScriptAction { script: setTempIncapFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setTempIncapFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setTempIncapFrame(2) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setTempIncapFrame(3) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setTempIncapFrame(4) }
+                ParallelAnimation {
+                    NumberAnimation { target: card; property: "incapacitatedDim"; to: 0.28; duration: 100; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "incapacitatedScaleFactor"; to: incapacitatedShrinkScale; duration: 100; easing.type: Easing.OutQuad }
+                }
+                ScriptAction { script: tempIncapIdleTimer.restart() }
+            }
+
+            SequentialAnimation {
+                id: tempIncapReverse
+                running: false
+                ScriptAction { script: setTempIncapFrame(4) }
+                ParallelAnimation {
+                    NumberAnimation { target: card; property: "incapacitatedDim"; to: 0.0; duration: 100; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "incapacitatedScaleFactor"; to: 1.0; duration: 100; easing.type: Easing.OutQuad }
+                }
+                ScriptAction { script: setTempIncapFrame(3) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setTempIncapFrame(2) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setTempIncapFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setTempIncapFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setTempIncapFrame(-1) }
+            }
+
             onStateValueChanged: {
                 if (lastState === stateValue) {
                     return
                 }
-                if (lastState === "alive" && stateValue !== "alive" && (incapacitatedActive || incapacitatedFrameIndex >= 0)) {
+                if (lastState === "alive" && stateValue !== "alive" && (incapacitatedActive || incapacitatedFrameIndex >= 0 || tempIncapFrameIndex >= 0 || tempIncapActive)) {
                     pendingStateVisual = stateValue
-                    startIncapacitatedReverse()
+                    if (tempIncapActive || tempIncapFrameIndex >= 0) {
+                        startTempIncapReverse()
+                    } else {
+                        startIncapacitatedReverse()
+                    }
                     statusDelayTimer.restart()
                 } else {
                     applyStateVisuals(stateValue)
-                    if (stateValue === "alive" && incapacitatedActive && incapacitatedFrameIndex < 0) {
+                    if (stateValue === "alive" && tempIncapActive && tempIncapFrameIndex < 0) {
+                        startTempIncapForward()
+                    } else if (stateValue === "alive" && incapacitatedActive && incapacitatedFrameIndex < 0) {
                         startIncapacitatedForward()
                     }
                 }
