@@ -75,15 +75,15 @@ ApplicationWindow {
         spacing: 10
         padding: 20
 
-            Rectangle {
-                id: headerPanel
-                width: Math.min(parent.width - 40, parent.width * 0.92)
-                anchors.horizontalCenter: parent.horizontalCenter
-                height: 82
-                radius: 12
-                color: panelDark
-                border.width: 1
-                border.color: panelEdge
+        Rectangle {
+            id: headerPanel
+            width: Math.min(parent.width - 40, parent.width * 0.92)
+            anchors.horizontalCenter: parent.horizontalCenter
+            height: 82
+            radius: 12
+            color: panelDark
+            border.width: 1
+            border.color: panelEdge
 
             Rectangle {
                 id: headerGlow
@@ -226,7 +226,8 @@ ApplicationWindow {
             color: panelMid
             border.width: isActive ? 2 : 1
             border.color: isActive ? accentWarm : panelEdge
-            scale: 0.9
+            property real baseScale: 0.9
+            scale: baseScale * incapacitatedScaleFactor
             transformOrigin: Item.TopLeft
 
             property bool isPlayer: kind === "player" || (hp === null && max_hp === null)
@@ -336,8 +337,29 @@ ApplicationWindow {
             property real tempHpSecondaryTargetOpacity: 0.0
             property int overlayRightTrim: 8
             property bool incapacitatedActive: effects && effects.incapacitated
+            property bool incapacitatedEligible: incapacitatedActive && stateValue === "alive"
             property bool lastIncapacitated: incapacitatedActive
-            property real incapacitatedOpacity: incapacitatedActive ? 1 : 0
+            property real incapacitatedOpacity: incapacitatedEligible ? 1 : 0
+            property real incapacitatedDim: 0.0
+            property real incapacitatedScaleFactor: 1.0
+            property int incapacitatedFrameIndex: -1
+            property string incapacitatedFrameSource: ""
+            property var incapacitatedFrames: [
+                "textures/incap1.png",
+                "textures/incap2.png",
+                "textures/incap3.png",
+                "textures/incap4.png",
+                "textures/incap5.png"
+            ]
+            property int incapacitatedFrameWidth: 1277
+            property int incapacitatedFrameHeight: 512
+            property int incapacitatedCanvasWidth: 1536
+            property int incapacitatedCanvasHeight: 1024
+            property real incapacitatedScaleX: incapacitatedCanvasWidth / incapacitatedFrameWidth
+            property real incapacitatedScaleY: incapacitatedCanvasHeight / incapacitatedFrameHeight
+            property real incapacitatedShrinkPx: 4
+            property real incapacitatedShrinkScale: width > 0 ? (width - incapacitatedShrinkPx * 2) / width : 1.0
+            property string pendingStateVisual: ""
             property real activeGlowOpacity: 0.0
             property real overlayInset: 0
             property int damageFrameIndex: -1
@@ -383,6 +405,56 @@ ApplicationWindow {
                 healFrameSource = healFrames[0]
                 healFrameTimer.restart()
                 healShakeAnim.restart()
+            }
+
+            function applyStateVisuals(nextState) {
+                if (nextState === "dead") {
+                    statusFlashColor = "#c4574a"
+                    statusFlashPeak = 0.45
+                    statusFlashAnim.restart()
+                    statusDim = 0.7
+                } else if (nextState === "unconscious") {
+                    statusFlashColor = "#c46b55"
+                    statusFlashPeak = 0.32
+                    statusFlashAnim.restart()
+                    statusDim = 0.55
+                } else if (nextState === "left") {
+                    statusDim = 0
+                } else if (nextState === "alive") {
+                    if (lastState === "dead" || lastState === "unconscious") {
+                        statusFlashColor = "#e8d26f"
+                        statusFlashPeak = 0.4
+                        statusFlashAnim.restart()
+                        liftAnim.restart()
+                    }
+                    statusDim = 0
+                }
+            }
+
+            function setIncapacitatedFrame(index) {
+                incapacitatedFrameIndex = index
+                incapacitatedFrameSource = (index >= 0 && index < incapacitatedFrames.length) ? incapacitatedFrames[index] : ""
+            }
+
+            function stopIncapacitatedAnimations() {
+                incapacitatedForward.stop()
+                incapacitatedReverse.stop()
+            }
+
+            function startIncapacitatedForward() {
+                stopIncapacitatedAnimations()
+                incapacitatedDim = 0.0
+                incapacitatedScaleFactor = 1.0
+                setIncapacitatedFrame(0)
+                incapacitatedForward.restart()
+            }
+
+            function startIncapacitatedReverse() {
+                stopIncapacitatedAnimations()
+                if (incapacitatedFrameIndex < 0) {
+                    setIncapacitatedFrame(4)
+                }
+                incapacitatedReverse.restart()
             }
 
             transform: [
@@ -515,8 +587,8 @@ ApplicationWindow {
                 anchors.fill: parent
                 radius: 10
                 color: "#1f170f"
-                opacity: statusDim
-                visible: statusDim > 0
+                opacity: Math.min(1, statusDim + incapacitatedDim)
+                visible: opacity > 0
                 Behavior on opacity {
                     NumberAnimation { duration: 240; easing.type: Easing.OutQuad }
                 }
@@ -848,6 +920,30 @@ ApplicationWindow {
             }
 
             Item {
+                id: incapacitatedOverlayLayer
+                anchors.fill: parent
+                z: 8
+                visible: incapacitatedFrameIndex >= 0
+
+                Image {
+                    id: incapacitatedFrameImage
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                    source: incapacitatedFrameSource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: incapacitatedFrameIndex >= 0
+                    transform: Scale {
+                        xScale: incapacitatedScaleX
+                        yScale: incapacitatedScaleY
+                        origin.x: width / 2
+                        origin.y: height / 2
+                    }
+                }
+            }
+
+            Item {
                 id: contentArea
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -1128,52 +1224,78 @@ ApplicationWindow {
                 if (lastIncapacitated === incapacitatedActive) {
                     return
                 }
-                if (incapacitatedActive) {
-                    incapacitatedAppear.restart()
+                if (incapacitatedActive && stateValue === "alive") {
+                    startIncapacitatedForward()
                 } else {
-                    incapacitatedFade.restart()
+                    startIncapacitatedReverse()
                 }
                 lastIncapacitated = incapacitatedActive
             }
 
             SequentialAnimation {
-                id: incapacitatedAppear
+                id: incapacitatedForward
                 running: false
-                PropertyAnimation { target: card; property: "incapacitatedOpacity"; from: 0.0; to: 1.0; duration: 240; easing.type: Easing.OutQuad }
+                ScriptAction { script: setIncapacitatedFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setIncapacitatedFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setIncapacitatedFrame(2) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setIncapacitatedFrame(3) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setIncapacitatedFrame(4) }
+                ParallelAnimation {
+                    NumberAnimation { target: card; property: "incapacitatedDim"; to: 0.28; duration: 100; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "incapacitatedScaleFactor"; to: incapacitatedShrinkScale; duration: 100; easing.type: Easing.OutQuad }
+                }
             }
 
             SequentialAnimation {
-                id: incapacitatedFade
+                id: incapacitatedReverse
                 running: false
-                PropertyAnimation { target: card; property: "incapacitatedOpacity"; from: 1.0; to: 0.0; duration: 180; easing.type: Easing.OutQuad }
+                ScriptAction { script: setIncapacitatedFrame(4) }
+                ParallelAnimation {
+                    NumberAnimation { target: card; property: "incapacitatedDim"; to: 0.0; duration: 100; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "incapacitatedScaleFactor"; to: 1.0; duration: 100; easing.type: Easing.OutQuad }
+                }
+                ScriptAction { script: setIncapacitatedFrame(3) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setIncapacitatedFrame(2) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setIncapacitatedFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setIncapacitatedFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setIncapacitatedFrame(-1) }
             }
 
             onStateValueChanged: {
                 if (lastState === stateValue) {
                     return
                 }
-                if (stateValue === "dead") {
-                    statusFlashColor = "#c4574a"
-                    statusFlashPeak = 0.45
-                    statusFlashAnim.restart()
-                    statusDim = 0.7
-                } else if (stateValue === "unconscious") {
-                    statusFlashColor = "#c46b55"
-                    statusFlashPeak = 0.32
-                    statusFlashAnim.restart()
-                    statusDim = 0.55
-                } else if (stateValue === "left") {
-                    statusDim = 0
-                } else if (stateValue === "alive") {
-                    if (lastState === "dead" || lastState === "unconscious") {
-                        statusFlashColor = "#e8d26f"
-                        statusFlashPeak = 0.4
-                        statusFlashAnim.restart()
-                        liftAnim.restart()
+                if (lastState === "alive" && stateValue !== "alive" && (incapacitatedActive || incapacitatedFrameIndex >= 0)) {
+                    pendingStateVisual = stateValue
+                    startIncapacitatedReverse()
+                    statusDelayTimer.restart()
+                } else {
+                    applyStateVisuals(stateValue)
+                    if (stateValue === "alive" && incapacitatedActive && incapacitatedFrameIndex < 0) {
+                        startIncapacitatedForward()
                     }
-                    statusDim = 0
                 }
                 lastState = stateValue
+            }
+
+            Timer {
+                id: statusDelayTimer
+                interval: 600
+                repeat: false
+                onTriggered: {
+                    if (pendingStateVisual) {
+                        applyStateVisuals(pendingStateVisual)
+                        pendingStateVisual = ""
+                    }
+                }
             }
 
             SequentialAnimation {
