@@ -351,12 +351,27 @@ ApplicationWindow {
                 "textures/incap4.png",
                 "textures/incap5.png"
             ]
-            property int incapacitatedFrameWidth: 1277
-            property int incapacitatedFrameHeight: 512
+            property var incapacitatedFrameSizes: [
+                { width: 1337, height: 585 },
+                { width: 1337, height: 585 },
+                { width: 1337, height: 585 },
+                { width: 1337, height: 585 },
+                { width: 1277, height: 512 }
+            ]
+            property int activeIncapacitatedFrameWidth: (
+                incapacitatedFrameIndex >= 0 && incapacitatedFrameIndex < incapacitatedFrameSizes.length
+                    ? incapacitatedFrameSizes[incapacitatedFrameIndex].width
+                    : incapacitatedFrameSizes[0].width
+            )
+            property int activeIncapacitatedFrameHeight: (
+                incapacitatedFrameIndex >= 0 && incapacitatedFrameIndex < incapacitatedFrameSizes.length
+                    ? incapacitatedFrameSizes[incapacitatedFrameIndex].height
+                    : incapacitatedFrameSizes[0].height
+            )
             property int incapacitatedCanvasWidth: 1536
             property int incapacitatedCanvasHeight: 1024
-            property real incapacitatedScaleX: incapacitatedCanvasWidth / incapacitatedFrameWidth
-            property real incapacitatedScaleY: incapacitatedCanvasHeight / incapacitatedFrameHeight
+            property real incapacitatedScaleX: incapacitatedCanvasWidth / activeIncapacitatedFrameWidth
+            property real incapacitatedScaleY: incapacitatedCanvasHeight / activeIncapacitatedFrameHeight
             property real incapacitatedShrinkPx: 4
             property real incapacitatedShrinkScale: width > 0 ? (width - incapacitatedShrinkPx * 2) / width : 1.0
             property string pendingStateVisual: ""
