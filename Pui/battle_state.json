@@ -1,6 +1,6 @@
 {
   "running": true,
-  "timestamp": 1770667740.9969342,
+  "timestamp": 1770670191.5152383,
   "round": 1,
   "active_ids": [
     "id_2326606073872"
@@ -56,7 +56,7 @@
         "concentration": false,
         "dead": false,
         "unconscious": false,
-        "incapacitated": true
+        "incapacitated": false
       },
       "custom_effects": {}
     },
