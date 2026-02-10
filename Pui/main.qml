@@ -378,10 +378,6 @@ ApplicationWindow {
             property real incapacitatedShrinkScale: width > 0 ? (width - incapacitatedShrinkPx * 2) / width : 1.0
             property int tempIncapFrameIndex: -1
             property string tempIncapPrimarySource: ""
-            property string tempIncapSecondarySource: ""
-            property bool useAlternateTempIncapFrame: false
-            property real tempIncapPrimaryTargetOpacity: 1.0
-            property real tempIncapSecondaryTargetOpacity: 0.0
             property int tempIncapFrameWidth: 1140
             property int tempIncapFrameHeight: 415
             property int tempIncapCanvasWidth: 1536
@@ -393,9 +389,7 @@ ApplicationWindow {
                 "textures/tempincap2.png",
                 "textures/tempincap3.png",
                 "textures/tempincap4.png",
-                "textures/tempincap5it1.png",
-                "textures/tempincap5it2.png",
-                "textures/tempincap5it3.png"
+                "textures/tempincap5it1.png"
             ]
             property string pendingStateVisual: ""
             property real activeGlowOpacity: 0.0
@@ -478,16 +472,9 @@ ApplicationWindow {
                 tempIncapFrameIndex = index
                 var source = (index >= 0 && index < tempIncapFrames.length) ? tempIncapFrames[index] : ""
                 tempIncapPrimarySource = source
-                tempIncapSecondarySource = source
-                tempIncapPrimaryTargetOpacity = 1.0
-                tempIncapSecondaryTargetOpacity = 0.0
                 if (tempIncapFramePrimary) {
                     tempIncapFramePrimary.opacity = 1.0
                 }
-                if (tempIncapFrameSecondary) {
-                    tempIncapFrameSecondary.opacity = 0.0
-                }
-                useAlternateTempIncapFrame = false
             }
 
             function stopIncapacitatedAnimations() {
@@ -498,7 +485,6 @@ ApplicationWindow {
             function stopTempIncapAnimations() {
                 tempIncapForward.stop()
                 tempIncapReverse.stop()
-                tempIncapIdleTimer.stop()
             }
 
             function startIncapacitatedForward() {
@@ -1027,60 +1013,6 @@ ApplicationWindow {
                     }
                 }
 
-                Image {
-                    id: tempIncapFrameSecondary
-                    anchors.centerIn: parent
-                    anchors.verticalCenterOffset: 6
-                    width: parent.width
-                    height: parent.height
-                    source: tempIncapSecondarySource
-                    fillMode: Image.Stretch
-                    smooth: true
-                    visible: tempIncapFrameIndex >= 0
-                    opacity: 0.0
-                    transform: Scale {
-                        xScale: tempIncapScaleX
-                        yScale: tempIncapScaleY
-                        origin.x: width / 2
-                        origin.y: height / 2
-                    }
-                    Behavior on opacity {
-                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
-                    }
-                }
-
-                Timer {
-                    id: tempIncapIdleTimer
-                    interval: 1000
-                    running: false
-                    repeat: true
-                    triggeredOnStart: true
-                    onRunningChanged: {
-                        if (running) {
-                            useAlternateTempIncapFrame = false
-                            tempIncapFramePrimary.opacity = 1.0
-                            tempIncapFrameSecondary.opacity = 0.0
-                            tempIncapPrimaryTargetOpacity = 1.0
-                            tempIncapSecondaryTargetOpacity = 0.0
-                            tempIncapPrimarySource = tempIncapFrames[5]
-                            tempIncapSecondarySource = tempIncapFrames[5]
-                        }
-                    }
-                    onTriggered: {
-                        if (useAlternateTempIncapFrame) {
-                            tempIncapPrimarySource = tempIncapFrames[5]
-                            tempIncapPrimaryTargetOpacity = 1.0
-                            tempIncapSecondaryTargetOpacity = 0.0
-                        } else {
-                            tempIncapSecondarySource = tempIncapFrames[6]
-                            tempIncapPrimaryTargetOpacity = 0.0
-                            tempIncapSecondaryTargetOpacity = 1.0
-                        }
-                        tempIncapFramePrimary.opacity = tempIncapPrimaryTargetOpacity
-                        tempIncapFrameSecondary.opacity = tempIncapSecondaryTargetOpacity
-                        useAlternateTempIncapFrame = !useAlternateTempIncapFrame
-                    }
-                }
             }
 
             Item {
@@ -1472,7 +1404,6 @@ ApplicationWindow {
                     NumberAnimation { target: card; property: "incapacitatedDim"; to: 0.28; duration: 100; easing.type: Easing.OutQuad }
                     NumberAnimation { target: card; property: "incapacitatedScaleFactor"; to: incapacitatedShrinkScale; duration: 100; easing.type: Easing.OutQuad }
                 }
-                ScriptAction { script: tempIncapIdleTimer.restart() }
             }
 
             SequentialAnimation {
