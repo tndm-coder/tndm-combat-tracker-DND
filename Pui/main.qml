@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import Qt5Compat.GraphicalEffects
 
 ApplicationWindow {
     id: root
@@ -243,13 +242,15 @@ ApplicationWindow {
             }
             border.width: 1
             border.color: panelEdge
-            layer.enabled: true
-            layer.effect: DropShadow {
-                horizontalOffset: 0
-                verticalOffset: 6
-                radius: 18
-                samples: 37
-                color: "#59000000"
+            Rectangle {
+                anchors.fill: parent
+                anchors.topMargin: 6
+                anchors.leftMargin: 2
+                anchors.rightMargin: -2
+                anchors.bottomMargin: -6
+                radius: parent.radius + 2
+                color: "#3D000000"
+                z: -1
             }
             property real baseScale: 0.9
             scale: baseScale * incapacitatedScaleFactor
@@ -1574,7 +1575,7 @@ ApplicationWindow {
                 opacity: 0.0
 
                 property bool active: false
-                property real spriteBaseSize: 5
+                property real spriteBaseSize: 30
                 property real particleScale: 1.0
                 property string textureSource: ""
                 property real trailFactor: 1.0
