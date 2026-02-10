@@ -403,9 +403,9 @@ ApplicationWindow {
             property string activeGlowPrimarySource: ""
             property string activeGlowSecondarySource: ""
             property var activeGlowFrames: [
-                "textures/glow1.png",
-                "textures/glow2.png",
-                "textures/glow3.png"
+                "textures/sunshine1.png",
+                "textures/sunshine2.png",
+                "textures/sunshine3.png"
             ]
             property bool useAlternateActiveGlowFrame: false
             property real activeGlowPrimaryTargetOpacity: 1.0
@@ -590,7 +590,7 @@ ApplicationWindow {
                 color: "#FFF5BD"
                 border.width: 1
                 border.color: "#FFFDE8"
-                opacity: activeGlowOpacity * 0.2
+                opacity: activeGlowOpacity * 0.12
                 visible: isActive || activeGlowOpacity > 0.01
                 z: -3
             }
@@ -598,9 +598,9 @@ ApplicationWindow {
             Item {
                 id: activeTurnGlowLayer
                 anchors.fill: parent
-                anchors.margins: -8
+                anchors.margins: -12
                 visible: isActive && activeGlowFrames.length > 0
-                z: -1
+                z: -2
 
                 Image {
                     id: activeGlowFramePrimary
@@ -608,7 +608,7 @@ ApplicationWindow {
                     source: activeGlowPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    opacity: 0.7
+                    opacity: 0.5
                     visible: activeTurnGlowLayer.visible
                     Behavior on opacity {
                         NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
@@ -638,7 +638,7 @@ ApplicationWindow {
                         if (running) {
                             activeGlowFrameIndex = 0
                             useAlternateActiveGlowFrame = false
-                            activeGlowPrimaryTargetOpacity = 0.7
+                            activeGlowPrimaryTargetOpacity = 0.5
                             activeGlowSecondaryTargetOpacity = 0.0
                             var initialActiveGlowSource = activeGlowFrames[activeGlowFrameIndex]
                             if (activeGlowPrimarySource !== initialActiveGlowSource) {
@@ -655,12 +655,12 @@ ApplicationWindow {
                         activeGlowFrameIndex = (activeGlowFrameIndex + 1) % activeGlowFrames.length
                         if (useAlternateActiveGlowFrame) {
                             activeGlowPrimarySource = activeGlowFrames[activeGlowFrameIndex]
-                            activeGlowPrimaryTargetOpacity = 0.7
+                            activeGlowPrimaryTargetOpacity = 0.5
                             activeGlowSecondaryTargetOpacity = 0.0
                         } else {
                             activeGlowSecondarySource = activeGlowFrames[activeGlowFrameIndex]
                             activeGlowPrimaryTargetOpacity = 0.0
-                            activeGlowSecondaryTargetOpacity = 0.7
+                            activeGlowSecondaryTargetOpacity = 0.5
                         }
                         activeGlowFramePrimary.opacity = activeGlowPrimaryTargetOpacity
                         activeGlowFrameSecondary.opacity = activeGlowSecondaryTargetOpacity

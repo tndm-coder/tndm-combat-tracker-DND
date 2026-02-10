@@ -1,37 +1,15 @@
 {
   "running": true,
-  "timestamp": 1770734744.0763738,
+  "timestamp": 1770735163.1280565,
   "round": 1,
   "active_ids": [
-    "id_1961777853968"
+    "id_1961779120752"
   ],
   "combatants": [
     {
-      "id": "id_1961777853968",
-      "name": "ACS",
-      "display_name": "ACS",
-      "kind": "player",
-      "hp": null,
-      "max_hp": null,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {
-        "ЖЫЖА": {
-          "duration": 2
-        }
-      }
-    },
-    {
-      "id": "id_1961778005872",
-      "name": "acs 1",
-      "display_name": "acs",
+      "id": "id_1961779120752",
+      "name": "Хуек 1",
+      "display_name": "Хуек",
       "kind": "monster",
       "hp": 7,
       "max_hp": 7,
@@ -48,25 +26,57 @@
     },
     {
       "id": "id_1961778008000",
-      "name": "acs 2",
-      "display_name": "acs",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 1,
+      "name": "Игрок",
+      "display_name": "Игрок",
+      "kind": "player",
+      "hp": null,
+      "max_hp": null,
+      "temp_hp": 0,
       "state": "alive",
       "effects": {
-        "temp_hp": true,
-        "concentration": true,
+        "temp_hp": false,
+        "concentration": false,
         "dead": false,
         "unconscious": false,
         "incapacitated": false
       },
-      "custom_effects": {
-        "ЖЫЖА": {
-          "duration": 2
-        }
-      }
+      "custom_effects": {}
+    },
+    {
+      "id": "id_1961777428640",
+      "name": "Пиздюк 1",
+      "display_name": "Пиздюк",
+      "kind": "monster",
+      "hp": 6,
+      "max_hp": 6,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_1961777428912",
+      "name": "Пиздюк 2",
+      "display_name": "Пиздюк",
+      "kind": "monster",
+      "hp": 4,
+      "max_hp": 4,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
     }
   ]
 }
