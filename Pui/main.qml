@@ -64,11 +64,21 @@ ApplicationWindow {
 
     Rectangle {
         anchors.fill: parent
+        z: -2
         gradient: Gradient {
             GradientStop { position: 0.0; color: "#251B15" }
             GradientStop { position: 0.6; color: "#2F231C" }
             GradientStop { position: 1.0; color: "#251B15" }
         }
+    }
+
+    Image {
+        anchors.fill: parent
+        source: "textures/back.png"
+        fillMode: Image.PreserveAspectCrop
+        smooth: true
+        opacity: 0.3
+        z: -1
     }
 
     Column {
