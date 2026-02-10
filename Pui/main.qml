@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import Qt5Compat.GraphicalEffects
 
 ApplicationWindow {
     id: root
@@ -8,7 +9,7 @@ ApplicationWindow {
     height: 1080
     visible: true
     title: "Player UI"
-    color: "#251d14"
+    color: "#251B15"
 
     FontLoader {
         id: pixelFont
@@ -35,18 +36,21 @@ ApplicationWindow {
         var candidate = Math.floor((usable - (rowCount - 1) * rowGap) / rowCount)
         return Math.max(cardMinHeight, Math.min(cardMaxHeight, candidate))
     }
-    property color inkLight: "#f8f1de"
-    property color inkMuted: "#d9c8a6"
-    property color inkSoft: "#b9a581"
-    property color panelDark: "#3a2f22"
-    property color panelMid: "#4a3a2a"
-    property color panelEdge: "#6a5642"
-    property color accentWarm: "#e5c874"
-    property color accentBright: "#ffe6a6"
-    property color accentCool: "#a6d3ff"
-    property color accentViolet: "#b49add"
-    property color accentSmoke: "#3b3126"
-    property color accentTemp: "#8fa7bf"
+    property color inkLight: "#E9DCCB"
+    property color inkMuted: "#C2B1A0"
+    property color inkSoft: "#8E7E70"
+    property color panelDark: "#2F231C"
+    property color panelMid: "#3A2B22"
+    property color panelEdge: "#5B4638"
+    property color accentWarm: "#9B5CFF"
+    property color accentBright: "#C6A6FF"
+    property color accentCool: "#3E8BFF"
+    property color accentViolet: "#9B5CFF"
+    property color accentSmoke: "#2F231C"
+    property color accentTemp: "#3E8BFF"
+    property color hpFillColor: "#6BD57A"
+    property color damageFillColor: "#E85D4A"
+    property color barBackground: "#2A1F18"
     property real heartbeatPhase: 0
     property real headerIconSize: headerPanel.height * 0.6
 
@@ -61,9 +65,9 @@ ApplicationWindow {
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#2c2319" }
-            GradientStop { position: 0.55; color: "#2a2218" }
-            GradientStop { position: 1.0; color: "#201a12" }
+            GradientStop { position: 0.0; color: "#251B15" }
+            GradientStop { position: 0.6; color: "#2F231C" }
+            GradientStop { position: 1.0; color: "#251B15" }
         }
     }
 
@@ -81,17 +85,16 @@ ApplicationWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             height: 82
             radius: 12
-            color: panelDark
+            color: "#4A3A30"
             border.width: 1
             border.color: panelEdge
-
             Rectangle {
                 id: headerGlow
                 anchors.verticalCenter: parent.verticalCenter
                 width: 160
                 height: parent.height - 14
                 radius: 10
-                color: "#3f2f1e"
+                color: "#3A2B22"
                 opacity: 0.4
                 x: 10
             }
@@ -140,7 +143,7 @@ ApplicationWindow {
                         Text {
                             anchors.centerIn: parent
                             text: "⟲"
-                            color: accentBright
+                            color: inkLight
                             font.pixelSize: 16
                             font.family: pixelFont.name
                         }
@@ -166,7 +169,7 @@ ApplicationWindow {
                     }
                     Text {
                         text: (playerState && playerState.running) ? ("Раунд " + playerState.round) : "Ожидание боя"
-                        color: (playerState && playerState.running) ? accentBright : inkSoft
+                        color: (playerState && playerState.running) ? inkLight : inkSoft
                         font.pixelSize: 18
                         font.family: pixelFont.name
                     }
@@ -224,8 +227,20 @@ ApplicationWindow {
             height: grid.cellHeight - rowGap
             radius: 10
             color: panelMid
-            border.width: isActive ? 2 : 1
-            border.color: isActive ? accentWarm : panelEdge
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#3F3026" }
+                GradientStop { position: 1.0; color: "#32251D" }
+            }
+            border.width: 1
+            border.color: panelEdge
+            layer.enabled: true
+            layer.effect: DropShadow {
+                horizontalOffset: 0
+                verticalOffset: 6
+                radius: 18
+                samples: 37
+                color: "#59000000"
+            }
             property real baseScale: 0.9
             scale: baseScale * incapacitatedScaleFactor
             transformOrigin: Item.TopLeft
@@ -441,12 +456,12 @@ ApplicationWindow {
 
             function applyStateVisuals(nextState) {
                 if (nextState === "dead") {
-                    statusFlashColor = "#c4574a"
+                    statusFlashColor = damageFillColor
                     statusFlashPeak = 0.45
                     statusFlashAnim.restart()
                     statusDim = 0.7
                 } else if (nextState === "unconscious") {
-                    statusFlashColor = "#c46b55"
+                    statusFlashColor = damageFillColor
                     statusFlashPeak = 0.32
                     statusFlashAnim.restart()
                     statusDim = 0.55
@@ -454,7 +469,7 @@ ApplicationWindow {
                     statusDim = 0
                 } else if (nextState === "alive") {
                     if (lastState === "dead" || lastState === "unconscious") {
-                        statusFlashColor = "#e8d26f"
+                        statusFlashColor = accentBright
                         statusFlashPeak = 0.4
                         statusFlashAnim.restart()
                         liftAnim.restart()
@@ -535,14 +550,22 @@ ApplicationWindow {
                 anchors.top: parent.top
                 anchors.margins: 8
                 radius: 6
-                color: isActive ? accentWarm : panelDark
+                color: "#4A3A30"
                 border.width: 1
-                border.color: isActive ? accentBright : panelEdge
+                border.color: panelEdge
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    height: 1
+                    color: panelEdge
+                }
 
                 Text {
                     anchors.centerIn: parent
                     text: isActive ? "Ходит" : (stateValue === "dead" ? "Мертв" : stateValue === "unconscious" ? "Без сознания" : stateValue === "left" ? "Покинул бой" : "Жив")
-                    color: isActive ? "#1d1407" : inkMuted
+                    color: inkLight
                     font.pixelSize: 17
                     font.family: pixelFont.name
                 }
@@ -552,7 +575,7 @@ ApplicationWindow {
                 id: activeGlow
                 anchors.fill: parent
                 radius: 12
-                color: accentBright
+                color: accentViolet
                 opacity: activeGlowOpacity
                 visible: activeGlowOpacity > 0.01
                 z: -1
@@ -561,10 +584,10 @@ ApplicationWindow {
             SequentialAnimation {
                 id: activeTransition
                 running: false
-                NumberAnimation { target: card; property: "activeGlowOpacity"; from: 0.0; to: 0.22; duration: 240; easing.type: Easing.OutQuad }
-                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.1; duration: 520; easing.type: Easing.InOutQuad }
-                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.2; duration: 520; easing.type: Easing.InOutQuad }
-                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.1; duration: 520; easing.type: Easing.InOutQuad }
+                NumberAnimation { target: card; property: "activeGlowOpacity"; from: 0.0; to: 0.45; duration: 240; easing.type: Easing.OutQuad }
+                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.25; duration: 520; easing.type: Easing.InOutQuad }
+                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.35; duration: 520; easing.type: Easing.InOutQuad }
+                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.25; duration: 520; easing.type: Easing.InOutQuad }
                 ScriptAction { script: if (isActive) activeTransition.restart() }
             }
 
@@ -1106,7 +1129,7 @@ ApplicationWindow {
                         height: 12
                         radius: 2
                         visible: showHpBar
-                        color: panelDark
+                        color: barBackground
                         border.width: 1
                         border.color: panelEdge
                         anchors.left: parent.left
@@ -1117,7 +1140,7 @@ ApplicationWindow {
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
                             radius: 0
-                            color: "#f2e7d0"
+                            color: damageFillColor
                             opacity: 0.0
                         }
 
@@ -1128,7 +1151,7 @@ ApplicationWindow {
                             anchors.bottom: parent.bottom
                             width: parent.width * displayedHpRatio
                             radius: 0
-                            color: hpRatio > 0.5 ? "#76c07a" : hpRatio > 0.2 ? "#d9b45a" : "#c46856"
+                            color: hpFillColor
                         }
 
                         Rectangle {
@@ -1249,7 +1272,7 @@ ApplicationWindow {
                     return
                 }
                 if (hpValue < lastHp) {
-                    flashColor = "#b84a3a"
+                    flashColor = damageFillColor
                     flashPeak = 0.35
                     flashAnim.restart()
                     hpLossTrail.x = hpBar.width * hpRatio
@@ -1258,7 +1281,7 @@ ApplicationWindow {
                     hpLossTrailAnimation.restart()
                     startDamageSequence(hpRatio)
                 } else if (hpValue > lastHp) {
-                    flashColor = "#4fa96f"
+                    flashColor = hpFillColor
                     flashPeak = 0.28
                     flashAnim.restart()
                     liftAnim.restart()
@@ -1286,13 +1309,13 @@ ApplicationWindow {
                     shardBurst.restart()
                 }
                 if (tempHpValue < lastTempHp && !(hpValue < lastHp) && !damageFrameTimer.running) {
-                    flashColor = "#b84a3a"
+                    flashColor = damageFillColor
                     flashPeak = 0.35
                     flashAnim.restart()
                     startDamageSequence(hpRatio)
                 }
                 if (tempHpValue > lastTempHp && !(hpValue > lastHp) && !healFrameTimer.running) {
-                    flashColor = "#4fa96f"
+                    flashColor = hpFillColor
                     flashPeak = 0.28
                     flashAnim.restart()
                     startHealSequence(hpRatio)
