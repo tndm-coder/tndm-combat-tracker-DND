@@ -1513,13 +1513,14 @@ ApplicationWindow {
         z: 999
         clip: true
 
-        property var pixelSources: [
-            "textures/pixel1.png",
-            "textures/pixel2.png",
-            "textures/pixel3.png",
-            "textures/pixel4.png",
-            "textures/pixel5.png"
-        ]
+        property string pixelTexturePath: "textures/"
+        property var pixelNames: ["pixel1", "pixel2", "pixel3", "pixel4", "pixel5"]
+        property string pixelExtension: ".png"
+
+        function randomPixelSource() {
+            var idx = randomInt(0, pixelNames.length - 1)
+            return pixelTexturePath + pixelNames[idx] + pixelExtension
+        }
         property int poolSize: 16
 
         function randomBetween(minValue, maxValue) {
@@ -1591,7 +1592,7 @@ ApplicationWindow {
                     var targetTopY = pixelParticleLayer.randomBetween(-70, -18)
                     var fadeEarly = Math.random() < 0.5
 
-                    textureSource = pixelParticleLayer.pixelSources[pixelParticleLayer.randomInt(0, pixelParticleLayer.pixelSources.length - 1)]
+                    textureSource = pixelParticleLayer.randomPixelSource()
                     particleScale = pixelParticleLayer.randomBetween(1.0, 1.5)
                     trailFactor = pixelParticleLayer.randomBetween(1.0, 1.5)
                     glowFactor = pixelParticleLayer.randomBetween(1.0, 1.5)
@@ -1667,15 +1668,19 @@ ApplicationWindow {
                     source: particle.textureSource
                     width: parent.width * glowFactor
                     height: parent.height * glowFactor
-                    opacity: parent.opacity * 0.24
+                    opacity: parent.opacity * 0.18
                     smooth: true
-                    layer.enabled: true
-                    layer.effect: Glow {
-                        radius: 8
-                        samples: 16
-                        spread: 0.12
-                        color: "#5CC6A6FF"
-                    }
+                    color: "#C6A6FF"
+                }
+
+                Image {
+                    anchors.centerIn: parent
+                    source: particle.textureSource
+                    width: parent.width * glowFactor * 1.35
+                    height: parent.height * glowFactor * 1.35
+                    opacity: parent.opacity * 0.08
+                    smooth: true
+                    color: "#3E8BFF"
                 }
 
                 Image {
