@@ -404,7 +404,14 @@ ApplicationWindow {
                 "textures/sunshine2.png",
                 "textures/sunshine3.png"
             ]
-            property string activeGlowSource: activeGlowFrames.length > 0 ? activeGlowFrames[0] : ""
+            property int activeGlowFrameIndex: 0
+            property string activeGlowPrimarySource: ""
+            property string activeGlowSecondarySource: ""
+            property bool useAlternateActiveGlowFrame: false
+            property real activeGlowPrimaryTargetOpacity: 0.45
+            property real activeGlowSecondaryTargetOpacity: 0.0
+            property real activeGlowPrimaryScaleBoost: 1.08
+            property real activeGlowSecondaryScaleBoost: 1.08
             property real overlayInset: 0
             property int damageFrameIndex: -1
             property string damageFrameSource: ""
@@ -593,17 +600,84 @@ ApplicationWindow {
             Item {
                 id: activeTurnGlowLayer
                 anchors.fill: parent
-                anchors.margins: -12
-                visible: isActive && activeGlowSource !== ""
-                z: -2
+                visible: isActive && activeGlowFrames.length > 0
+                z: -4
 
                 Image {
-                    anchors.fill: parent
-                    source: activeGlowSource
+                    id: activeGlowFramePrimary
+                    anchors.centerIn: parent
+                    width: parent.width * activeGlowPrimaryScaleBoost
+                    height: parent.height * activeGlowPrimaryScaleBoost
+                    source: activeGlowPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    opacity: 0.5
+                    opacity: 0.0
                     visible: activeTurnGlowLayer.visible
+                    Behavior on opacity {
+                        NumberAnimation { duration: 500; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Image {
+                    id: activeGlowFrameSecondary
+                    anchors.centerIn: parent
+                    width: parent.width * activeGlowSecondaryScaleBoost
+                    height: parent.height * activeGlowSecondaryScaleBoost
+                    source: activeGlowSecondarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    opacity: 0.0
+                    visible: activeTurnGlowLayer.visible
+                    Behavior on opacity {
+                        NumberAnimation { duration: 500; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Timer {
+                    id: activeGlowTimer
+                    interval: 500
+                    running: isActive && activeGlowFrames.length > 0
+                    repeat: true
+                    triggeredOnStart: true
+                    onRunningChanged: {
+                        if (running) {
+                            activeGlowFrameIndex = 0
+                            useAlternateActiveGlowFrame = false
+                            activeGlowPrimaryTargetOpacity = 0.45
+                            activeGlowSecondaryTargetOpacity = 0.0
+                            activeGlowPrimaryScaleBoost = 1.05 + Math.random() * 0.05
+                            activeGlowSecondaryScaleBoost = activeGlowPrimaryScaleBoost
+
+                            var initialActiveGlowSource = activeGlowFrames[activeGlowFrameIndex]
+                            activeGlowPrimarySource = initialActiveGlowSource
+                            activeGlowSecondarySource = initialActiveGlowSource
+                            activeGlowFramePrimary.opacity = activeGlowPrimaryTargetOpacity
+                            activeGlowFrameSecondary.opacity = activeGlowSecondaryTargetOpacity
+                        } else {
+                            activeGlowFramePrimary.opacity = 0.0
+                            activeGlowFrameSecondary.opacity = 0.0
+                        }
+                    }
+                    onTriggered: {
+                        activeGlowFrameIndex = (activeGlowFrameIndex + 1) % activeGlowFrames.length
+                        var nextActiveGlowScaleBoost = 1.05 + Math.random() * 0.05
+
+                        if (useAlternateActiveGlowFrame) {
+                            activeGlowPrimarySource = activeGlowFrames[activeGlowFrameIndex]
+                            activeGlowPrimaryScaleBoost = nextActiveGlowScaleBoost
+                            activeGlowPrimaryTargetOpacity = 0.45
+                            activeGlowSecondaryTargetOpacity = 0.0
+                        } else {
+                            activeGlowSecondarySource = activeGlowFrames[activeGlowFrameIndex]
+                            activeGlowSecondaryScaleBoost = nextActiveGlowScaleBoost
+                            activeGlowPrimaryTargetOpacity = 0.0
+                            activeGlowSecondaryTargetOpacity = 0.45
+                        }
+
+                        activeGlowFramePrimary.opacity = activeGlowPrimaryTargetOpacity
+                        activeGlowFrameSecondary.opacity = activeGlowSecondaryTargetOpacity
+                        useAlternateActiveGlowFrame = !useAlternateActiveGlowFrame
+                    }
                 }
             }
 
