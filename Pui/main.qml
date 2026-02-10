@@ -1670,7 +1670,6 @@ ApplicationWindow {
                     height: parent.height * glowFactor
                     opacity: parent.opacity * 0.18
                     smooth: true
-                    color: "#C6A6FF"
                 }
 
                 Image {
@@ -1680,7 +1679,6 @@ ApplicationWindow {
                     height: parent.height * glowFactor * 1.35
                     opacity: parent.opacity * 0.08
                     smooth: true
-                    color: "#3E8BFF"
                 }
 
                 Image {
