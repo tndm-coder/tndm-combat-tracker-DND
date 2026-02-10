@@ -13,6 +13,16 @@ ApplicationWindow {
 
     property var selectedMap: ({})
 
+    property var bridge: (typeof dmBridge !== "undefined" ? dmBridge : null)
+
+    function safeText(value, fallback) {
+        return value === null || value === undefined ? fallback : value
+    }
+
+    function safeCombatants() {
+        return bridge && bridge.combatants ? bridge.combatants : []
+    }
+
     function selectedIndexes() {
         const values = []
         for (let key in selectedMap) {
@@ -28,9 +38,9 @@ ApplicationWindow {
     }
 
     Connections {
-        target: dmBridge
+        target: bridge
         function onStateChanged() {
-            participantsView.model = dmBridge.combatants
+            participantsView.model = safeCombatants()
         }
     }
 
@@ -71,7 +81,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: dmBridge.roundText
+                        text: safeText(bridge ? bridge.roundText : null, "Раунд: —")
                         color: "#DBC0A0"
                         font.pixelSize: 20
                         font.bold: true
@@ -79,7 +89,7 @@ ApplicationWindow {
                 }
 
                 Text {
-                    text: dmBridge.battleStateText
+                    text: safeText(bridge ? bridge.battleStateText : null, "Состояние: —")
                     color: "#F4DEC6"
                     font.pixelSize: 28
                     font.bold: true
@@ -105,13 +115,13 @@ ApplicationWindow {
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8
-                        ThemedButton { text: "Начать бой"; onClicked: dmBridge.startBattle() }
-                        ThemedButton { text: "Следующий ход"; onClicked: dmBridge.nextTurn() }
-                        ThemedButton { text: "Завершить бой"; onClicked: dmBridge.endBattle() }
+                        ThemedButton { text: "Начать бой"; onClicked: if (bridge) bridge.startBattle() }
+                        ThemedButton { text: "Следующий ход"; onClicked: if (bridge) bridge.nextTurn() }
+                        ThemedButton { text: "Завершить бой"; onClicked: if (bridge) bridge.endBattle() }
                     }
 
                     Text {
-                        text: dmBridge.statusMessage
+                        text: safeText(bridge ? bridge.statusMessage : null, "")
                         color: "#BCA38E"
                         font.pixelSize: 14
                     }
@@ -129,7 +139,7 @@ ApplicationWindow {
                         ThemedButton {
                             text: "Добавить"
                             onClicked: {
-                                dmBridge.addPlayer(playerName.text, playerInitiative.text)
+                                if (bridge) bridge.addPlayer(playerName.text, playerInitiative.text)
                                 playerName.text = ""
                                 playerInitiative.text = ""
                             }
@@ -160,7 +170,7 @@ ApplicationWindow {
                         ThemedButton {
                             text: "Добавить"
                             onClicked: {
-                                dmBridge.addMonsters(monsterName.text, monsterCount.value, customName.text, monsterHp.text, monsterAc.text, monsterInitiative.text)
+                                if (bridge) bridge.addMonsters(monsterName.text, monsterCount.value, customName.text, monsterHp.text, monsterAc.text, monsterInitiative.text)
                                 monsterName.text = ""
                                 customName.text = ""
                                 monsterHp.text = ""
@@ -185,18 +195,18 @@ ApplicationWindow {
 
                         TextField { id: effectName; placeholderText: "Эффект"; Layout.fillWidth: true; Layout.columnSpan: 2 }
                         SpinBox { id: effectDuration; from: 0; to: 999; value: 0 }
-                        ThemedButton { text: "Добавить эффект"; onClicked: dmBridge.addEffect(selectedIndexes(), effectName.text, effectDuration.value) }
+                        ThemedButton { text: "Добавить эффект"; onClicked: if (bridge) bridge.addEffect(selectedIndexes(), effectName.text, effectDuration.value) }
 
                         TextField { id: removeEffectName; placeholderText: "Эффект для удаления"; Layout.fillWidth: true; Layout.columnSpan: 3 }
-                        ThemedButton { text: "Убрать"; onClicked: dmBridge.removeEffect(selectedIndexes(), removeEffectName.text) }
+                        ThemedButton { text: "Убрать"; onClicked: if (bridge) bridge.removeEffect(selectedIndexes(), removeEffectName.text) }
 
                         SpinBox { id: dmgAmount; from: 1; to: 999; value: 1 }
-                        ThemedButton { text: "Урон"; onClicked: dmBridge.applyDamage(selectedIndexes(), dmgAmount.value) }
+                        ThemedButton { text: "Урон"; onClicked: if (bridge) bridge.applyDamage(selectedIndexes(), dmgAmount.value) }
                         SpinBox { id: healAmount; from: 1; to: 999; value: 1 }
-                        ThemedButton { text: "Лечение"; onClicked: dmBridge.applyHeal(selectedIndexes(), healAmount.value) }
+                        ThemedButton { text: "Лечение"; onClicked: if (bridge) bridge.applyHeal(selectedIndexes(), healAmount.value) }
 
                         SpinBox { id: tempAmount; from: 0; to: 999; value: 0 }
-                        ThemedButton { text: "Временные HP"; onClicked: dmBridge.setTempHp(selectedIndexes(), tempAmount.value); Layout.columnSpan: 3 }
+                        ThemedButton { text: "Временные HP"; onClicked: if (bridge) bridge.setTempHp(selectedIndexes(), tempAmount.value); Layout.columnSpan: 3 }
                     }
                 }
             }
@@ -212,7 +222,7 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     clip: true
                     spacing: 8
-                    model: dmBridge.combatants
+                    model: safeCombatants()
 
                     delegate: Rectangle {
                         required property var modelData
@@ -247,7 +257,7 @@ ApplicationWindow {
                                 ComboBox {
                                     model: ["Жив", "Без сознания", "Мертв", "Покинул бой"]
                                     currentIndex: model.indexOf(modelData.state)
-                                    onActivated: dmBridge.setState(modelData.index, currentText)
+                                    onActivated: if (bridge) bridge.setState(modelData.index, currentText)
                                     Layout.preferredWidth: 180
                                 }
                             }
@@ -263,12 +273,12 @@ ApplicationWindow {
                                 CheckBox {
                                     text: "Конц."
                                     checked: modelData.concentration
-                                    onToggled: dmBridge.setConcentration(modelData.index, checked)
+                                    onToggled: if (bridge) bridge.setConcentration(modelData.index, checked)
                                 }
                                 CheckBox {
                                     text: "Недеесп."
                                     checked: modelData.incapacitated
-                                    onToggled: dmBridge.setIncapacitated(modelData.index, checked)
+                                    onToggled: if (bridge) bridge.setIncapacitated(modelData.index, checked)
                                 }
                             }
                         }

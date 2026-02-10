@@ -1,8 +1,10 @@
 import argparse
+import os
 import sys
 from pathlib import Path
 
 from PySide6.QtGui import QGuiApplication
+from PySide6.QtQuickControls2 import QQuickStyle
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtWidgets import QApplication
 
@@ -18,6 +20,11 @@ def run_legacy_ui():
 
 
 def run_qml_parallel_ui():
+    # Avoid native control styles that forbid custom `background`/`contentItem`
+    # overrides used by our themed QML controls.
+    os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
+    QQuickStyle.setStyle("Basic")
+
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
     bridge = QmlMasterBridge()
