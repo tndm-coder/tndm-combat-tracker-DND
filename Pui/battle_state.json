@@ -1,23 +1,23 @@
 {
   "running": true,
-  "timestamp": 1770694846.5377333,
+  "timestamp": 1770699614.4897063,
   "round": 1,
   "active_ids": [
-    "id_2326606073872"
+    "id_1961777853968"
   ],
   "combatants": [
     {
-      "id": "id_2326606073872",
-      "name": "Bkmz 1",
-      "display_name": "Bkmz",
-      "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
+      "id": "id_1961777853968",
+      "name": "ACS",
+      "display_name": "ACS",
+      "kind": "player",
+      "hp": null,
+      "max_hp": null,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
         "temp_hp": false,
-        "concentration": true,
+        "concentration": false,
         "dead": false,
         "unconscious": false,
         "incapacitated": false
@@ -25,30 +25,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2326595954448",
-      "name": "Ы 1",
-      "display_name": "Ы",
+      "id": "id_1961778005872",
+      "name": "acs 1",
+      "display_name": "acs",
       "kind": "monster",
       "hp": 7,
-      "max_hp": 9,
-      "temp_hp": 89,
-      "state": "alive",
-      "effects": {
-        "temp_hp": true,
-        "concentration": true,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": true
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2326595954768",
-      "name": "Ы 1",
-      "display_name": "Ы",
-      "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
+      "max_hp": 7,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
@@ -56,25 +38,25 @@
         "concentration": false,
         "dead": false,
         "unconscious": false,
-        "incapacitated": true
+        "incapacitated": false
       },
       "custom_effects": {}
     },
     {
-      "id": "id_2326596075600",
-      "name": "12 1",
-      "display_name": "12",
+      "id": "id_1961778008000",
+      "name": "acs 2",
+      "display_name": "acs",
       "kind": "monster",
-      "hp": 1,
-      "max_hp": 2,
-      "temp_hp": 100,
+      "hp": 3,
+      "max_hp": 3,
+      "temp_hp": 0,
       "state": "alive",
       "effects": {
-        "temp_hp": true,
+        "temp_hp": false,
         "concentration": false,
         "dead": false,
         "unconscious": false,
-        "incapacitated": true
+        "incapacitated": false
       },
       "custom_effects": {}
     }

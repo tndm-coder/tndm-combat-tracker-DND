@@ -2,24 +2,26 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTableWidget, QTableWidgetItem,
     QLineEdit, QLabel, QSpinBox, QCheckBox, QComboBox,
-    QFrame, QToolButton, QSizePolicy
+    QFrame, QToolButton, QSizePolicy, QGroupBox,
+    QGridLayout, QHeaderView
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont
 from battle_engine import BattleEngine
 from combatant_factory import CombatantFactory
 import sys
 from battle_state_exporter import BattleStateExporter
 
 TABLE_HEADERS = [
-    "", "Имя", "HP", "Врем. HP", "AC",
-    "Инициатива", "Эффекты", "Концентрация", "Недееспособен", "Состояние"]
+    "", "Имя", "Текущие HP", "Временные HP", "Класс брони",
+    "Инициатива", "Эффекты", "Концентрация", "Недееспособность", "Состояние"]
 
 class MasterUI(QWidget):
     def __init__(self):
         super().__init__()
         self.observers = []
         self.setWindowTitle("tndm/dnd/tracker")
-        self.resize(1250, 750)
+        self.resize(1400, 850)
         self.factory = CombatantFactory()
         self.battle_engine = BattleEngine()
         self.current_initiative_group = None
@@ -41,28 +43,131 @@ class MasterUI(QWidget):
         self.round_label = QLabel("Раунд: 0")
         self.start_btn = QPushButton("Начать бой")
         self.table = QTableWidget(0, len(TABLE_HEADERS))
+        self.remove_effect_name_input = QLineEdit()
         self.init_ui()
         self.state_exporter = BattleStateExporter(
             self.battle_engine,
             interval=0.5
         )
 
+    def apply_theme(self):
+        self.setStyleSheet(
+            """
+            QWidget {
+                background-color: #251B15;
+                color: #E9DCCB;
+            }
+            QLabel {
+                color: #E9DCCB;
+            }
+            QGroupBox {
+                border: 1px solid #5B4638;
+                border-radius: 10px;
+                margin-top: 12px;
+                padding-top: 12px;
+                background-color: #2F231C;
+                font-weight: bold;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 12px;
+                padding: 0 5px;
+                color: #C2B1A0;
+            }
+            QLineEdit, QSpinBox, QComboBox {
+                background-color: #3A2B22;
+                border: 1px solid #5B4638;
+                border-radius: 6px;
+                padding: 6px 8px;
+                color: #E9DCCB;
+                selection-background-color: #9B5CFF;
+            }
+            QPushButton, QToolButton {
+                background-color: #3A2B22;
+                border: 1px solid #5B4638;
+                border-radius: 8px;
+                padding: 7px 12px;
+                color: #E9DCCB;
+            }
+            QPushButton:hover, QToolButton:hover {
+                background-color: #4A3A30;
+            }
+            QPushButton:pressed, QToolButton:pressed {
+                background-color: #2F231C;
+            }
+            QTableWidget {
+                background-color: #2F231C;
+                alternate-background-color: #3A2B22;
+                border: 1px solid #5B4638;
+                border-radius: 10px;
+                gridline-color: #5B4638;
+                color: #E9DCCB;
+                selection-background-color: #9B5CFF;
+                selection-color: #FFFFFF;
+            }
+            QHeaderView::section {
+                background-color: #3A2B22;
+                color: #C2B1A0;
+                border: 0;
+                border-bottom: 1px solid #5B4638;
+                padding: 8px;
+                font-weight: bold;
+            }
+            """
+        )
+
     def init_ui(self):
+        self.apply_theme()
         layout = QVBoxLayout()
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
 
-        player_layout = QHBoxLayout()
+        title_label = QLabel("Панель мастера боя")
+        title_font = QFont()
+        title_font.setPointSize(16)
+        title_font.setBold(True)
+        title_label.setFont(title_font)
+        title_label.setStyleSheet("color: #E9DCCB;")
+        layout.addWidget(title_label)
 
+        controls_layout = QHBoxLayout()
+        self.round_label = QLabel("Раунд боя: 0")
+        round_font = QFont()
+        round_font.setPointSize(12)
+        self.round_label.setFont(round_font)
+        self.round_label.setStyleSheet("color: #C2B1A0;")
+        controls_layout.addWidget(self.round_label)
+        controls_layout.addStretch(1)
+
+        self.start_btn.clicked.connect(self.start_battle)
+        controls_layout.addWidget(self.start_btn)
+        next_btn = QPushButton("Перейти к следующему ходу")
+        next_btn.clicked.connect(self.next_turn)
+        end_btn = QPushButton("Завершить бой")
+        end_btn.clicked.connect(self.end_battle)
+        controls_layout.addWidget(next_btn)
+        controls_layout.addWidget(end_btn)
+        layout.addLayout(controls_layout)
+
+        setup_row = QHBoxLayout()
+        setup_row.setSpacing(12)
+
+        player_group = QGroupBox("Добавление игрока")
+        player_layout = QGridLayout()
         self.player_name_input.setPlaceholderText("Имя игрока")
-        self.player_initiative_input.setPlaceholderText("Инициатива")
+        self.player_initiative_input.setPlaceholderText("Значение инициативы")
         add_player_btn = QPushButton("Добавить игрока")
         add_player_btn.clicked.connect(self.add_player)
-        for w in [QLabel("Игрок:"), self.player_name_input,
-                  QLabel("Init"), self.player_initiative_input,
-                  add_player_btn]:
-            player_layout.addWidget(w)
-        layout.addLayout(player_layout)
+        player_layout.addWidget(QLabel("Имя игрока"), 0, 0)
+        player_layout.addWidget(self.player_name_input, 0, 1)
+        player_layout.addWidget(QLabel("Инициатива"), 1, 0)
+        player_layout.addWidget(self.player_initiative_input, 1, 1)
+        player_layout.addWidget(add_player_btn, 2, 0, 1, 2)
+        player_group.setLayout(player_layout)
+        setup_row.addWidget(player_group, 1)
 
-        monster_layout = QHBoxLayout()
+        monster_group = QGroupBox("Добавление монстров")
+        monster_layout = QGridLayout()
 
         self.monster_name_input.setPlaceholderText("Название монстра")
         self.monster_custom_name_input.setPlaceholderText("Кастомное имя")
@@ -73,15 +178,21 @@ class MasterUI(QWidget):
         self.monster_initiative_input.setPlaceholderText("Инициатива")
         add_monster_btn = QPushButton("Добавить монстров")
         add_monster_btn.clicked.connect(self.add_monsters)
-        for w in [QLabel("Монстр:"), self.monster_name_input,
-                  QLabel("Имя:"), self.monster_custom_name_input,
-                  QLabel("Кол-во"), self.monster_count_input,
-                  QLabel("HP"), self.monster_hp_input,
-                  QLabel("AC"), self.monster_ac_input,
-                  QLabel("Init"), self.monster_initiative_input,
-                  add_monster_btn]:
-            monster_layout.addWidget(w)
-        layout.addLayout(monster_layout)
+        monster_layout.addWidget(QLabel("Название монстра"), 0, 0)
+        monster_layout.addWidget(self.monster_name_input, 0, 1)
+        monster_layout.addWidget(QLabel("Кастомное имя"), 0, 2)
+        monster_layout.addWidget(self.monster_custom_name_input, 0, 3)
+        monster_layout.addWidget(QLabel("Количество"), 1, 0)
+        monster_layout.addWidget(self.monster_count_input, 1, 1)
+        monster_layout.addWidget(QLabel("Количество HP"), 1, 2)
+        monster_layout.addWidget(self.monster_hp_input, 1, 3)
+        monster_layout.addWidget(QLabel("Класс брони"), 2, 0)
+        monster_layout.addWidget(self.monster_ac_input, 2, 1)
+        monster_layout.addWidget(QLabel("Инициатива"), 2, 2)
+        monster_layout.addWidget(self.monster_initiative_input, 2, 3)
+        monster_layout.addWidget(add_monster_btn, 3, 0, 1, 4)
+        monster_group.setLayout(monster_layout)
+        setup_row.addWidget(monster_group, 2)
 
         player_ui_container = QFrame()
         player_ui_container.setFrameShape(QFrame.StyledPanel)
@@ -119,86 +230,88 @@ class MasterUI(QWidget):
         player_ui_layout.addWidget(player_ui_toggle)
         player_ui_layout.addWidget(player_ui_panel)
         player_ui_container.setLayout(player_ui_layout)
+        setup_row.addWidget(player_ui_container)
 
-        header_row = QHBoxLayout()
-        header_row.addStretch(1)
-        header_row.addWidget(player_ui_container)
-        layout.addLayout(header_row)
+        layout.addLayout(setup_row)
 
         def _toggle_player_panel(checked):
             player_ui_panel.setVisible(checked)
             player_ui_toggle.setArrowType(Qt.DownArrow if checked else Qt.RightArrow)
 
         player_ui_toggle.toggled.connect(_toggle_player_panel)
-
-
         self.table.setHorizontalHeaderLabels(TABLE_HEADERS)
+        self.table.setAlternatingRowColors(True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.table.setColumnWidth(0, 20)
-        self.table.setColumnWidth(1, 250)
-        self.table.setColumnWidth(5, 100)
-        self.table.setColumnWidth(6, 120)
-        self.table.setColumnWidth(7, 150)
-        self.table.setColumnWidth(8, 120)
-        self.table.setColumnWidth(3, 100)
-        self.table.setColumnWidth(2, 100)
-        self.table.setColumnWidth(4, 100)
+        self.table.setColumnWidth(2, 110)
+        self.table.setColumnWidth(3, 130)
+        self.table.setColumnWidth(4, 115)
+        self.table.setColumnWidth(5, 110)
+        self.table.setColumnWidth(6, 200)
+        self.table.setColumnWidth(7, 125)
+        self.table.setColumnWidth(8, 150)
+        self.table.setColumnWidth(9, 170)
         layout.addWidget(self.table)
 
-        effect_layout = QHBoxLayout()
+        bottom_row = QHBoxLayout()
+        bottom_row.setSpacing(12)
+
+        effect_group = QGroupBox("Эффекты")
+        effect_layout = QGridLayout()
 
         self.effect_name_input.setPlaceholderText("Название эффекта")
         self.effect_duration_input.setRange(0, 999)
         self.effect_duration_input.setSpecialValueText("вечный")
         add_effect_btn = QPushButton("Добавить эффект")
         add_effect_btn.clicked.connect(self.add_effect)
-        remove_effect_name_input = QLineEdit()
-        remove_effect_name_input.setPlaceholderText("Название эффекта для удаления")
+        self.remove_effect_name_input.setPlaceholderText("Название эффекта для удаления")
         remove_effect_btn = QPushButton("Убрать эффект")
         remove_effect_btn.clicked.connect(
-            lambda: self.remove_effect(remove_effect_name_input.text().strip())
+            lambda: self.remove_effect(self.remove_effect_name_input.text().strip())
         )
-        for w in [QLabel("Эффект:"), self.effect_name_input,
-                  QLabel("Длительность:"), self.effect_duration_input,
-                  add_effect_btn,
-                  QLabel("Удалить эффект:"), remove_effect_name_input, remove_effect_btn]:
-            effect_layout.addWidget(w)
-        layout.addLayout(effect_layout)
+        effect_layout.addWidget(QLabel("Название эффекта"), 0, 0)
+        effect_layout.addWidget(self.effect_name_input, 0, 1)
+        effect_layout.addWidget(QLabel("Длительность эффекта"), 1, 0)
+        effect_layout.addWidget(self.effect_duration_input, 1, 1)
+        effect_layout.addWidget(add_effect_btn, 2, 0, 1, 2)
+        effect_layout.addWidget(QLabel("Удалить эффект по названию"), 3, 0)
+        effect_layout.addWidget(self.remove_effect_name_input, 3, 1)
+        effect_layout.addWidget(remove_effect_btn, 4, 0, 1, 2)
+        effect_group.setLayout(effect_layout)
+        bottom_row.addWidget(effect_group, 1)
 
-        layout.addWidget(self.round_label)
-
-        action_layout = QHBoxLayout()
+        action_group = QGroupBox("Действия с выбранными участниками")
+        action_layout = QGridLayout()
         self.damage_input.setRange(1, 999)
         self.damage_input.setValue(1)
-        dmg_btn = QPushButton("Атаковать")
+        dmg_btn = QPushButton("Нанести урон")
         dmg_btn.clicked.connect(self.attack)
 
         self.heal_input.setRange(1, 999)
         self.heal_input.setValue(1)
-        heal_btn = QPushButton("Лечить")
+        heal_btn = QPushButton("Восстановить здоровье")
         heal_btn.clicked.connect(self.heal)
-
-        next_btn = QPushButton("Следующий ход")
-        next_btn.clicked.connect(self.next_turn)
-        end_btn = QPushButton("Завершить бой")
-        end_btn.clicked.connect(self.end_battle)
 
         self.temp_set_input.setRange(0, 999)
         self.temp_set_input.setValue(0)
-        temp_set_btn = QPushButton("Добавить временные HP")
+        temp_set_btn = QPushButton("Выдать временные HP")
         temp_set_btn.clicked.connect(self.set_temp_hp)
 
-        for w in [
-            QLabel("Урон:"), self.damage_input, dmg_btn,
-            QLabel("Лечение:"), self.heal_input, heal_btn,
-            next_btn, end_btn,
-            QLabel("Временные HP:"), self.temp_set_input, temp_set_btn
-        ]:
-            action_layout.addWidget(w)
+        action_layout.addWidget(QLabel("Количество урона"), 0, 0)
+        action_layout.addWidget(self.damage_input, 0, 1)
+        action_layout.addWidget(dmg_btn, 0, 2)
+        action_layout.addWidget(QLabel("Количество лечения"), 1, 0)
+        action_layout.addWidget(self.heal_input, 1, 1)
+        action_layout.addWidget(heal_btn, 1, 2)
+        action_layout.addWidget(QLabel("Количество временных HP"), 2, 0)
+        action_layout.addWidget(self.temp_set_input, 2, 1)
+        action_layout.addWidget(temp_set_btn, 2, 2)
+        action_group.setLayout(action_layout)
+        bottom_row.addWidget(action_group, 2)
 
-        layout.addLayout(action_layout)
-
-        self.start_btn.clicked.connect(self.start_battle)
-        layout.addWidget(self.start_btn)
+        layout.addLayout(bottom_row)
 
         self.setLayout(layout)
 
@@ -277,7 +390,7 @@ class MasterUI(QWidget):
         self.state_exporter.start()
         self.round_counter = self.battle_engine.round
         self.current_initiative_group = self.battle_engine.current_initiative_group
-        self.round_label.setText(f"Раунд: {self.round_counter}")
+        self.round_label.setText(f"Раунд боя: {self.round_counter}")
         self.refresh_table()
 
     def next_turn(self):
@@ -287,7 +400,7 @@ class MasterUI(QWidget):
 
         self.current_initiative_group = group[0].initiative
         self.round_counter = self.battle_engine.round
-        self.round_label.setText(f"Раунд: {self.round_counter}")
+        self.round_label.setText(f"Раунд боя: {self.round_counter}")
 
         self.refresh_table()
 
@@ -322,8 +435,7 @@ class MasterUI(QWidget):
                 if name in effects:
                     del effects[name]
         self.refresh_table()
-
-        self.refresh_table()
+        self.remove_effect_name_input.clear()
 
     def refresh_table(self):
         self.table.setRowCount(0)
@@ -410,7 +522,7 @@ class MasterUI(QWidget):
         self.battle_engine.combatants.clear()
         self.current_initiative_group = None
         self.round_counter = 0
-        self.round_label.setText(f"Раунд: {self.round_counter}")
+        self.round_label.setText(f"Раунд боя: {self.round_counter}")
         self.refresh_table()
 
     def open_player_ui_current_monitor(self):

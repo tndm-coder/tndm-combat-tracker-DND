@@ -43,6 +43,26 @@ html, body {
   display: flex;
   align-items: center;
   gap: 12px;
+  isolation: isolate;
+}
+
+.combat-row::before {
+  content: "";
+  position: absolute;
+  left: 84px;
+  top: 50%;
+  width: 390px;
+  height: 128px;
+  transform: translateY(-50%);
+  background: center / contain no-repeat url("textures/player.png");
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.combat-row > * {
+  position: relative;
+  z-index: 1;
 }
 
 .combat-row[data-column="right"] {
@@ -103,12 +123,10 @@ html, body {
     rgba(12,15,28,0.95),
     rgba(6,8,16,0.95)
   );
-  border-radius: 14px;
+  border-radius: 0;
   text-align: center;
   letter-spacing: 0.05em;
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.03),
-    0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: none;
 }
 
 /* ================= EFFECTS CARD ================= */
