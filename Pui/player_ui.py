@@ -165,13 +165,17 @@ def main():
 
     base_dir = Path(__file__).resolve().parent
     state_path = base_dir / "battle_state.json"
+    last_payload = None
 
     def tick():
+        nonlocal last_payload
         payload = load_state(state_path)
-        if not payload:
-            state.update_state({"running": False, "round": 0})
-            model.update_items([], [])
+        if payload is None:
+            if last_payload is None:
+                state.update_state({"running": False, "round": 0})
+                model.update_items([], [])
             return
+        last_payload = payload
         state.update_state(payload)
         combatants = payload.get("combatants", [])
         active_ids = payload.get("active_ids", [])

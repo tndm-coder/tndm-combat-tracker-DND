@@ -97,28 +97,6 @@ ApplicationWindow {
             color: "#4A3A30"
             border.width: 1
             border.color: panelEdge
-            Rectangle {
-                id: headerGlow
-                anchors.verticalCenter: parent.verticalCenter
-                width: 160
-                height: parent.height - 14
-                radius: 10
-                color: "#3A2B22"
-                opacity: 0.4
-                x: 10
-            }
-
-            NumberAnimation {
-                id: headerSweep
-                target: headerGlow
-                property: "x"
-                from: 10
-                to: headerPanel.width - headerGlow.width - 10
-                duration: 2600
-                loops: Animation.Infinite
-                easing.type: Easing.InOutQuad
-                running: true
-            }
 
             RowLayout {
                 anchors.fill: parent
