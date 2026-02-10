@@ -8,7 +8,7 @@ ApplicationWindow {
     height: 1080
     visible: true
     title: "Player UI"
-    color: "#251B15"
+    color: "#120F13"
 
     FontLoader {
         id: pixelFont
@@ -35,21 +35,22 @@ ApplicationWindow {
         var candidate = Math.floor((usable - (rowCount - 1) * rowGap) / rowCount)
         return Math.max(cardMinHeight, Math.min(cardMaxHeight, candidate))
     }
-    property color inkLight: "#E9DCCB"
-    property color inkMuted: "#C2B1A0"
-    property color inkSoft: "#8E7E70"
-    property color panelDark: "#2F231C"
-    property color panelMid: "#3A2B22"
-    property color panelEdge: "#5B4638"
-    property color accentWarm: "#9B5CFF"
-    property color accentBright: "#C6A6FF"
-    property color accentCool: "#3E8BFF"
-    property color accentViolet: "#9B5CFF"
-    property color accentSmoke: "#2F231C"
-    property color accentTemp: "#3E8BFF"
-    property color hpFillColor: "#6BD57A"
-    property color damageFillColor: "#E85D4A"
-    property color barBackground: "#2A1F18"
+    property color inkLight: "#F1E4D1"
+    property color inkMuted: "#C9B7A0"
+    property color inkSoft: "#9A8672"
+    property color panelDark: "#19131A"
+    property color panelMid: "#241B22"
+    property color panelEdge: "#5F4A3C"
+    property color accentWarm: "#D6763F"
+    property color accentBright: "#E0B26B"
+    property color accentCool: "#4AA7FF"
+    property color accentViolet: "#7A63D8"
+    property color accentSmoke: "#140F13"
+    property color accentTemp: "#63BEFF"
+    property color accentPoison: "#9DFF2D"
+    property color hpFillColor: "#73CD76"
+    property color damageFillColor: "#D6493E"
+    property color barBackground: "#100D12"
     property real heartbeatPhase: 0
     property real headerIconSize: headerPanel.height * 0.6
 
@@ -65,9 +66,9 @@ ApplicationWindow {
         anchors.fill: parent
         z: -2
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#251B15" }
-            GradientStop { position: 0.6; color: "#2F231C" }
-            GradientStop { position: 1.0; color: "#251B15" }
+            GradientStop { position: 0.0; color: "#0E0A10" }
+            GradientStop { position: 0.55; color: "#1A1318" }
+            GradientStop { position: 1.0; color: "#0F0B11" }
         }
     }
 
@@ -76,7 +77,7 @@ ApplicationWindow {
         source: "textures/back.png"
         fillMode: Image.PreserveAspectCrop
         smooth: true
-        opacity: 0.3
+        opacity: 0.18
         z: -1
     }
 
@@ -93,8 +94,8 @@ ApplicationWindow {
             width: Math.min(parent.width - 40, parent.width * 0.92)
             anchors.horizontalCenter: parent.horizontalCenter
             height: 82
-            radius: 12
-            color: "#4A3A30"
+            radius: 0
+            color: "#2B2028"
             border.width: 1
             border.color: panelEdge
 
@@ -121,7 +122,7 @@ ApplicationWindow {
                     Rectangle {
                         id: sigilFallback
                         anchors.fill: parent
-                        radius: 10
+                        radius: 0
                         color: panelMid
                         border.width: 1
                         border.color: panelEdge
@@ -212,11 +213,11 @@ ApplicationWindow {
             id: card
             width: grid.cellWidth
             height: grid.cellHeight - rowGap
-            radius: 10
+            radius: 0
             color: panelMid
             gradient: Gradient {
-                GradientStop { position: 0.0; color: "#3F3026" }
-                GradientStop { position: 1.0; color: "#32251D" }
+                GradientStop { position: 0.0; color: "#2E2229" }
+                GradientStop { position: 1.0; color: "#1E161D" }
             }
             border.width: 1
             border.color: panelEdge
@@ -226,13 +227,14 @@ ApplicationWindow {
                 anchors.leftMargin: 2
                 anchors.rightMargin: -2
                 anchors.bottomMargin: -6
-                radius: parent.radius + 2
+                radius: 0
                 color: "#3D000000"
                 z: -1
             }
             property real baseScale: 0.9
-            scale: baseScale * incapacitatedScaleFactor
-            transformOrigin: Item.TopLeft
+            property real activeScaleBoost: is_active ? 1.03 : 1.0
+            scale: baseScale * incapacitatedScaleFactor * activeScaleBoost
+            transformOrigin: Item.Center
 
             property bool isPlayer: kind === "player" || (hp === null && max_hp === null)
             property bool isMonster: kind === "monster" || (hp !== null && max_hp !== null)
@@ -397,6 +399,17 @@ ApplicationWindow {
             ]
             property string pendingStateVisual: ""
             property real activeGlowOpacity: 0.0
+            property int activeGlowFrameIndex: 0
+            property string activeGlowPrimarySource: ""
+            property string activeGlowSecondarySource: ""
+            property var activeGlowFrames: [
+                "textures/glow1.png",
+                "textures/glow2.png",
+                "textures/glow3.png"
+            ]
+            property bool useAlternateActiveGlowFrame: false
+            property real activeGlowPrimaryTargetOpacity: 1.0
+            property real activeGlowSecondaryTargetOpacity: 0.0
             property real overlayInset: 0
             property int damageFrameIndex: -1
             property string damageFrameSource: ""
@@ -469,13 +482,18 @@ ApplicationWindow {
 
             function setIncapacitatedFrame(index) {
                 incapacitatedFrameIndex = index
-                incapacitatedFrameSource = (index >= 0 && index < incapacitatedFrames.length) ? incapacitatedFrames[index] : ""
+                var nextSource = (index >= 0 && index < incapacitatedFrames.length) ? incapacitatedFrames[index] : ""
+                if (incapacitatedFrameSource !== nextSource) {
+                    incapacitatedFrameSource = nextSource
+                }
             }
 
             function setTempIncapFrame(index) {
                 tempIncapFrameIndex = index
                 var source = (index >= 0 && index < tempIncapFrames.length) ? tempIncapFrames[index] : ""
-                tempIncapPrimarySource = source
+                if (tempIncapPrimarySource !== source) {
+                    tempIncapPrimarySource = source
+                }
                 if (tempIncapFramePrimary) {
                     tempIncapFramePrimary.opacity = 1.0
                 }
@@ -538,23 +556,27 @@ ApplicationWindow {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.margins: 8
-                radius: 6
-                color: "#4A3A30"
+                radius: 0
+                color: "#32252D"
                 border.width: 1
-                border.color: panelEdge
+                border.color: isActive ? "#FFF4AE" : panelEdge
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: isActive ? "#FFFCE9" : "#3A2C35" }
+                    GradientStop { position: 1.0; color: isActive ? "#FFD45A" : "#32252D" }
+                }
 
                 Rectangle {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     height: 1
-                    color: panelEdge
+                    color: isActive ? "#FFF4AE" : panelEdge
                 }
 
                 Text {
                     anchors.centerIn: parent
                     text: isActive ? "Ходит" : (stateValue === "dead" ? "Мертв" : stateValue === "unconscious" ? "Без сознания" : stateValue === "left" ? "Покинул бой" : "Жив")
-                    color: inkLight
+                    color: isActive ? "#111111" : inkLight
                     font.pixelSize: 17
                     font.family: pixelFont.name
                 }
@@ -563,11 +585,88 @@ ApplicationWindow {
             Rectangle {
                 id: activeGlow
                 anchors.fill: parent
-                radius: 12
-                color: accentViolet
-                opacity: activeGlowOpacity
-                visible: activeGlowOpacity > 0.01
+                anchors.margins: -8
+                radius: 0
+                color: "#FFF5BD"
+                border.width: 1
+                border.color: "#FFFDE8"
+                opacity: activeGlowOpacity * 0.2
+                visible: isActive || activeGlowOpacity > 0.01
+                z: -3
+            }
+
+            Item {
+                id: activeTurnGlowLayer
+                anchors.fill: parent
+                anchors.margins: -8
+                visible: isActive && activeGlowFrames.length > 0
                 z: -1
+
+                Image {
+                    id: activeGlowFramePrimary
+                    anchors.fill: parent
+                    source: activeGlowPrimarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    opacity: 0.7
+                    visible: activeTurnGlowLayer.visible
+                    Behavior on opacity {
+                        NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Image {
+                    id: activeGlowFrameSecondary
+                    anchors.fill: parent
+                    source: activeGlowSecondarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    opacity: 0.0
+                    visible: activeTurnGlowLayer.visible
+                    Behavior on opacity {
+                        NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Timer {
+                    id: activeGlowTimer
+                    interval: 500
+                    running: isActive && activeGlowFrames.length > 0
+                    repeat: true
+                    triggeredOnStart: true
+                    onRunningChanged: {
+                        if (running) {
+                            activeGlowFrameIndex = 0
+                            useAlternateActiveGlowFrame = false
+                            activeGlowPrimaryTargetOpacity = 0.7
+                            activeGlowSecondaryTargetOpacity = 0.0
+                            var initialActiveGlowSource = activeGlowFrames[activeGlowFrameIndex]
+                            if (activeGlowPrimarySource !== initialActiveGlowSource) {
+                                activeGlowPrimarySource = initialActiveGlowSource
+                            }
+                            if (activeGlowSecondarySource !== initialActiveGlowSource) {
+                                activeGlowSecondarySource = initialActiveGlowSource
+                            }
+                            activeGlowFramePrimary.opacity = activeGlowPrimaryTargetOpacity
+                            activeGlowFrameSecondary.opacity = activeGlowSecondaryTargetOpacity
+                        }
+                    }
+                    onTriggered: {
+                        activeGlowFrameIndex = (activeGlowFrameIndex + 1) % activeGlowFrames.length
+                        if (useAlternateActiveGlowFrame) {
+                            activeGlowPrimarySource = activeGlowFrames[activeGlowFrameIndex]
+                            activeGlowPrimaryTargetOpacity = 0.7
+                            activeGlowSecondaryTargetOpacity = 0.0
+                        } else {
+                            activeGlowSecondarySource = activeGlowFrames[activeGlowFrameIndex]
+                            activeGlowPrimaryTargetOpacity = 0.0
+                            activeGlowSecondaryTargetOpacity = 0.7
+                        }
+                        activeGlowFramePrimary.opacity = activeGlowPrimaryTargetOpacity
+                        activeGlowFrameSecondary.opacity = activeGlowSecondaryTargetOpacity
+                        useAlternateActiveGlowFrame = !useAlternateActiveGlowFrame
+                    }
+                }
             }
 
             SequentialAnimation {
@@ -586,10 +685,14 @@ ApplicationWindow {
                 NumberAnimation { target: card; property: "activeGlowOpacity"; from: activeGlowOpacity; to: 0.0; duration: 180; easing.type: Easing.OutQuad }
             }
 
+            Behavior on activeScaleBoost {
+                NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+            }
+
             Rectangle {
                 id: flashOverlay
                 anchors.fill: parent
-                radius: 10
+                radius: 0
                 color: flashColor
                 opacity: 0.0
                 visible: opacity > 0
@@ -598,7 +701,7 @@ ApplicationWindow {
             Rectangle {
                 id: statusFlash
                 anchors.fill: parent
-                radius: 10
+                radius: 0
                 color: statusFlashColor
                 opacity: 0.0
                 visible: opacity > 0
@@ -663,8 +766,8 @@ ApplicationWindow {
             Rectangle {
                 id: statusDimmer
                 anchors.fill: parent
-                radius: 10
-                color: "#1f170f"
+                radius: 0
+                color: "#120D12"
                 opacity: Math.min(1, statusDim + incapacitatedDim)
                 visible: opacity > 0
                 Behavior on opacity {
@@ -793,8 +896,13 @@ ApplicationWindow {
                             concentrationTempFrameSecondary.opacity = 0.0
                             concentrationTempPrimaryTargetOpacity = 1.0
                             concentrationTempSecondaryTargetOpacity = 0.0
-                            concentrationTempPrimarySource = concentrationTempFrames[concentrationTempFrameIndex]
-                            concentrationTempSecondarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                            var initialConcentrationTempSource = concentrationTempFrames[concentrationTempFrameIndex]
+                            if (concentrationTempPrimarySource !== initialConcentrationTempSource) {
+                                concentrationTempPrimarySource = initialConcentrationTempSource
+                            }
+                            if (concentrationTempSecondarySource !== initialConcentrationTempSource) {
+                                concentrationTempSecondarySource = initialConcentrationTempSource
+                            }
                             concentrationTempPrimaryFrameMetaIndex = concentrationTempFrameIndex
                             concentrationTempSecondaryFrameMetaIndex = concentrationTempFrameIndex
                         }
@@ -832,8 +940,13 @@ ApplicationWindow {
                             tempHpFrameSecondary.opacity = 0.0
                             tempHpPrimaryTargetOpacity = 1.0
                             tempHpSecondaryTargetOpacity = 0.0
-                            tempHpPrimarySource = tempHpFrames[tempHpFrameIndex]
-                            tempHpSecondarySource = tempHpFrames[tempHpFrameIndex]
+                            var initialTempHpSource = tempHpFrames[tempHpFrameIndex]
+                            if (tempHpPrimarySource !== initialTempHpSource) {
+                                tempHpPrimarySource = initialTempHpSource
+                            }
+                            if (tempHpSecondarySource !== initialTempHpSource) {
+                                tempHpSecondarySource = initialTempHpSource
+                            }
                         }
                     }
                     onTriggered: {
@@ -867,8 +980,13 @@ ApplicationWindow {
                             concentrationFrameSecondary.opacity = 0.0
                             primaryTargetOpacity = 1.0
                             secondaryTargetOpacity = 0.0
-                            concentrationPrimarySource = concentrationFrames[concentrationFrameIndex]
-                            concentrationSecondarySource = concentrationFrames[concentrationFrameIndex]
+                            var initialConcentrationSource = concentrationFrames[concentrationFrameIndex]
+                            if (concentrationPrimarySource !== initialConcentrationSource) {
+                                concentrationPrimarySource = initialConcentrationSource
+                            }
+                            if (concentrationSecondarySource !== initialConcentrationSource) {
+                                concentrationSecondarySource = initialConcentrationSource
+                            }
                         }
                     }
                     onTriggered: {
@@ -1116,7 +1234,7 @@ ApplicationWindow {
                     Rectangle {
                         id: hpBar
                         height: 12
-                        radius: 2
+                        radius: 0
                         visible: showHpBar
                         color: barBackground
                         border.width: 1
@@ -1219,9 +1337,9 @@ ApplicationWindow {
                             model: visibleEffects
                             delegate: Rectangle {
                                 radius: 0
-                                color: modelData.indexOf("Временные") === 0 ? "#354150" : modelData.indexOf("Конц") === 0 ? "#3b2e4a" : modelData.indexOf("Недеесп") === 0 ? "#3d3326" : panelDark
+                                color: modelData.indexOf("Временные") === 0 ? "#243E55" : modelData.indexOf("Конц") === 0 ? "#34244A" : modelData.indexOf("Недеесп") === 0 ? "#3F2A1D" : (modelData.indexOf("Отрав") === 0 || modelData.indexOf("Яд") === 0) ? "#263A1A" : panelDark
                                 border.width: 1
-                                border.color: panelEdge
+                                border.color: (modelData.indexOf("Отрав") === 0 || modelData.indexOf("Яд") === 0) ? accentPoison : panelEdge
                                 height: 20
                                 implicitWidth: chipText.implicitWidth + 12
                                 opacity: 0.0
@@ -1233,7 +1351,7 @@ ApplicationWindow {
                                     id: chipText
                                     anchors.centerIn: parent
                                     text: modelData
-                                    color: inkSoft
+                                    color: (modelData.indexOf("Отрав") === 0 || modelData.indexOf("Яд") === 0) ? accentPoison : inkSoft
                                     font.pixelSize: 12
                                     font.family: pixelFont.name
                                 }
