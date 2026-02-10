@@ -398,18 +398,13 @@ ApplicationWindow {
                 "textures/tempincap5it1.png"
             ]
             property string pendingStateVisual: ""
-            property real activeGlowOpacity: 0.0
-            property int activeGlowFrameIndex: 0
-            property string activeGlowPrimarySource: ""
-            property string activeGlowSecondarySource: ""
+            property real activeGlowOpacity: isActive ? 0.25 : 0.0
             property var activeGlowFrames: [
                 "textures/sunshine1.png",
                 "textures/sunshine2.png",
                 "textures/sunshine3.png"
             ]
-            property bool useAlternateActiveGlowFrame: false
-            property real activeGlowPrimaryTargetOpacity: 1.0
-            property real activeGlowSecondaryTargetOpacity: 0.0
+            property string activeGlowSource: activeGlowFrames.length > 0 ? activeGlowFrames[0] : ""
             property real overlayInset: 0
             property int damageFrameIndex: -1
             property string damageFrameSource: ""
@@ -599,90 +594,21 @@ ApplicationWindow {
                 id: activeTurnGlowLayer
                 anchors.fill: parent
                 anchors.margins: -12
-                visible: isActive && activeGlowFrames.length > 0
+                visible: isActive && activeGlowSource !== ""
                 z: -2
 
                 Image {
-                    id: activeGlowFramePrimary
                     anchors.fill: parent
-                    source: activeGlowPrimarySource
+                    source: activeGlowSource
                     fillMode: Image.Stretch
                     smooth: true
                     opacity: 0.5
                     visible: activeTurnGlowLayer.visible
-                    Behavior on opacity {
-                        NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
-                    }
-                }
-
-                Image {
-                    id: activeGlowFrameSecondary
-                    anchors.fill: parent
-                    source: activeGlowSecondarySource
-                    fillMode: Image.Stretch
-                    smooth: true
-                    opacity: 0.0
-                    visible: activeTurnGlowLayer.visible
-                    Behavior on opacity {
-                        NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
-                    }
-                }
-
-                Timer {
-                    id: activeGlowTimer
-                    interval: 500
-                    running: isActive && activeGlowFrames.length > 0
-                    repeat: true
-                    triggeredOnStart: true
-                    onRunningChanged: {
-                        if (running) {
-                            activeGlowFrameIndex = 0
-                            useAlternateActiveGlowFrame = false
-                            activeGlowPrimaryTargetOpacity = 0.5
-                            activeGlowSecondaryTargetOpacity = 0.0
-                            var initialActiveGlowSource = activeGlowFrames[activeGlowFrameIndex]
-                            if (activeGlowPrimarySource !== initialActiveGlowSource) {
-                                activeGlowPrimarySource = initialActiveGlowSource
-                            }
-                            if (activeGlowSecondarySource !== initialActiveGlowSource) {
-                                activeGlowSecondarySource = initialActiveGlowSource
-                            }
-                            activeGlowFramePrimary.opacity = activeGlowPrimaryTargetOpacity
-                            activeGlowFrameSecondary.opacity = activeGlowSecondaryTargetOpacity
-                        }
-                    }
-                    onTriggered: {
-                        activeGlowFrameIndex = (activeGlowFrameIndex + 1) % activeGlowFrames.length
-                        if (useAlternateActiveGlowFrame) {
-                            activeGlowPrimarySource = activeGlowFrames[activeGlowFrameIndex]
-                            activeGlowPrimaryTargetOpacity = 0.5
-                            activeGlowSecondaryTargetOpacity = 0.0
-                        } else {
-                            activeGlowSecondarySource = activeGlowFrames[activeGlowFrameIndex]
-                            activeGlowPrimaryTargetOpacity = 0.0
-                            activeGlowSecondaryTargetOpacity = 0.5
-                        }
-                        activeGlowFramePrimary.opacity = activeGlowPrimaryTargetOpacity
-                        activeGlowFrameSecondary.opacity = activeGlowSecondaryTargetOpacity
-                        useAlternateActiveGlowFrame = !useAlternateActiveGlowFrame
-                    }
                 }
             }
 
-            SequentialAnimation {
-                id: activeTransition
-                running: false
-                NumberAnimation { target: card; property: "activeGlowOpacity"; from: 0.0; to: 0.45; duration: 240; easing.type: Easing.OutQuad }
-                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.25; duration: 520; easing.type: Easing.InOutQuad }
-                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.35; duration: 520; easing.type: Easing.InOutQuad }
-                NumberAnimation { target: card; property: "activeGlowOpacity"; to: 0.25; duration: 520; easing.type: Easing.InOutQuad }
-                ScriptAction { script: if (isActive) activeTransition.restart() }
-            }
-
-            SequentialAnimation {
-                id: activeExit
-                running: false
-                NumberAnimation { target: card; property: "activeGlowOpacity"; from: activeGlowOpacity; to: 0.0; duration: 180; easing.type: Easing.OutQuad }
+            Behavior on activeGlowOpacity {
+                NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
             }
 
             Behavior on activeScaleBoost {
@@ -1358,14 +1284,6 @@ ApplicationWindow {
                             }
                         }
                     }
-                }
-            }
-
-            onIsActiveChanged: {
-                if (isActive) {
-                    activeTransition.restart()
-                } else {
-                    activeExit.restart()
                 }
             }
 
