@@ -1506,4 +1506,220 @@ ApplicationWindow {
             }
         }
     }
+
+    Item {
+        id: pixelParticleLayer
+        anchors.fill: parent
+        z: 999
+        clip: true
+
+        property var pixelSources: [
+            "textures/pixel1.png",
+            "textures/pixel2.png",
+            "textures/pixel3.png",
+            "textures/pixel4.png",
+            "textures/pixel5.png"
+        ]
+        property int poolSize: 16
+
+        function randomBetween(minValue, maxValue) {
+            return minValue + Math.random() * (maxValue - minValue)
+        }
+
+        function randomInt(minValue, maxValue) {
+            return Math.floor(randomBetween(minValue, maxValue + 1))
+        }
+
+        function nextSpawnInterval() {
+            return randomInt(5000, 60000)
+        }
+
+        function spawnOne() {
+            for (var i = 0; i < particleRepeater.count; i += 1) {
+                var particle = particleRepeater.itemAt(i)
+                if (particle && !particle.active) {
+                    particle.launch()
+                    return
+                }
+            }
+        }
+
+        function spawnBurst() {
+            spawnOne()
+            if (Math.random() < 0.05) {
+                spawnOne()
+            }
+        }
+
+        Timer {
+            id: particleSpawner
+            interval: pixelParticleLayer.nextSpawnInterval()
+            repeat: true
+            running: true
+            triggeredOnStart: false
+            onTriggered: {
+                pixelParticleLayer.spawnBurst()
+                interval = pixelParticleLayer.nextSpawnInterval()
+            }
+        }
+
+        Repeater {
+            id: particleRepeater
+            model: pixelParticleLayer.poolSize
+
+            delegate: Item {
+                id: particle
+                visible: active
+                opacity: 0.0
+
+                property bool active: false
+                property real spriteBaseSize: 5
+                property real particleScale: 1.0
+                property string textureSource: ""
+                property real trailFactor: 1.0
+                property real glowFactor: 1.0
+                property int travelDuration: 16000
+
+                function launch() {
+                    var startX = pixelParticleLayer.randomBetween(0, Math.max(1, pixelParticleLayer.width - spriteBaseSize * 2))
+                    var startY = pixelParticleLayer.height + pixelParticleLayer.randomBetween(8, 40)
+                    var endX = Math.max(0, Math.min(pixelParticleLayer.width - width, startX + pixelParticleLayer.randomBetween(-140, 140)))
+                    var firstMidX = Math.max(0, Math.min(pixelParticleLayer.width - width, startX + pixelParticleLayer.randomBetween(-80, 80)))
+                    var secondMidX = Math.max(0, Math.min(pixelParticleLayer.width - width, startX + pixelParticleLayer.randomBetween(-100, 100)))
+                    var firstMidY = pixelParticleLayer.randomBetween(pixelParticleLayer.height * 0.75, pixelParticleLayer.height * 0.92)
+                    var secondMidY = pixelParticleLayer.randomBetween(pixelParticleLayer.height * 0.35, pixelParticleLayer.height * 0.62)
+                    var targetTopY = pixelParticleLayer.randomBetween(-70, -18)
+                    var fadeEarly = Math.random() < 0.5
+
+                    textureSource = pixelParticleLayer.pixelSources[pixelParticleLayer.randomInt(0, pixelParticleLayer.pixelSources.length - 1)]
+                    particleScale = pixelParticleLayer.randomBetween(1.0, 1.5)
+                    trailFactor = pixelParticleLayer.randomBetween(1.0, 1.5)
+                    glowFactor = pixelParticleLayer.randomBetween(1.0, 1.5)
+                    travelDuration = pixelParticleLayer.randomInt(10000, 22000)
+                    var fadeHold = fadeEarly ? Math.floor(travelDuration * pixelParticleLayer.randomBetween(0.35, 0.8)) : Math.max(0, travelDuration - 2200)
+
+                    x = startX
+                    y = startY
+                    opacity = 0.0
+                    active = true
+
+                    xSeg1.to = firstMidX
+                    xSeg2.to = secondMidX
+                    xSeg3.to = endX
+
+                    ySeg1.to = firstMidY
+                    ySeg2.to = secondMidY
+                    ySeg3.to = targetTopY
+
+                    var seg1 = Math.floor(travelDuration * pixelParticleLayer.randomBetween(0.22, 0.36))
+                    var seg2 = Math.floor(travelDuration * pixelParticleLayer.randomBetween(0.24, 0.38))
+                    var seg3 = Math.max(1000, travelDuration - seg1 - seg2)
+
+                    xSeg1.duration = seg1
+                    xSeg2.duration = seg2
+                    xSeg3.duration = seg3
+                    ySeg1.duration = seg1
+                    ySeg2.duration = seg2
+                    ySeg3.duration = seg3
+
+                    fadePause.duration = fadeHold
+                    fadeOut.duration = fadeEarly ? pixelParticleLayer.randomInt(1400, 2600) : pixelParticleLayer.randomInt(1800, 2800)
+
+                    motionAnim.restart()
+                    fadeAnim.restart()
+                }
+
+                function stopParticle() {
+                    motionAnim.stop()
+                    fadeAnim.stop()
+                    active = false
+                    opacity = 0.0
+                }
+
+                width: spriteBaseSize * particleScale
+                height: spriteBaseSize * particleScale
+
+                Image {
+                    id: trailFar
+                    anchors.centerIn: parent
+                    source: particle.textureSource
+                    width: parent.width * trailFactor
+                    height: parent.height * trailFactor
+                    opacity: parent.opacity * 0.11
+                    y: 10
+                    smooth: true
+                }
+
+                Image {
+                    id: trailNear
+                    anchors.centerIn: parent
+                    source: particle.textureSource
+                    width: parent.width * trailFactor
+                    height: parent.height * trailFactor
+                    opacity: parent.opacity * 0.2
+                    y: 5
+                    smooth: true
+                }
+
+                Image {
+                    id: glowSprite
+                    anchors.centerIn: parent
+                    source: particle.textureSource
+                    width: parent.width * glowFactor
+                    height: parent.height * glowFactor
+                    opacity: parent.opacity * 0.24
+                    smooth: true
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        radius: 8
+                        samples: 16
+                        spread: 0.12
+                        color: "#5CC6A6FF"
+                    }
+                }
+
+                Image {
+                    anchors.centerIn: parent
+                    source: particle.textureSource
+                    width: parent.width
+                    height: parent.height
+                    opacity: parent.opacity
+                    smooth: true
+                }
+
+                ParallelAnimation {
+                    id: motionAnim
+                    running: false
+
+                    SequentialAnimation {
+                        NumberAnimation { id: xSeg1; target: particle; property: "x"; easing.type: Easing.InOutSine }
+                        NumberAnimation { id: xSeg2; target: particle; property: "x"; easing.type: Easing.InOutSine }
+                        NumberAnimation { id: xSeg3; target: particle; property: "x"; easing.type: Easing.InOutSine }
+                    }
+
+                    SequentialAnimation {
+                        NumberAnimation { id: ySeg1; target: particle; property: "y"; easing.type: Easing.InQuad }
+                        NumberAnimation { id: ySeg2; target: particle; property: "y"; easing.type: Easing.InQuad }
+                        NumberAnimation { id: ySeg3; target: particle; property: "y"; easing.type: Easing.InQuad }
+                    }
+
+                    onStopped: {
+                        if (particle.active) {
+                            particle.active = false
+                            particle.opacity = 0.0
+                        }
+                    }
+                }
+
+                SequentialAnimation {
+                    id: fadeAnim
+                    running: false
+                    NumberAnimation { target: particle; property: "opacity"; from: 0.0; to: 0.75; duration: 900; easing.type: Easing.OutQuad }
+                    PauseAnimation { id: fadePause }
+                    NumberAnimation { id: fadeOut; target: particle; property: "opacity"; to: 0.0; easing.type: Easing.OutQuad }
+                    ScriptAction { script: particle.stopParticle() }
+                }
+            }
+        }
+    }
 }
