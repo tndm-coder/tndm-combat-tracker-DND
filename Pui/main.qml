@@ -347,7 +347,6 @@ ApplicationWindow {
             property bool tempIncapActive: incapacitatedEligible && tempHpValue > 0
             property bool lastIncapacitated: incapacitatedActive
             property bool lastTempIncapActive: tempIncapActive
-            property bool deadActive: stateValue === "dead"
             property real incapacitatedOpacity: incapacitatedEligible ? 1 : 0
             property real incapacitatedDim: 0.0
             property real deathDim: 0.0
@@ -408,6 +407,29 @@ ApplicationWindow {
                 "textures/death4.png",
                 "textures/death5.png"
             ]
+            property var deathFrameOpaqueRects: [
+                { x: 15, y: 5, width: 1512, height: 1017 },
+                { x: 12, y: 5, width: 1511, height: 1017 },
+                { x: 12, y: 5, width: 1511, height: 1017 },
+                { x: 12, y: 5, width: 1511, height: 1017 },
+                { x: 12, y: 5, width: 1511, height: 1017 }
+            ]
+            property var activeDeathFrameOpaqueRect: (
+                deathFrameIndex >= 0 && deathFrameIndex < deathFrameOpaqueRects.length
+                    ? deathFrameOpaqueRects[deathFrameIndex]
+                    : deathFrameOpaqueRects[0]
+            )
+            property int deathFrameWidth: activeDeathFrameOpaqueRect.width
+            property int deathFrameHeight: activeDeathFrameOpaqueRect.height
+            property int deathCanvasWidth: 1536
+            property int deathCanvasHeight: 1024
+            property real deathBaseScaleX: deathCanvasWidth / deathFrameWidth
+            property real deathBaseScaleY: deathCanvasHeight / deathFrameHeight
+            // Fast tuning controls for death texture fitting
+            property real deathFitScaleX: 1.0
+            property real deathFitScaleY: 1.0
+            property real deathOverlayOffsetX: 0
+            property real deathOverlayOffsetY: 6
             property string pendingStateVisual: ""
             property real overlayInset: 0
             property int damageFrameIndex: -1
@@ -516,6 +538,7 @@ ApplicationWindow {
             }
 
             function startDeathForward() {
+                clearIncapacitatedVisuals()
                 stopDeathAnimations()
                 deathDim = 0.0
                 incapacitatedScaleFactor = 1.0
@@ -528,6 +551,14 @@ ApplicationWindow {
                 setDeathFrame(-1)
                 deathDim = 0.0
                 incapacitatedScaleFactor = 1.0
+            }
+
+            function clearIncapacitatedVisuals() {
+                stopTempIncapAnimations()
+                stopIncapacitatedAnimations()
+                setTempIncapFrame(-1)
+                setIncapacitatedFrame(-1)
+                incapacitatedDim = 0.0
             }
 
             function stopTempIncapAnimations() {
@@ -1102,13 +1133,26 @@ ApplicationWindow {
                 Image {
                     id: deathFrameImage
                     anchors.centerIn: parent
-                    anchors.verticalCenterOffset: 6
+                    anchors.verticalCenterOffset: deathOverlayOffsetY
+                    anchors.horizontalCenterOffset: deathOverlayOffsetX
                     width: parent.width
                     height: parent.height
                     source: deathFrameSource
+                    sourceClipRect: Qt.rect(
+                        activeDeathFrameOpaqueRect.x,
+                        activeDeathFrameOpaqueRect.y,
+                        activeDeathFrameOpaqueRect.width,
+                        activeDeathFrameOpaqueRect.height
+                    )
                     fillMode: Image.Stretch
                     smooth: true
                     visible: deathFrameIndex >= 0
+                    transform: Scale {
+                        xScale: deathBaseScaleX * deathFitScaleX
+                        yScale: deathBaseScaleY * deathFitScaleY
+                        origin.x: width / 2
+                        origin.y: height / 2
+                    }
                 }
             }
 
@@ -1370,6 +1414,11 @@ ApplicationWindow {
                 if (lastTempIncapActive === tempIncapActive) {
                     return
                 }
+                if (stateValue === "dead") {
+                    clearIncapacitatedVisuals()
+                    lastTempIncapActive = tempIncapActive
+                    return
+                }
                 if (tempIncapActive) {
                     startTempIncapForward()
                 } else if (incapacitatedActive && stateValue === "alive") {
@@ -1404,6 +1453,11 @@ ApplicationWindow {
 
             onIncapacitatedActiveChanged: {
                 if (lastIncapacitated === incapacitatedActive) {
+                    return
+                }
+                if (stateValue === "dead") {
+                    clearIncapacitatedVisuals()
+                    lastIncapacitated = incapacitatedActive
                     return
                 }
                 if (tempIncapActive || tempIncapFrameIndex >= 0) {
@@ -1514,6 +1568,16 @@ ApplicationWindow {
                 if (lastState === stateValue) {
                     return
                 }
+                if (stateValue === "dead") {
+                    pendingStateVisual = ""
+                    statusDelayTimer.stop()
+                    applyStateVisuals(stateValue)
+                    if (deathFrameIndex < 0) {
+                        startDeathForward()
+                    }
+                    lastState = stateValue
+                    return
+                }
                 if (lastState === "dead" && stateValue !== "dead") {
                     clearDeathVisuals()
                 }
@@ -1527,9 +1591,7 @@ ApplicationWindow {
                     statusDelayTimer.restart()
                 } else {
                     applyStateVisuals(stateValue)
-                    if (stateValue === "dead" && deathFrameIndex < 0) {
-                        startDeathForward()
-                    } else if (stateValue === "alive" && tempIncapActive && tempIncapFrameIndex < 0) {
+                    if (stateValue === "alive" && tempIncapActive && tempIncapFrameIndex < 0) {
                         startTempIncapForward()
                     } else if (stateValue === "alive" && incapacitatedActive && incapacitatedFrameIndex < 0) {
                         startIncapacitatedForward()
@@ -1545,9 +1607,6 @@ ApplicationWindow {
                 onTriggered: {
                     if (pendingStateVisual) {
                         applyStateVisuals(pendingStateVisual)
-                        if (pendingStateVisual === "dead" && deathFrameIndex < 0) {
-                            startDeathForward()
-                        }
                         pendingStateVisual = ""
                     }
                 }
