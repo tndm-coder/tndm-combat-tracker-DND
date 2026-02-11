@@ -1,5 +1,26 @@
 {
-  "running": false,
-  "combatants": [],
-  "active_ids": []
+  "running": true,
+  "timestamp": 1770799758.2610343,
+  "round": 1,
+  "active_ids": [],
+  "combatants": [
+    {
+      "id": "id_2630439143808",
+      "name": "СМЕРТНИК ЕБАНЫЙ",
+      "display_name": "СМЕРТНИК ЕБАНЫЙ",
+      "kind": "player",
+      "hp": null,
+      "max_hp": null,
+      "temp_hp": 0,
+      "state": "dead",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": true,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    }
+  ]
 }

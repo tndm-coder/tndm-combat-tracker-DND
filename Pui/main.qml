@@ -347,8 +347,10 @@ ApplicationWindow {
             property bool tempIncapActive: incapacitatedEligible && tempHpValue > 0
             property bool lastIncapacitated: incapacitatedActive
             property bool lastTempIncapActive: tempIncapActive
+            property bool deadActive: stateValue === "dead"
             property real incapacitatedOpacity: incapacitatedEligible ? 1 : 0
             property real incapacitatedDim: 0.0
+            property real deathDim: 0.0
             property real incapacitatedScaleFactor: 1.0
             property int incapacitatedFrameIndex: -1
             property string incapacitatedFrameSource: ""
@@ -396,6 +398,15 @@ ApplicationWindow {
                 "textures/tempincap3.png",
                 "textures/tempincap4.png",
                 "textures/tempincap5it1.png"
+            ]
+            property int deathFrameIndex: -1
+            property string deathFrameSource: ""
+            property var deathFrames: [
+                "textures/death1.png",
+                "textures/death2.png",
+                "textures/death3.png",
+                "textures/death4.png",
+                "textures/death5.png"
             ]
             property string pendingStateVisual: ""
             property real overlayInset: 0
@@ -490,6 +501,33 @@ ApplicationWindow {
             function stopIncapacitatedAnimations() {
                 incapacitatedForward.stop()
                 incapacitatedReverse.stop()
+            }
+
+            function setDeathFrame(index) {
+                deathFrameIndex = index
+                var nextSource = (index >= 0 && index < deathFrames.length) ? deathFrames[index] : ""
+                if (deathFrameSource !== nextSource) {
+                    deathFrameSource = nextSource
+                }
+            }
+
+            function stopDeathAnimations() {
+                deathForward.stop()
+            }
+
+            function startDeathForward() {
+                stopDeathAnimations()
+                deathDim = 0.0
+                incapacitatedScaleFactor = 1.0
+                setDeathFrame(0)
+                deathForward.restart()
+            }
+
+            function clearDeathVisuals() {
+                stopDeathAnimations()
+                setDeathFrame(-1)
+                deathDim = 0.0
+                incapacitatedScaleFactor = 1.0
             }
 
             function stopTempIncapAnimations() {
@@ -654,7 +692,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 radius: 0
                 color: "#120D12"
-                opacity: Math.min(1, statusDim + incapacitatedDim)
+                opacity: Math.min(1, statusDim + incapacitatedDim + deathDim)
                 visible: opacity > 0
                 Behavior on opacity {
                     NumberAnimation { duration: 240; easing.type: Easing.OutQuad }
@@ -1056,6 +1094,25 @@ ApplicationWindow {
             }
 
             Item {
+                id: deathOverlayLayer
+                anchors.fill: parent
+                z: 10
+                visible: deathFrameIndex >= 0
+
+                Image {
+                    id: deathFrameImage
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: 6
+                    width: parent.width
+                    height: parent.height
+                    source: deathFrameSource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: deathFrameIndex >= 0
+                }
+            }
+
+            Item {
                 id: contentArea
                 z: 3
                 anchors.left: parent.left
@@ -1435,9 +1492,30 @@ ApplicationWindow {
                 ScriptAction { script: setTempIncapFrame(-1) }
             }
 
+            SequentialAnimation {
+                id: deathForward
+                running: false
+                ScriptAction { script: setDeathFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setDeathFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setDeathFrame(2) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setDeathFrame(3) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setDeathFrame(4) }
+                ParallelAnimation {
+                    NumberAnimation { target: card; property: "deathDim"; to: 0.55; duration: 120; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "incapacitatedScaleFactor"; to: incapacitatedShrinkScale; duration: 120; easing.type: Easing.OutQuad }
+                }
+            }
+
             onStateValueChanged: {
                 if (lastState === stateValue) {
                     return
+                }
+                if (lastState === "dead" && stateValue !== "dead") {
+                    clearDeathVisuals()
                 }
                 if (lastState === "alive" && stateValue !== "alive" && (incapacitatedActive || incapacitatedFrameIndex >= 0 || tempIncapFrameIndex >= 0 || tempIncapActive)) {
                     pendingStateVisual = stateValue
@@ -1449,7 +1527,9 @@ ApplicationWindow {
                     statusDelayTimer.restart()
                 } else {
                     applyStateVisuals(stateValue)
-                    if (stateValue === "alive" && tempIncapActive && tempIncapFrameIndex < 0) {
+                    if (stateValue === "dead" && deathFrameIndex < 0) {
+                        startDeathForward()
+                    } else if (stateValue === "alive" && tempIncapActive && tempIncapFrameIndex < 0) {
                         startTempIncapForward()
                     } else if (stateValue === "alive" && incapacitatedActive && incapacitatedFrameIndex < 0) {
                         startIncapacitatedForward()
@@ -1465,6 +1545,9 @@ ApplicationWindow {
                 onTriggered: {
                     if (pendingStateVisual) {
                         applyStateVisuals(pendingStateVisual)
+                        if (pendingStateVisual === "dead" && deathFrameIndex < 0) {
+                            startDeathForward()
+                        }
                         pendingStateVisual = ""
                     }
                 }
