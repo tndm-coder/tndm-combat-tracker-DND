@@ -1,76 +1,22 @@
 {
   "running": true,
-  "timestamp": 1770889299.5417633,
+  "timestamp": 1770905951.215162,
   "round": 1,
   "active_ids": [
-    "id_2630439143808"
+    "id_2284053253472"
   ],
   "combatants": [
     {
-      "id": "id_2630439143808",
-      "name": "СМЕРТНИК ЕБАНЫЙ",
-      "display_name": "СМЕРТНИК ЕБАНЫЙ",
-      "kind": "player",
-      "hp": null,
-      "max_hp": null,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2630439141456",
-      "name": "45е 1",
-      "display_name": "45е",
+      "id": "id_2284053253472",
+      "name": "Бить будем 1",
+      "display_name": "Бить будем",
       "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
-      "temp_hp": 1,
+      "hp": 100,
+      "max_hp": 100,
+      "temp_hp": 999,
       "state": "alive",
       "effects": {
         "temp_hp": true,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": true
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2630429537488",
-      "name": "45е 2",
-      "display_name": "45е",
-      "kind": "monster",
-      "hp": 0,
-      "max_hp": 1,
-      "temp_hp": 0,
-      "state": "dead",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": true,
-        "unconscious": false,
-        "incapacitated": true
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2630429537808",
-      "name": "45е 3",
-      "display_name": "45е",
-      "kind": "monster",
-      "hp": 6,
-      "max_hp": 6,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
         "concentration": false,
         "dead": false,
         "unconscious": false,

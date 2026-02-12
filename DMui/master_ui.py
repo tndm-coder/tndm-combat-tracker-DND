@@ -52,19 +52,19 @@ class MasterUI(QWidget):
         )
 
     def apply_theme(self):
-        card_border = "#6A4A31"
-        panel_bg = "#251A16"
-        field_bg = "#31221B"
-        header_bg = "#3A2920"
+        card_border = "#5F4A3C"
+        panel_bg = "#241B22"
+        field_bg = "#19131A"
+        header_bg = "#2B2028"
 
         self.setStyleSheet(
             """
             QWidget {
-                background-color: #110C10;
-                color: #E8D9C5;
+                background-color: #0F0B11;
+                color: #F1E4D1;
             }
             QLabel {
-                color: #E8D9C5;
+                color: #F1E4D1;
             }
             QGroupBox {
                 border: 1px solid %s;
@@ -78,7 +78,7 @@ class MasterUI(QWidget):
                 subcontrol-origin: margin;
                 left: 12px;
                 padding: 0 5px;
-                color: #F0E2C8;
+                color: #F1E4D1;
                 background-color: %s;
             }
             QLineEdit, QSpinBox, QComboBox {
@@ -86,23 +86,23 @@ class MasterUI(QWidget):
                 border: 1px solid %s;
                 border-radius: 0px;
                 padding: 5px 7px;
-                color: #E8D9C5;
-                selection-background-color: #E2BE6F;
-                selection-color: #1A130F;
+                color: #F1E4D1;
+                selection-background-color: #E0B26B;
+                selection-color: #120F13;
             }
             QPushButton, QToolButton {
                 background-color: %s;
                 border: 1px solid %s;
                 border-radius: 0px;
                 padding: 5px 10px;
-                color: #F2E4CC;
+                color: #F1E4D1;
                 min-height: 28px;
             }
             QPushButton:hover, QToolButton:hover {
-                background-color: #4B3529;
+                background-color: #3A2C34;
             }
             QPushButton:pressed, QToolButton:pressed {
-                background-color: #281C16;
+                background-color: #1E161D;
             }
             QTableWidget {
                 background-color: %s;
@@ -110,13 +110,13 @@ class MasterUI(QWidget):
                 border: 1px solid %s;
                 border-radius: 0px;
                 gridline-color: %s;
-                color: #E8D9C5;
-                selection-background-color: #E2BE6F;
-                selection-color: #1A130F;
+                color: #F1E4D1;
+                selection-background-color: #E0B26B;
+                selection-color: #120F13;
             }
             QHeaderView::section {
                 background-color: %s;
-                color: #F0E2C8;
+                color: #C9B7A0;
                 border: 0;
                 border-bottom: 1px solid %s;
                 padding: 6px;
@@ -168,7 +168,7 @@ class MasterUI(QWidget):
         title_font.setPointSize(16)
         title_font.setBold(True)
         title_label.setFont(title_font)
-        title_label.setStyleSheet("color: #E9DCCB;")
+        title_label.setStyleSheet("color: #F1E4D1;")
         layout.addWidget(title_label)
 
         controls_layout = QHBoxLayout()
@@ -176,7 +176,7 @@ class MasterUI(QWidget):
         round_font = QFont()
         round_font.setPointSize(12)
         self.round_label.setFont(round_font)
-        self.round_label.setStyleSheet("color: #C2B1A0;")
+        self.round_label.setStyleSheet("color: #C9B7A0;")
         controls_layout.addWidget(self.round_label)
         controls_layout.addStretch(1)
 
@@ -238,7 +238,7 @@ class MasterUI(QWidget):
         player_ui_container = QFrame()
         player_ui_container.setFrameShape(QFrame.StyledPanel)
         player_ui_container.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        player_ui_container.setStyleSheet("QFrame { border-radius: 6px; }")
+        player_ui_container.setStyleSheet("QFrame { border-radius: 0px; }")
         player_ui_layout = QVBoxLayout()
         player_ui_layout.setContentsMargins(8, 6, 8, 8)
 

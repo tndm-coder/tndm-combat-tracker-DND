@@ -249,7 +249,14 @@ ApplicationWindow {
                 return baseName
             }
             property var hpValue: hp
-            property real hpRatio: (max_hp && hp !== null) ? Math.max(0, Math.min(1, hp / max_hp)) : 0
+            property int safeMaxHp: (max_hp !== null && max_hp !== undefined) ? Math.max(0, max_hp) : 0
+            property int safeHp: (hp !== null && hp !== undefined) ? Math.max(0, hp) : 0
+            property int safeTempHp: Math.max(0, tempHpValue)
+            property int totalSegments: Math.max(1, safeMaxHp + safeTempHp)
+            property int filledSegments: Math.max(0, Math.min(totalSegments, safeHp + safeTempHp))
+            property int filledHpSegments: Math.max(0, Math.min(safeHp, filledSegments))
+            property int filledTempSegments: Math.max(0, filledSegments - filledHpSegments)
+            property real hpRatio: filledSegments / totalSegments
             property real displayedHpRatio: hpRatio
             property real pendingDamageHpRatio: hpRatio
             property real pendingHealHpRatio: hpRatio
@@ -1391,28 +1398,37 @@ ApplicationWindow {
                             opacity: 0.0
                         }
 
-                        Rectangle {
-                            id: hpFill
+                        Item {
+                            id: filledBar
                             anchors.left: parent.left
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
                             width: parent.width * displayedHpRatio
-                            radius: 0
-                            color: hpFillColor
-                        }
+                            clip: true
 
-                        Rectangle {
-                            id: tempHpFill
-                            anchors.right: parent.right
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            width: tempHpValue > 0 ? Math.min(parent.width * 0.25, parent.width * (tempHpValue / (max_hp || 1))) : 0
-                            radius: 0
-                            color: accentTemp
-                            visible: tempHpValue > 0
-                            opacity: tempHpPulse.opacity
-                            Behavior on width {
-                                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                            Rectangle {
+                                id: hpFill
+                                anchors.left: parent.left
+                                anchors.top: parent.top
+                                anchors.bottom: parent.bottom
+                                width: filledSegments > 0 ? parent.width * (filledHpSegments / filledSegments) : 0
+                                radius: 0
+                                color: hpFillColor
+                            }
+
+                            Rectangle {
+                                id: tempHpFill
+                                anchors.left: hpFill.right
+                                anchors.top: parent.top
+                                anchors.bottom: parent.bottom
+                                width: filledSegments > 0 ? parent.width * (filledTempSegments / filledSegments) : 0
+                                radius: 0
+                                color: accentTemp
+                                visible: filledTempSegments > 0
+                                opacity: tempHpPulse.opacity
+                                Behavior on width {
+                                    NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                                }
                             }
                         }
 
