@@ -1613,7 +1613,7 @@ ApplicationWindow {
                     return
                 }
                 if (stateValue === "left") {
-                    pendingIncapacitatedReverseAfterLeft = lastIncapacitated && !incapacitatedActive
+                    pendingIncapacitatedReverseAfterLeft = false
                     clearIncapacitatedVisuals()
                     lastIncapacitated = incapacitatedActive
                     return
@@ -1827,9 +1827,6 @@ ApplicationWindow {
                     if (pendingStateVisual) {
                         var deferredState = pendingStateVisual
                         applyStateVisuals(deferredState)
-                        if (pendingIncapacitatedReverseAfterLeft && deferredState === "alive" && !incapacitatedActive && !tempIncapActive) {
-                            startIncapacitatedReverse()
-                        }
                         pendingIncapacitatedReverseAfterLeft = false
                         if (deferredState === "dead" && deathFrameIndex < 0) {
                             startDeathForward()
