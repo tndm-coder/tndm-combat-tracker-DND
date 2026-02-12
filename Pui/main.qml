@@ -650,6 +650,9 @@ ApplicationWindow {
             }
 
             function startIncapacitatedForward() {
+                if (stateValue !== "alive") {
+                    return
+                }
                 stopIncapacitatedAnimations()
                 incapacitatedDim = 0.0
                 incapacitatedScaleFactor = 1.0
@@ -658,6 +661,9 @@ ApplicationWindow {
             }
 
             function startIncapacitatedReverse() {
+                if (stateValue !== "alive") {
+                    return
+                }
                 stopIncapacitatedAnimations()
                 if (incapacitatedFrameIndex < 0) {
                     setIncapacitatedFrame(4)
@@ -666,6 +672,9 @@ ApplicationWindow {
             }
 
             function startTempIncapForward() {
+                if (stateValue !== "alive") {
+                    return
+                }
                 stopTempIncapAnimations()
                 stopIncapacitatedAnimations()
                 setIncapacitatedFrame(-1)
@@ -676,6 +685,9 @@ ApplicationWindow {
             }
 
             function startTempIncapReverse() {
+                if (stateValue !== "alive") {
+                    return
+                }
                 stopTempIncapAnimations()
                 stopIncapacitatedAnimations()
                 setIncapacitatedFrame(-1)
@@ -1815,7 +1827,7 @@ ApplicationWindow {
                     if (pendingStateVisual) {
                         var deferredState = pendingStateVisual
                         applyStateVisuals(deferredState)
-                        if (pendingIncapacitatedReverseAfterLeft && deferredState !== "left" && !incapacitatedActive && !tempIncapActive) {
+                        if (pendingIncapacitatedReverseAfterLeft && deferredState === "alive" && !incapacitatedActive && !tempIncapActive) {
                             startIncapacitatedReverse()
                         }
                         pendingIncapacitatedReverseAfterLeft = false
