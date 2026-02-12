@@ -1,6 +1,6 @@
 {
   "running": true,
-  "timestamp": 1770803363.7386627,
+  "timestamp": 1770873144.2549212,
   "round": 1,
   "active_ids": [],
   "combatants": [
@@ -12,6 +12,42 @@
       "hp": null,
       "max_hp": null,
       "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2630439141456",
+      "name": "45е 1",
+      "display_name": "45е",
+      "kind": "monster",
+      "hp": 5,
+      "max_hp": 5,
+      "temp_hp": 1,
+      "state": "alive",
+      "effects": {
+        "temp_hp": true,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2630429537488",
+      "name": "45е 2",
+      "display_name": "45е",
+      "kind": "monster",
+      "hp": 0,
+      "max_hp": 1,
+      "temp_hp": 0,
       "state": "dead",
       "effects": {
         "temp_hp": false,
@@ -19,6 +55,24 @@
         "dead": true,
         "unconscious": false,
         "incapacitated": true
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2630429537808",
+      "name": "45е 3",
+      "display_name": "45е",
+      "kind": "monster",
+      "hp": 6,
+      "max_hp": 6,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
       },
       "custom_effects": {}
     }

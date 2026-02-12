@@ -408,23 +408,17 @@ ApplicationWindow {
                 "textures/death5.png"
             ]
             property var deathFrameOpaqueRects: [
-                { x: 15, y: 5, width: 1512, height: 1017 },
-                { x: 12, y: 5, width: 1511, height: 1017 },
-                { x: 12, y: 5, width: 1511, height: 1017 },
-                { x: 12, y: 5, width: 1511, height: 1017 },
-                { x: 12, y: 5, width: 1511, height: 1017 }
+                { x: 33, y: 64, width: 1491, height: 840 },
+                { x: 27, y: 55, width: 1486, height: 871 },
+                { x: 26, y: 54, width: 1493, height: 873 },
+                { x: 26, y: 54, width: 1492, height: 873 },
+                { x: 26, y: 55, width: 1493, height: 872 }
             ]
             property var activeDeathFrameOpaqueRect: (
                 deathFrameIndex >= 0 && deathFrameIndex < deathFrameOpaqueRects.length
                     ? deathFrameOpaqueRects[deathFrameIndex]
                     : deathFrameOpaqueRects[0]
             )
-            property int deathFrameWidth: activeDeathFrameOpaqueRect.width
-            property int deathFrameHeight: activeDeathFrameOpaqueRect.height
-            property int deathCanvasWidth: 1536
-            property int deathCanvasHeight: 1024
-            property real deathBaseScaleX: deathCanvasWidth / deathFrameWidth
-            property real deathBaseScaleY: deathCanvasHeight / deathFrameHeight
             // Fast tuning controls for death texture fitting
             property real deathFitScaleX: 1.0
             property real deathFitScaleY: 1.0
@@ -1148,8 +1142,8 @@ ApplicationWindow {
                     smooth: true
                     visible: deathFrameIndex >= 0
                     transform: Scale {
-                        xScale: deathBaseScaleX * deathFitScaleX
-                        yScale: deathBaseScaleY * deathFitScaleY
+                        xScale: deathFitScaleX
+                        yScale: deathFitScaleY
                         origin.x: width / 2
                         origin.y: height / 2
                     }
