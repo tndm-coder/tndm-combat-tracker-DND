@@ -449,6 +449,8 @@ ApplicationWindow {
             property real leftTavernFitScaleY: 1.0
             property real leftTavernForcedScaleX: width > 0 ? (width + 10) / width : 1.0
             property real leftTavernForcedScaleY: height > 0 ? (height + 10) / height : 1.0
+            property real leftTavernScaleBoost: 1.3
+            property real leftWantedScale: 0.42
             property int leftWantedFrameIndex: -1
             property string leftWantedFrameSource: ""
             property var leftWantedFrames: [
@@ -1257,8 +1259,8 @@ ApplicationWindow {
                     smooth: true
                     visible: leftTavernFrameIndex >= 0
                     transform: Scale {
-                        xScale: leftTavernFitScaleX * leftTavernForcedScaleX
-                        yScale: leftTavernFitScaleY * leftTavernForcedScaleY
+                        xScale: leftTavernFitScaleX * leftTavernForcedScaleX * leftTavernScaleBoost
+                        yScale: leftTavernFitScaleY * leftTavernForcedScaleY * leftTavernScaleBoost
                         origin.x: width / 2
                         origin.y: height / 2
                     }
@@ -1268,6 +1270,8 @@ ApplicationWindow {
                     id: leftWantedFrameImage
                     anchors.centerIn: parent
                     source: leftWantedFrameSource
+                    width: parent.width * leftWantedScale
+                    height: parent.height * leftWantedScale
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: leftWantedFrameIndex >= 0
