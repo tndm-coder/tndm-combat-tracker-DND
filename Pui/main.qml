@@ -107,44 +107,37 @@ ApplicationWindow {
                     Layout.preferredWidth: headerPanel.width * 0.30
                     Layout.fillHeight: true
 
-                    Column {
-                        anchors.fill: parent
-                        spacing: 6
+                    Row {
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        spacing: 20
 
                         Text {
-                            width: parent.width
-                            height: parent.height * 0.52
                             text: (playerState && playerState.running) ? "Бой идет" : "Бой не начат"
                             color: inkLight
-                            font.pixelSize: 38
+                            font.pixelSize: 40
                             font.family: pixelFont.name
-                            horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                         }
 
-                        Item {
-                            width: parent.width
-                            height: parent.height * 0.40
+                        Row {
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 2
 
-                            Row {
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.horizontalCenterOffset: 14
-                                spacing: 2
+                            Text {
+                                text: "Раунд "
+                                color: inkLight
+                                font.pixelSize: 28
+                                font.family: pixelFont.name
+                                verticalAlignment: Text.AlignVCenter
+                            }
 
-                                Text {
-                                    text: "Раунд "
-                                    color: inkLight
-                                    font.pixelSize: 26
-                                    font.family: pixelFont.name
-                                }
-
-                                Text {
-                                    text: playerState ? playerState.round : 0
-                                    color: accentBright
-                                    font.pixelSize: 28
-                                    font.family: pixelFont.name
-                                }
+                            Text {
+                                text: playerState ? playerState.round : 0
+                                color: accentBright
+                                font.pixelSize: 30
+                                font.family: pixelFont.name
+                                verticalAlignment: Text.AlignVCenter
                             }
                         }
                     }

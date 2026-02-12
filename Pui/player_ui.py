@@ -175,12 +175,6 @@ class PlayerUiState(QObject):
             for c in payload.get("combatants", [])
         }
 
-        new_active_ids = payload.get("active_ids", []) or []
-        if new_active_ids != self._active_ids and new_active_ids:
-            active = curr_combatants.get(new_active_ids[0])
-            if active:
-                self._actor_log(self._display_name(active), "ходит")
-
         for combatant_id, current in curr_combatants.items():
             previous = prev_combatants.get(combatant_id)
             if previous is None:
