@@ -52,7 +52,6 @@ ApplicationWindow {
     property color damageFillColor: "#D6493E"
     property color barBackground: "#100D12"
     property real heartbeatPhase: 0
-    property real headerIconSize: headerPanel.height * 0.6
 
     NumberAnimation on heartbeatPhase {
         from: 0
@@ -93,7 +92,7 @@ ApplicationWindow {
             id: headerPanel
             width: Math.min(parent.width - 40, parent.width * 0.92)
             anchors.horizontalCenter: parent.horizontalCenter
-            height: 82
+            height: 112
             radius: 0
             color: "#2B2028"
             border.width: 1
@@ -102,95 +101,46 @@ ApplicationWindow {
             RowLayout {
                 anchors.fill: parent
                 anchors.margins: 16
-                spacing: 16
+                spacing: 20
 
-                Item {
-                    id: sigil
-                    width: headerIconSize
-                    height: headerIconSize
+                Column {
+                    Layout.alignment: Qt.AlignTop
+                    Layout.preferredWidth: headerPanel.width * 0.28
+                    spacing: 6
 
-                    Image {
-                        id: timeSigil
-                        anchors.fill: parent
-                        source: "textures/time.png" // TODO: заменить на локальную иконку песочных часов (textures/time.png).
-                        fillMode: Image.PreserveAspectFit
-                        smooth: true
-                        rotation: 0
-                        visible: status === Image.Ready
+                    Text {
+                        text: (playerState && playerState.running) ? "Бой идет" : "Бой не начат"
+                        color: inkLight
+                        font.pixelSize: 30
+                        font.family: pixelFont.name
                     }
 
-                    Rectangle {
-                        id: sigilFallback
-                        anchors.fill: parent
-                        radius: 0
-                        color: panelMid
-                        border.width: 1
-                        border.color: panelEdge
-                        visible: timeSigil.status !== Image.Ready
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "⟲"
-                            color: inkLight
-                            font.pixelSize: 16
-                            font.family: pixelFont.name
-                        }
-                    }
-
-                    RotationAnimator on rotation {
-                        id: sigilSpin
-                        from: 0
-                        to: 360
-                        duration: 4200
-                        loops: Animation.Infinite
-                        running: true
+                    Text {
+                        text: (playerState && playerState.running) ? ("Раунд " + playerState.round) : "Раунд 0"
+                        color: (playerState && playerState.running) ? inkMuted : inkSoft
+                        font.pixelSize: 22
+                        font.family: pixelFont.name
                     }
                 }
 
                 Column {
-                    spacing: 4
-                    Text {
-                        text: "Хроника"
-                        color: inkLight
-                        font.pixelSize: 26
-                        font.family: pixelFont.name
-                    }
-                    Text {
-                        text: (playerState && playerState.running) ? ("Раунд " + playerState.round) : "Ожидание боя"
-                        color: (playerState && playerState.running) ? inkLight : inkSoft
-                        font.pixelSize: 18
-                        font.family: pixelFont.name
-                    }
-                }
-
-                Item {
-                    width: 1
-                    height: 1
                     Layout.fillWidth: true
-                }
+                    Layout.alignment: Qt.AlignVCenter
+                    spacing: 4
 
-                Row {
-                    spacing: 10
-                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-                    height: headerIconSize
+                    Repeater {
+                        model: playerState ? playerState.logLines : ["", "", ""]
 
-                    Text {
-                        text: (playerState && playerState.running) ? "Идет бой" : "Тишина"
-                        color: inkLight
-                        font.pixelSize: 26
-                        font.family: pixelFont.name
-                        verticalAlignment: Text.AlignVCenter
-                        height: headerIconSize
-                    }
-
-                    Image {
-                        id: battleStateIcon
-                        width: headerIconSize
-                        height: headerIconSize
-                        source: (playerState && playerState.running) ? "textures/battle.png" : "textures/calm.png"
-                        fillMode: Image.PreserveAspectFit
-                        smooth: true
-                        visible: status === Image.Ready
+                        Text {
+                            width: headerPanel.width * 0.62
+                            text: modelData
+                            color: inkLight
+                            font.pixelSize: 26
+                            font.family: pixelFont.name
+                            elide: Text.ElideRight
+                            maximumLineCount: 1
+                            wrapMode: Text.NoWrap
+                        }
                     }
                 }
             }

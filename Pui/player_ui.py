@@ -116,12 +116,16 @@ class CombatantModel(QAbstractListModel):
 class PlayerUiState(QObject):
     runningChanged = Signal()
     roundChanged = Signal()
+    logLinesChanged = Signal()
 
     def __init__(self, model, parent=None):
         super().__init__(parent)
         self._running = False
         self._round = 0
         self._model = model
+        self._prev_payload = None
+        self._active_ids = []
+        self._log_lines = ["", "", ""]
 
     @Property(bool, notify=runningChanged)
     def running(self):
@@ -135,15 +139,129 @@ class PlayerUiState(QObject):
     def model(self):
         return self._model
 
+    @Property("QVariantList", notify=logLinesChanged)
+    def logLines(self):
+        return self._log_lines
+
+    @staticmethod
+    def _display_name(combatant):
+        return combatant.get("display_name") or combatant.get("name") or "—"
+
+    def _push_log(self, message):
+        if not message:
+            return
+        self._log_lines = [message] + self._log_lines[:2]
+        self.logLinesChanged.emit()
+
+    def _collect_diff_logs(self, payload):
+        if self._prev_payload is None:
+            return
+
+        prev_combatants = {
+            c.get("id"): c
+            for c in self._prev_payload.get("combatants", [])
+        }
+        curr_combatants = {
+            c.get("id"): c
+            for c in payload.get("combatants", [])
+        }
+
+        new_active_ids = payload.get("active_ids", []) or []
+        if new_active_ids != self._active_ids and new_active_ids:
+            active = curr_combatants.get(new_active_ids[0])
+            if active:
+                self._push_log(f"{self._display_name(active)} ходит")
+
+        for combatant_id, current in curr_combatants.items():
+            previous = prev_combatants.get(combatant_id)
+            if previous is None:
+                continue
+
+            name = self._display_name(current)
+            prev_hp = previous.get("hp")
+            curr_hp = current.get("hp")
+            hp_changed = isinstance(prev_hp, int) and isinstance(curr_hp, int) and curr_hp != prev_hp
+
+            prev_temp = previous.get("temp_hp", 0)
+            curr_temp = current.get("temp_hp", 0)
+            temp_changed = isinstance(prev_temp, int) and isinstance(curr_temp, int) and curr_temp != prev_temp
+
+            if hp_changed or temp_changed:
+                if isinstance(curr_hp, int) and isinstance(prev_hp, int) and curr_hp > prev_hp:
+                    self._push_log(f"{name} восстанавливает HP")
+                elif isinstance(curr_temp, int) and isinstance(prev_temp, int) and curr_temp > prev_temp:
+                    self._push_log(f"{name} получает временные HP")
+                else:
+                    self._push_log(f"{name} получает урон")
+                    if (
+                        isinstance(prev_temp, int)
+                        and isinstance(curr_temp, int)
+                        and prev_temp > 0
+                        and curr_temp == 0
+                    ):
+                        self._push_log(f"{name} теряет временные HP")
+
+            prev_effects = previous.get("effects", {})
+            curr_effects = current.get("effects", {})
+            prev_concentration = bool(prev_effects.get("concentration"))
+            curr_concentration = bool(curr_effects.get("concentration"))
+            if prev_concentration != curr_concentration:
+                if curr_concentration:
+                    self._push_log(f"{name} концентрируется на заклинании")
+                else:
+                    self._push_log(f"{name} теряет концентрацию")
+
+            prev_incapacitated = bool(prev_effects.get("incapacitated"))
+            curr_incapacitated = bool(curr_effects.get("incapacitated"))
+            if prev_incapacitated != curr_incapacitated:
+                if curr_incapacitated:
+                    self._push_log(f"{name} становится недееспособным")
+                else:
+                    self._push_log(f"{name} снова дееспособен")
+
+            prev_state = previous.get("state")
+            curr_state = current.get("state")
+            if prev_state != curr_state:
+                if curr_state == "dead":
+                    self._push_log(f"{name} погибает")
+                elif curr_state == "unconscious":
+                    self._push_log(f"{name} без сознания")
+                elif curr_state == "left":
+                    self._push_log(f"{name} покидает бой")
+                elif curr_state == "alive":
+                    if prev_state == "dead":
+                        self._push_log(f"{name} воскрешен")
+                    elif prev_state == "left":
+                        self._push_log(f"{name} возвращается в бой")
+                    else:
+                        self._push_log(f"{name} приходит в себя")
+                else:
+                    self._push_log(f"{name}: состояние {curr_state}")
+
+            prev_custom = previous.get("custom_effects", {})
+            curr_custom = current.get("custom_effects", {})
+            prev_names = set(prev_custom.keys())
+            curr_names = set(curr_custom.keys())
+            for effect_name in sorted(curr_names - prev_names):
+                self._push_log(f"{name} получает эффект {effect_name}")
+            for effect_name in sorted(prev_names - curr_names):
+                self._push_log(f"{name} теряет эффект {effect_name}")
+
     def update_state(self, payload):
         running = bool(payload.get("running", False))
         round_value = int(payload.get("round", 0))
+
+        self._collect_diff_logs(payload)
+
         if self._running != running:
             self._running = running
             self.runningChanged.emit()
         if self._round != round_value:
             self._round = round_value
             self.roundChanged.emit()
+
+        self._active_ids = list(payload.get("active_ids", []) or [])
+        self._prev_payload = payload
 
 
 def load_state(path):

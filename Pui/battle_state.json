@@ -1,28 +1,30 @@
 {
   "running": true,
-  "timestamp": 1770905951.215162,
+  "timestamp": 1770907921.178111,
   "round": 1,
-  "active_ids": [
-    "id_2284053253472"
-  ],
+  "active_ids": [],
   "combatants": [
     {
-      "id": "id_2284053253472",
-      "name": "Бить будем 1",
-      "display_name": "Бить будем",
+      "id": "id_2284053255600",
+      "name": "ы 1",
+      "display_name": "ы",
       "kind": "monster",
-      "hp": 100,
-      "max_hp": 100,
-      "temp_hp": 999,
-      "state": "alive",
+      "hp": 0,
+      "max_hp": 9,
+      "temp_hp": 0,
+      "state": "dead",
       "effects": {
-        "temp_hp": true,
+        "temp_hp": false,
         "concentration": false,
-        "dead": false,
+        "dead": true,
         "unconscious": false,
-        "incapacitated": false
+        "incapacitated": true
       },
-      "custom_effects": {}
+      "custom_effects": {
+        "крысв": {
+          "duration": null
+        }
+      }
     }
   ]
 }
