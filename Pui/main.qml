@@ -235,7 +235,7 @@ ApplicationWindow {
             property real activeScaleBoost: is_active ? 1.03 : 1.0
             scale: baseScale * incapacitatedScaleFactor * leftScaleFactor * activeScaleBoost
             transformOrigin: Item.Center
-            opacity: leftCardOpacity
+            opacity: 1.0
 
             property bool isPlayer: kind === "player" || (hp === null && max_hp === null)
             property bool isMonster: kind === "monster" || (hp !== null && max_hp !== null)
@@ -450,8 +450,8 @@ ApplicationWindow {
             property real leftTavernForcedScaleX: width > 0 ? (width + 10) / width : 1.0
             property real leftTavernForcedScaleY: height > 0 ? (height + 10) / height : 1.0
             property real leftTavernScaleBoostX: 1.12
-            property real leftTavernScaleBoostY: 1.56
-            property real leftWantedScale: 0.575
+            property real leftTavernScaleBoostY: 1.872
+            property real leftWantedScale: 0.69
             property int leftWantedFrameIndex: -1
             property string leftWantedFrameSource: ""
             property var leftWantedFrames: [
@@ -700,6 +700,7 @@ ApplicationWindow {
                 border.width: 1
                 border.color: isActive ? "#FFF4AE" : panelEdge
                 z: 4
+                opacity: leftCardOpacity
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: isActive ? "#FFFCE9" : "#3A2C35" }
                     GradientStop { position: 1.0; color: isActive ? "#FFD45A" : "#32252D" }
@@ -830,6 +831,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: overlayInset
                 z: 4
+                opacity: leftCardOpacity
                 visible: concentrationActive || (tempHpValue > 0 && !tempIncapActive && tempIncapFrameIndex < 0)
 
                 Image {
@@ -1295,6 +1297,7 @@ ApplicationWindow {
             Item {
                 id: contentArea
                 z: 3
+                opacity: leftCardOpacity
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.top: parent.top
