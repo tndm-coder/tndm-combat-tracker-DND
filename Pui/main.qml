@@ -449,9 +449,9 @@ ApplicationWindow {
             property real leftTavernFitScaleY: 1.0
             property real leftTavernForcedScaleX: width > 0 ? (width + 10) / width : 1.0
             property real leftTavernForcedScaleY: height > 0 ? (height + 10) / height : 1.0
-            property real leftTavernScaleBoostX: 1.12
-            property real leftTavernScaleBoostY: 1.872
-            property real leftWantedScale: 0.69
+            property real leftTavernScaleBoostX: 1.176
+            property real leftTavernScaleBoostY: 2.0592
+            property real leftWantedScale: 0.759
             property int leftWantedFrameIndex: -1
             property string leftWantedFrameSource: ""
             property var leftWantedFrames: [
@@ -459,6 +459,7 @@ ApplicationWindow {
                 "textures/wanted2.png"
             ]
             property string pendingStateVisual: ""
+            property bool pendingIncapacitatedReverseAfterLeft: false
             property real overlayInset: 0
             property int damageFrameIndex: -1
             property string damageFrameSource: ""
@@ -1594,7 +1595,13 @@ ApplicationWindow {
                 if (lastIncapacitated === incapacitatedActive) {
                     return
                 }
-                if (stateValue === "dead" || stateValue === "left") {
+                if (stateValue === "dead") {
+                    clearIncapacitatedVisuals()
+                    lastIncapacitated = incapacitatedActive
+                    return
+                }
+                if (stateValue === "left") {
+                    pendingIncapacitatedReverseAfterLeft = lastIncapacitated && !incapacitatedActive
                     clearIncapacitatedVisuals()
                     lastIncapacitated = incapacitatedActive
                     return
@@ -1808,6 +1815,10 @@ ApplicationWindow {
                     if (pendingStateVisual) {
                         var deferredState = pendingStateVisual
                         applyStateVisuals(deferredState)
+                        if (pendingIncapacitatedReverseAfterLeft && deferredState !== "left" && !incapacitatedActive && !tempIncapActive) {
+                            startIncapacitatedReverse()
+                        }
+                        pendingIncapacitatedReverseAfterLeft = false
                         if (deferredState === "dead" && deathFrameIndex < 0) {
                             startDeathForward()
                         } else if (deferredState === "alive") {

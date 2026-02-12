@@ -1,8 +1,10 @@
 {
   "running": true,
-  "timestamp": 1770876069.5540075,
+  "timestamp": 1770876577.4265344,
   "round": 1,
-  "active_ids": [],
+  "active_ids": [
+    "id_2630439143808"
+  ],
   "combatants": [
     {
       "id": "id_2630439143808",
@@ -12,13 +14,13 @@
       "hp": null,
       "max_hp": null,
       "temp_hp": 0,
-      "state": "left",
+      "state": "alive",
       "effects": {
         "temp_hp": false,
         "concentration": false,
         "dead": false,
         "unconscious": false,
-        "incapacitated": true
+        "incapacitated": false
       },
       "custom_effects": {}
     },
