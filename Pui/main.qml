@@ -110,35 +110,23 @@ ApplicationWindow {
                     Row {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
-                        spacing: 20
+                        anchors.leftMargin: 24
+                        spacing: 2
 
                         Text {
-                            text: (playerState && playerState.running) ? "Бой идет" : "Бой не начат"
+                            text: "Раунд "
                             color: inkLight
-                            font.pixelSize: 40
+                            font.pixelSize: 34
                             font.family: pixelFont.name
                             verticalAlignment: Text.AlignVCenter
                         }
 
-                        Row {
-                            anchors.verticalCenter: parent.verticalCenter
-                            spacing: 2
-
-                            Text {
-                                text: "Раунд "
-                                color: inkLight
-                                font.pixelSize: 28
-                                font.family: pixelFont.name
-                                verticalAlignment: Text.AlignVCenter
-                            }
-
-                            Text {
-                                text: playerState ? playerState.round : 0
-                                color: accentBright
-                                font.pixelSize: 30
-                                font.family: pixelFont.name
-                                verticalAlignment: Text.AlignVCenter
-                            }
+                        Text {
+                            text: playerState ? playerState.round : 0
+                            color: accentBright
+                            font.pixelSize: 36
+                            font.family: pixelFont.name
+                            verticalAlignment: Text.AlignVCenter
                         }
                     }
                 }

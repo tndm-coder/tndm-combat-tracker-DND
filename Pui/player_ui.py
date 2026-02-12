@@ -127,6 +127,9 @@ class PlayerUiState(QObject):
         self._prev_payload = None
         self._active_ids = []
         self._log_lines = ["", "", ""]
+        self._clear_logs_timer = QTimer(self)
+        self._clear_logs_timer.setSingleShot(True)
+        self._clear_logs_timer.timeout.connect(self._clear_logs)
 
     @Property(bool, notify=runningChanged)
     def running(self):
@@ -160,6 +163,10 @@ class PlayerUiState(QObject):
         if not message:
             return
         self._log_lines = [message] + self._log_lines[:2]
+        self.logLinesChanged.emit()
+
+    def _clear_logs(self):
+        self._log_lines = ["", "", ""]
         self.logLinesChanged.emit()
 
     def _collect_diff_logs(self, payload):
@@ -256,7 +263,16 @@ class PlayerUiState(QObject):
         running = bool(payload.get("running", False))
         round_value = int(payload.get("round", 0))
 
+        was_running = self._running
         self._collect_diff_logs(payload)
+
+        if running and not was_running:
+            if self._clear_logs_timer.isActive():
+                self._clear_logs_timer.stop()
+            self._push_log("Бой начался")
+        elif not running and was_running:
+            self._push_log("Бой закончен")
+            self._clear_logs_timer.start(10000)
 
         if self._running != running:
             self._running = running
