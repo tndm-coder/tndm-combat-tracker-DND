@@ -449,8 +449,9 @@ ApplicationWindow {
             property real leftTavernFitScaleY: 1.0
             property real leftTavernForcedScaleX: width > 0 ? (width + 10) / width : 1.0
             property real leftTavernForcedScaleY: height > 0 ? (height + 10) / height : 1.0
-            property real leftTavernScaleBoost: 1.3
-            property real leftWantedScale: 0.42
+            property real leftTavernScaleBoostX: 1.18
+            property real leftTavernScaleBoostY: 1.36
+            property real leftWantedScale: 0.5
             property int leftWantedFrameIndex: -1
             property string leftWantedFrameSource: ""
             property var leftWantedFrames: [
@@ -582,6 +583,7 @@ ApplicationWindow {
 
             function stopLeftAnimations() {
                 leftBattleForward.stop()
+                leftBattleReverse.stop()
             }
 
             function startDeathForward() {
@@ -610,6 +612,18 @@ ApplicationWindow {
                 setLeftTavernFrame(0)
                 setLeftWantedFrame(-1)
                 leftBattleForward.restart()
+            }
+
+
+            function startLeftReverse() {
+                stopLeftAnimations()
+                if (leftTavernFrameIndex < 0) {
+                    setLeftTavernFrame(2)
+                }
+                if (leftWantedFrameIndex < 0) {
+                    setLeftWantedFrame(1)
+                }
+                leftBattleReverse.restart()
             }
 
             function clearLeftVisuals() {
@@ -1259,8 +1273,8 @@ ApplicationWindow {
                     smooth: true
                     visible: leftTavernFrameIndex >= 0
                     transform: Scale {
-                        xScale: leftTavernFitScaleX * leftTavernForcedScaleX * leftTavernScaleBoost
-                        yScale: leftTavernFitScaleY * leftTavernForcedScaleY * leftTavernScaleBoost
+                        xScale: leftTavernFitScaleX * leftTavernForcedScaleX * leftTavernScaleBoostX
+                        yScale: leftTavernFitScaleY * leftTavernForcedScaleY * leftTavernScaleBoostY
                         origin.x: width / 2
                         origin.y: height / 2
                     }
@@ -1706,8 +1720,38 @@ ApplicationWindow {
                 }
             }
 
+            SequentialAnimation {
+                id: leftBattleReverse
+                running: false
+                ScriptAction { script: setLeftWantedFrame(1) }
+                ParallelAnimation {
+                    NumberAnimation { target: card; property: "leftGrayDim"; to: 0.0; duration: 120; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "leftCardOpacity"; to: 1.0; duration: 120; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "leftScaleFactor"; to: 1.0; duration: 120; easing.type: Easing.OutQuad }
+                }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setLeftWantedFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setLeftWantedFrame(-1) }
+                ScriptAction { script: setLeftTavernFrame(2) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setLeftTavernFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setLeftTavernFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setLeftTavernFrame(-1) }
+            }
+
             onStateValueChanged: {
                 if (lastState === stateValue) {
+                    return
+                }
+                if (lastState === "left" && stateValue !== "left") {
+                    pendingStateVisual = stateValue
+                    statusDelayTimer.stop()
+                    startLeftReverse()
+                    statusDelayTimer.restart()
+                    lastState = stateValue
                     return
                 }
                 if (stateValue === "dead") {
@@ -1723,9 +1767,6 @@ ApplicationWindow {
                 }
                 if (lastState === "dead" && stateValue !== "dead") {
                     clearDeathVisuals()
-                }
-                if (lastState === "left" && stateValue !== "left") {
-                    clearLeftVisuals()
                 }
                 if (stateValue === "left") {
                     pendingStateVisual = ""
@@ -1758,11 +1799,21 @@ ApplicationWindow {
 
             Timer {
                 id: statusDelayTimer
-                interval: 600
+                interval: 620
                 repeat: false
                 onTriggered: {
                     if (pendingStateVisual) {
-                        applyStateVisuals(pendingStateVisual)
+                        var deferredState = pendingStateVisual
+                        applyStateVisuals(deferredState)
+                        if (deferredState === "dead" && deathFrameIndex < 0) {
+                            startDeathForward()
+                        } else if (deferredState === "alive") {
+                            if (tempIncapActive && tempIncapFrameIndex < 0) {
+                                startTempIncapForward()
+                            } else if (incapacitatedActive && incapacitatedFrameIndex < 0) {
+                                startIncapacitatedForward()
+                            }
+                        }
                         pendingStateVisual = ""
                     }
                 }
