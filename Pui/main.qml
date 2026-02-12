@@ -459,7 +459,7 @@ ApplicationWindow {
                 "textures/wanted2.png"
             ]
             property string pendingStateVisual: ""
-            property bool pendingIncapacitatedReverseAfterLeft: false
+            property bool suppressIncapacitatedReverseAfterLeft: false
             property real overlayInset: 0
             property int damageFrameIndex: -1
             property string damageFrameSource: ""
@@ -1613,7 +1613,13 @@ ApplicationWindow {
                     return
                 }
                 if (stateValue === "left") {
-                    pendingIncapacitatedReverseAfterLeft = false
+                    suppressIncapacitatedReverseAfterLeft = false
+                    clearIncapacitatedVisuals()
+                    lastIncapacitated = incapacitatedActive
+                    return
+                }
+                if (suppressIncapacitatedReverseAfterLeft && stateValue === "alive" && !incapacitatedActive) {
+                    suppressIncapacitatedReverseAfterLeft = false
                     clearIncapacitatedVisuals()
                     lastIncapacitated = incapacitatedActive
                     return
@@ -1770,6 +1776,7 @@ ApplicationWindow {
                 }
                 if (lastState === "left" && stateValue !== "left") {
                     pendingStateVisual = stateValue
+                    suppressIncapacitatedReverseAfterLeft = true
                     statusDelayTimer.stop()
                     startLeftReverse()
                     statusDelayTimer.restart()
@@ -1827,7 +1834,7 @@ ApplicationWindow {
                     if (pendingStateVisual) {
                         var deferredState = pendingStateVisual
                         applyStateVisuals(deferredState)
-                        pendingIncapacitatedReverseAfterLeft = false
+                        suppressIncapacitatedReverseAfterLeft = false
                         if (deferredState === "dead" && deathFrameIndex < 0) {
                             startDeathForward()
                         } else if (deferredState === "alive") {
