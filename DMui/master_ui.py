@@ -6,10 +6,11 @@ from PySide6.QtWidgets import (
     QGridLayout, QHeaderView
 )
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QFontDatabase
 from battle_engine import BattleEngine
 from combatant_factory import CombatantFactory
 import sys
+from pathlib import Path
 from battle_state_exporter import BattleStateExporter
 
 TABLE_HEADERS = [
@@ -51,72 +52,112 @@ class MasterUI(QWidget):
         )
 
     def apply_theme(self):
+        card_border = "#6A4A31"
+        panel_bg = "#251A16"
+        field_bg = "#31221B"
+        header_bg = "#3A2920"
+
         self.setStyleSheet(
             """
             QWidget {
-                background-color: #251B15;
-                color: #E9DCCB;
+                background-color: #110C10;
+                color: #E8D9C5;
             }
             QLabel {
-                color: #E9DCCB;
+                color: #E8D9C5;
             }
             QGroupBox {
-                border: 1px solid #5B4638;
-                border-radius: 10px;
+                border: 1px solid %s;
+                border-radius: 0px;
                 margin-top: 12px;
                 padding-top: 12px;
-                background-color: #2F231C;
+                background-color: %s;
                 font-weight: bold;
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
                 left: 12px;
                 padding: 0 5px;
-                color: #C2B1A0;
+                color: #F0E2C8;
+                background-color: %s;
             }
             QLineEdit, QSpinBox, QComboBox {
-                background-color: #3A2B22;
-                border: 1px solid #5B4638;
-                border-radius: 6px;
-                padding: 6px 8px;
-                color: #E9DCCB;
-                selection-background-color: #9B5CFF;
+                background-color: %s;
+                border: 1px solid %s;
+                border-radius: 0px;
+                padding: 5px 7px;
+                color: #E8D9C5;
+                selection-background-color: #E2BE6F;
+                selection-color: #1A130F;
             }
             QPushButton, QToolButton {
-                background-color: #3A2B22;
-                border: 1px solid #5B4638;
-                border-radius: 8px;
-                padding: 7px 12px;
-                color: #E9DCCB;
+                background-color: %s;
+                border: 1px solid %s;
+                border-radius: 0px;
+                padding: 5px 10px;
+                color: #F2E4CC;
+                min-height: 28px;
             }
             QPushButton:hover, QToolButton:hover {
-                background-color: #4A3A30;
+                background-color: #4B3529;
             }
             QPushButton:pressed, QToolButton:pressed {
-                background-color: #2F231C;
+                background-color: #281C16;
             }
             QTableWidget {
-                background-color: #2F231C;
-                alternate-background-color: #3A2B22;
-                border: 1px solid #5B4638;
-                border-radius: 10px;
-                gridline-color: #5B4638;
-                color: #E9DCCB;
-                selection-background-color: #9B5CFF;
-                selection-color: #FFFFFF;
+                background-color: %s;
+                alternate-background-color: %s;
+                border: 1px solid %s;
+                border-radius: 0px;
+                gridline-color: %s;
+                color: #E8D9C5;
+                selection-background-color: #E2BE6F;
+                selection-color: #1A130F;
             }
             QHeaderView::section {
-                background-color: #3A2B22;
-                color: #C2B1A0;
+                background-color: %s;
+                color: #F0E2C8;
                 border: 0;
-                border-bottom: 1px solid #5B4638;
-                padding: 8px;
+                border-bottom: 1px solid %s;
+                padding: 6px;
                 font-weight: bold;
             }
-            """
+            """ % (
+                card_border,
+                panel_bg,
+                header_bg,
+                field_bg,
+                card_border,
+                field_bg,
+                card_border,
+                panel_bg,
+                field_bg,
+                card_border,
+                card_border,
+                header_bg,
+                card_border,
+            )
         )
 
+    def apply_master_font(self):
+        font_path = Path(__file__).resolve().parents[1] / "Pui" / "fonts" / "8bitoperator_jve.ttf"
+        if not font_path.exists():
+            return
+
+        font_id = QFontDatabase.addApplicationFont(str(font_path))
+        if font_id == -1:
+            return
+
+        families = QFontDatabase.applicationFontFamilies(font_id)
+        if not families:
+            return
+
+        master_font = QFont(families[0])
+        master_font.setPointSize(11)
+        self.setFont(master_font)
+
     def init_ui(self):
+        self.apply_master_font()
         self.apply_theme()
         layout = QVBoxLayout()
         layout.setContentsMargins(16, 16, 16, 16)
