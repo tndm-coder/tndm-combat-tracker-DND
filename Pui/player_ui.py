@@ -1,4 +1,5 @@
 import json
+import html
 import sys
 from pathlib import Path
 
@@ -147,6 +148,14 @@ class PlayerUiState(QObject):
     def _display_name(combatant):
         return combatant.get("display_name") or combatant.get("name") or "—"
 
+    @staticmethod
+    def _name_markup(name):
+        safe_name = html.escape(name)
+        return f'<span style="color:#E0B26B;">{safe_name}</span>'
+
+    def _actor_log(self, name, suffix):
+        self._push_log(f"{self._name_markup(name)} {suffix}")
+
     def _push_log(self, message):
         if not message:
             return
@@ -170,7 +179,7 @@ class PlayerUiState(QObject):
         if new_active_ids != self._active_ids and new_active_ids:
             active = curr_combatants.get(new_active_ids[0])
             if active:
-                self._push_log(f"{self._display_name(active)} ходит")
+                self._actor_log(self._display_name(active), "ходит")
 
         for combatant_id, current in curr_combatants.items():
             previous = prev_combatants.get(combatant_id)
@@ -178,6 +187,27 @@ class PlayerUiState(QObject):
                 continue
 
             name = self._display_name(current)
+            prev_state = previous.get("state")
+            curr_state = current.get("state")
+            state_changed = prev_state != curr_state
+
+            if state_changed:
+                if curr_state == "dead":
+                    self._actor_log(name, "погибает")
+                elif curr_state == "unconscious":
+                    self._actor_log(name, "без сознания")
+                elif curr_state == "left":
+                    self._actor_log(name, "покидает бой")
+                elif curr_state == "alive":
+                    if prev_state == "dead":
+                        self._actor_log(name, "воскрешен")
+                    elif prev_state == "left":
+                        self._actor_log(name, "возвращается в бой")
+                    else:
+                        self._actor_log(name, "приходит в себя")
+                else:
+                    self._actor_log(name, f"состояние {curr_state}")
+
             prev_hp = previous.get("hp")
             curr_hp = current.get("hp")
             hp_changed = isinstance(prev_hp, int) and isinstance(curr_hp, int) and curr_hp != prev_hp
@@ -186,66 +216,47 @@ class PlayerUiState(QObject):
             curr_temp = current.get("temp_hp", 0)
             temp_changed = isinstance(prev_temp, int) and isinstance(curr_temp, int) and curr_temp != prev_temp
 
-            if hp_changed or temp_changed:
+            if not state_changed and (hp_changed or temp_changed):
                 if isinstance(curr_hp, int) and isinstance(prev_hp, int) and curr_hp > prev_hp:
-                    self._push_log(f"{name} восстанавливает HP")
+                    self._actor_log(name, "восстанавливает HP")
                 elif isinstance(curr_temp, int) and isinstance(prev_temp, int) and curr_temp > prev_temp:
-                    self._push_log(f"{name} получает временные HP")
+                    self._actor_log(name, "получает временные HP")
                 else:
-                    self._push_log(f"{name} получает урон")
+                    self._actor_log(name, "получает урон")
                     if (
                         isinstance(prev_temp, int)
                         and isinstance(curr_temp, int)
                         and prev_temp > 0
                         and curr_temp == 0
                     ):
-                        self._push_log(f"{name} теряет временные HP")
+                        self._actor_log(name, "теряет временные HP")
 
             prev_effects = previous.get("effects", {})
             curr_effects = current.get("effects", {})
             prev_concentration = bool(prev_effects.get("concentration"))
             curr_concentration = bool(curr_effects.get("concentration"))
-            if prev_concentration != curr_concentration:
+            if not state_changed and prev_concentration != curr_concentration:
                 if curr_concentration:
-                    self._push_log(f"{name} концентрируется на заклинании")
+                    self._actor_log(name, "концентрируется на заклинании")
                 else:
-                    self._push_log(f"{name} теряет концентрацию")
+                    self._actor_log(name, "теряет концентрацию")
 
             prev_incapacitated = bool(prev_effects.get("incapacitated"))
             curr_incapacitated = bool(curr_effects.get("incapacitated"))
-            if prev_incapacitated != curr_incapacitated:
+            if not state_changed and prev_incapacitated != curr_incapacitated:
                 if curr_incapacitated:
-                    self._push_log(f"{name} становится недееспособным")
+                    self._actor_log(name, "становится недееспособным")
                 else:
-                    self._push_log(f"{name} снова дееспособен")
-
-            prev_state = previous.get("state")
-            curr_state = current.get("state")
-            if prev_state != curr_state:
-                if curr_state == "dead":
-                    self._push_log(f"{name} погибает")
-                elif curr_state == "unconscious":
-                    self._push_log(f"{name} без сознания")
-                elif curr_state == "left":
-                    self._push_log(f"{name} покидает бой")
-                elif curr_state == "alive":
-                    if prev_state == "dead":
-                        self._push_log(f"{name} воскрешен")
-                    elif prev_state == "left":
-                        self._push_log(f"{name} возвращается в бой")
-                    else:
-                        self._push_log(f"{name} приходит в себя")
-                else:
-                    self._push_log(f"{name}: состояние {curr_state}")
+                    self._actor_log(name, "снова дееспособен")
 
             prev_custom = previous.get("custom_effects", {})
             curr_custom = current.get("custom_effects", {})
             prev_names = set(prev_custom.keys())
             curr_names = set(curr_custom.keys())
             for effect_name in sorted(curr_names - prev_names):
-                self._push_log(f"{name} получает эффект {effect_name}")
+                self._actor_log(name, f"получает эффект {html.escape(effect_name)}")
             for effect_name in sorted(prev_names - curr_names):
-                self._push_log(f"{name} теряет эффект {effect_name}")
+                self._actor_log(name, f"теряет эффект {html.escape(effect_name)}")
 
     def update_state(self, payload):
         running = bool(payload.get("running", False))

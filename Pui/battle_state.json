@@ -1,24 +1,26 @@
 {
   "running": true,
-  "timestamp": 1770907921.178111,
+  "timestamp": 1770908850.0895038,
   "round": 1,
-  "active_ids": [],
+  "active_ids": [
+    "id_2284053255600"
+  ],
   "combatants": [
     {
       "id": "id_2284053255600",
       "name": "ы 1",
       "display_name": "ы",
       "kind": "monster",
-      "hp": 0,
+      "hp": 1,
       "max_hp": 9,
       "temp_hp": 0,
-      "state": "dead",
+      "state": "alive",
       "effects": {
         "temp_hp": false,
         "concentration": false,
-        "dead": true,
+        "dead": false,
         "unconscious": false,
-        "incapacitated": true
+        "incapacitated": false
       },
       "custom_effects": {
         "крысв": {

@@ -100,46 +100,98 @@ ApplicationWindow {
 
             RowLayout {
                 anchors.fill: parent
-                anchors.margins: 16
-                spacing: 20
+                anchors.margins: 12
+                spacing: 16
 
-                Column {
-                    Layout.alignment: Qt.AlignTop
-                    Layout.preferredWidth: headerPanel.width * 0.28
-                    spacing: 6
+                Item {
+                    Layout.preferredWidth: headerPanel.width * 0.30
+                    Layout.fillHeight: true
 
-                    Text {
-                        text: (playerState && playerState.running) ? "Бой идет" : "Бой не начат"
-                        color: inkLight
-                        font.pixelSize: 30
-                        font.family: pixelFont.name
-                    }
+                    Column {
+                        anchors.fill: parent
+                        spacing: 6
 
-                    Text {
-                        text: (playerState && playerState.running) ? ("Раунд " + playerState.round) : "Раунд 0"
-                        color: (playerState && playerState.running) ? inkMuted : inkSoft
-                        font.pixelSize: 22
-                        font.family: pixelFont.name
+                        Text {
+                            width: parent.width
+                            height: parent.height * 0.52
+                            text: (playerState && playerState.running) ? "Бой идет" : "Бой не начат"
+                            color: inkLight
+                            font.pixelSize: 38
+                            font.family: pixelFont.name
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        Item {
+                            width: parent.width
+                            height: parent.height * 0.40
+
+                            Row {
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.horizontalCenterOffset: 14
+                                spacing: 2
+
+                                Text {
+                                    text: "Раунд "
+                                    color: inkLight
+                                    font.pixelSize: 26
+                                    font.family: pixelFont.name
+                                }
+
+                                Text {
+                                    text: playerState ? playerState.round : 0
+                                    color: accentBright
+                                    font.pixelSize: 28
+                                    font.family: pixelFont.name
+                                }
+                            }
+                        }
                     }
                 }
 
-                Column {
+                Item {
                     Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignVCenter
-                    spacing: 4
+                    Layout.fillHeight: true
+                }
 
-                    Repeater {
-                        model: playerState ? playerState.logLines : ["", "", ""]
+                Rectangle {
+                    Layout.preferredWidth: headerPanel.width * 0.60
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    color: "#1A141C"
+                    border.width: 1
+                    border.color: "#3B2D35"
+                    radius: 0
 
-                        Text {
-                            width: headerPanel.width * 0.62
-                            text: modelData
-                            color: inkLight
-                            font.pixelSize: 26
-                            font.family: pixelFont.name
-                            elide: Text.ElideRight
-                            maximumLineCount: 1
-                            wrapMode: Text.NoWrap
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        spacing: 2
+
+                        Repeater {
+                            model: playerState ? playerState.logLines : ["", "", ""]
+
+                            Rectangle {
+                                width: parent.width
+                                height: (parent.height - 4) / 3
+                                color: "transparent"
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    width: parent.width - 8
+                                    text: modelData
+                                    color: inkLight
+                                    textFormat: Text.RichText
+                                    font.pixelSize: 27
+                                    font.family: pixelFont.name
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                    elide: Text.ElideRight
+                                    maximumLineCount: 1
+                                    wrapMode: Text.NoWrap
+                                }
+                            }
                         }
                     }
                 }
@@ -199,14 +251,7 @@ ApplicationWindow {
                 return baseName
             }
             property var hpValue: hp
-            property int safeMaxHp: (max_hp !== null && max_hp !== undefined) ? Math.max(0, max_hp) : 0
-            property int safeHp: (hp !== null && hp !== undefined) ? Math.max(0, hp) : 0
-            property int safeTempHp: Math.max(0, tempHpValue)
-            property int totalSegments: Math.max(1, safeMaxHp + safeTempHp)
-            property int filledSegments: Math.max(0, Math.min(totalSegments, safeHp + safeTempHp))
-            property int filledHpSegments: Math.max(0, Math.min(safeHp, filledSegments))
-            property int filledTempSegments: Math.max(0, filledSegments - filledHpSegments)
-            property real hpRatio: filledSegments / totalSegments
+            property real hpRatio: (max_hp && hp !== null) ? Math.max(0, Math.min(1, hp / max_hp)) : 0
             property real displayedHpRatio: hpRatio
             property real pendingDamageHpRatio: hpRatio
             property real pendingHealHpRatio: hpRatio
@@ -1348,37 +1393,28 @@ ApplicationWindow {
                             opacity: 0.0
                         }
 
-                        Item {
-                            id: filledBar
+                        Rectangle {
+                            id: hpFill
                             anchors.left: parent.left
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
                             width: parent.width * displayedHpRatio
-                            clip: true
+                            radius: 0
+                            color: hpFillColor
+                        }
 
-                            Rectangle {
-                                id: hpFill
-                                anchors.left: parent.left
-                                anchors.top: parent.top
-                                anchors.bottom: parent.bottom
-                                width: filledSegments > 0 ? parent.width * (filledHpSegments / filledSegments) : 0
-                                radius: 0
-                                color: hpFillColor
-                            }
-
-                            Rectangle {
-                                id: tempHpFill
-                                anchors.left: hpFill.right
-                                anchors.top: parent.top
-                                anchors.bottom: parent.bottom
-                                width: filledSegments > 0 ? parent.width * (filledTempSegments / filledSegments) : 0
-                                radius: 0
-                                color: accentTemp
-                                visible: filledTempSegments > 0
-                                opacity: tempHpPulse.opacity
-                                Behavior on width {
-                                    NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
-                                }
+                        Rectangle {
+                            id: tempHpFill
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            width: tempHpValue > 0 ? Math.min(parent.width * 0.25, parent.width * (tempHpValue / (max_hp || 1))) : 0
+                            radius: 0
+                            color: accentTemp
+                            visible: tempHpValue > 0
+                            opacity: tempHpPulse.opacity
+                            Behavior on width {
+                                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
                             }
                         }
 
