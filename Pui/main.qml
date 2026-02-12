@@ -233,8 +233,9 @@ ApplicationWindow {
             }
             property real baseScale: 0.9
             property real activeScaleBoost: is_active ? 1.03 : 1.0
-            scale: baseScale * incapacitatedScaleFactor * activeScaleBoost
+            scale: baseScale * incapacitatedScaleFactor * leftScaleFactor * activeScaleBoost
             transformOrigin: Item.Center
+            opacity: leftCardOpacity
 
             property bool isPlayer: kind === "player" || (hp === null && max_hp === null)
             property bool isMonster: kind === "monster" || (hp !== null && max_hp !== null)
@@ -259,6 +260,8 @@ ApplicationWindow {
             property real shakeOffset: 0
             property real liftOffset: 0
             property real statusDim: 0
+            property real leftGrayDim: 0.0
+            property real leftCardOpacity: 1.0
             property color statusFlashColor: "transparent"
             property real statusFlashPeak: 0.4
             property bool isActive: is_active
@@ -351,6 +354,7 @@ ApplicationWindow {
             property real incapacitatedDim: 0.0
             property real deathDim: 0.0
             property real incapacitatedScaleFactor: 1.0
+            property real leftScaleFactor: 1.0
             property int incapacitatedFrameIndex: -1
             property string incapacitatedFrameSource: ""
             property var incapacitatedFrames: [
@@ -424,6 +428,33 @@ ApplicationWindow {
             property real deathFitScaleY: 1.0
             property real deathOverlayOffsetX: 0
             property real deathOverlayOffsetY: 6
+            property int leftTavernFrameIndex: -1
+            property string leftTavernFrameSource: ""
+            property var leftTavernFrames: [
+                "textures/tavern1.png",
+                "textures/tavern2.png",
+                "textures/tavern3.png"
+            ]
+            property var leftTavernFrameOpaqueRects: [
+                { x: 26, y: 55, width: 1493, height: 872 },
+                { x: 26, y: 55, width: 1493, height: 872 },
+                { x: 26, y: 55, width: 1493, height: 872 }
+            ]
+            property var activeLeftTavernOpaqueRect: (
+                leftTavernFrameIndex >= 0 && leftTavernFrameIndex < leftTavernFrameOpaqueRects.length
+                    ? leftTavernFrameOpaqueRects[leftTavernFrameIndex]
+                    : leftTavernFrameOpaqueRects[0]
+            )
+            property real leftTavernFitScaleX: 1.0
+            property real leftTavernFitScaleY: 1.0
+            property real leftTavernForcedScaleX: width > 0 ? (width + 10) / width : 1.0
+            property real leftTavernForcedScaleY: height > 0 ? (height + 10) / height : 1.0
+            property int leftWantedFrameIndex: -1
+            property string leftWantedFrameSource: ""
+            property var leftWantedFrames: [
+                "textures/wanted1.png",
+                "textures/wanted2.png"
+            ]
             property string pendingStateVisual: ""
             property real overlayInset: 0
             property int damageFrameIndex: -1
@@ -527,8 +558,28 @@ ApplicationWindow {
                 }
             }
 
+            function setLeftTavernFrame(index) {
+                leftTavernFrameIndex = index
+                var nextSource = (index >= 0 && index < leftTavernFrames.length) ? leftTavernFrames[index] : ""
+                if (leftTavernFrameSource !== nextSource) {
+                    leftTavernFrameSource = nextSource
+                }
+            }
+
+            function setLeftWantedFrame(index) {
+                leftWantedFrameIndex = index
+                var nextSource = (index >= 0 && index < leftWantedFrames.length) ? leftWantedFrames[index] : ""
+                if (leftWantedFrameSource !== nextSource) {
+                    leftWantedFrameSource = nextSource
+                }
+            }
+
             function stopDeathAnimations() {
                 deathForward.stop()
+            }
+
+            function stopLeftAnimations() {
+                leftBattleForward.stop()
             }
 
             function startDeathForward() {
@@ -545,6 +596,27 @@ ApplicationWindow {
                 setDeathFrame(-1)
                 deathDim = 0.0
                 incapacitatedScaleFactor = 1.0
+            }
+
+            function startLeftForward() {
+                clearIncapacitatedVisuals()
+                clearDeathVisuals()
+                stopLeftAnimations()
+                leftGrayDim = 0.0
+                leftCardOpacity = 1.0
+                leftScaleFactor = 1.0
+                setLeftTavernFrame(0)
+                setLeftWantedFrame(-1)
+                leftBattleForward.restart()
+            }
+
+            function clearLeftVisuals() {
+                stopLeftAnimations()
+                setLeftTavernFrame(-1)
+                setLeftWantedFrame(-1)
+                leftGrayDim = 0.0
+                leftCardOpacity = 1.0
+                leftScaleFactor = 1.0
             }
 
             function clearIncapacitatedVisuals() {
@@ -721,6 +793,19 @@ ApplicationWindow {
                 visible: opacity > 0
                 Behavior on opacity {
                     NumberAnimation { duration: 240; easing.type: Easing.OutQuad }
+                }
+            }
+
+            Rectangle {
+                id: leftGrayOverlay
+                anchors.fill: parent
+                radius: 0
+                color: "#9A9A9A"
+                opacity: leftGrayDim
+                visible: opacity > 0
+                z: 6
+                Behavior on opacity {
+                    NumberAnimation { duration: 120; easing.type: Easing.OutQuad }
                 }
             }
 
@@ -1151,6 +1236,45 @@ ApplicationWindow {
             }
 
             Item {
+                id: leftOverlayLayer
+                anchors.fill: parent
+                z: 11
+                visible: leftTavernFrameIndex >= 0
+
+                Image {
+                    id: leftTavernFrameImage
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                    source: leftTavernFrameSource
+                    sourceClipRect: Qt.rect(
+                        activeLeftTavernOpaqueRect.x,
+                        activeLeftTavernOpaqueRect.y,
+                        activeLeftTavernOpaqueRect.width,
+                        activeLeftTavernOpaqueRect.height
+                    )
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: leftTavernFrameIndex >= 0
+                    transform: Scale {
+                        xScale: leftTavernFitScaleX * leftTavernForcedScaleX
+                        yScale: leftTavernFitScaleY * leftTavernForcedScaleY
+                        origin.x: width / 2
+                        origin.y: height / 2
+                    }
+                }
+
+                Image {
+                    id: leftWantedFrameImage
+                    anchors.centerIn: parent
+                    source: leftWantedFrameSource
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    visible: leftWantedFrameIndex >= 0
+                }
+            }
+
+            Item {
                 id: contentArea
                 z: 3
                 anchors.left: parent.left
@@ -1408,7 +1532,7 @@ ApplicationWindow {
                 if (lastTempIncapActive === tempIncapActive) {
                     return
                 }
-                if (stateValue === "dead") {
+                if (stateValue === "dead" || stateValue === "left") {
                     clearIncapacitatedVisuals()
                     lastTempIncapActive = tempIncapActive
                     return
@@ -1449,7 +1573,7 @@ ApplicationWindow {
                 if (lastIncapacitated === incapacitatedActive) {
                     return
                 }
-                if (stateValue === "dead") {
+                if (stateValue === "dead" || stateValue === "left") {
                     clearIncapacitatedVisuals()
                     lastIncapacitated = incapacitatedActive
                     return
@@ -1558,11 +1682,32 @@ ApplicationWindow {
                 }
             }
 
+
+            SequentialAnimation {
+                id: leftBattleForward
+                running: false
+                ScriptAction { script: setLeftTavernFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setLeftTavernFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setLeftTavernFrame(2) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setLeftWantedFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setLeftWantedFrame(1) }
+                ParallelAnimation {
+                    NumberAnimation { target: card; property: "leftGrayDim"; to: 0.32; duration: 120; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "leftCardOpacity"; to: 0.72; duration: 120; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "leftScaleFactor"; to: incapacitatedShrinkScale; duration: 120; easing.type: Easing.OutQuad }
+                }
+            }
+
             onStateValueChanged: {
                 if (lastState === stateValue) {
                     return
                 }
                 if (stateValue === "dead") {
+                    clearLeftVisuals()
                     pendingStateVisual = ""
                     statusDelayTimer.stop()
                     applyStateVisuals(stateValue)
@@ -1574,6 +1719,19 @@ ApplicationWindow {
                 }
                 if (lastState === "dead" && stateValue !== "dead") {
                     clearDeathVisuals()
+                }
+                if (lastState === "left" && stateValue !== "left") {
+                    clearLeftVisuals()
+                }
+                if (stateValue === "left") {
+                    pendingStateVisual = ""
+                    statusDelayTimer.stop()
+                    applyStateVisuals(stateValue)
+                    if (leftTavernFrameIndex < 0 || leftWantedFrameIndex < 1) {
+                        startLeftForward()
+                    }
+                    lastState = stateValue
+                    return
                 }
                 if (lastState === "alive" && stateValue !== "alive" && (incapacitatedActive || incapacitatedFrameIndex >= 0 || tempIncapFrameIndex >= 0 || tempIncapActive)) {
                     pendingStateVisual = stateValue

@@ -1,6 +1,6 @@
 {
   "running": true,
-  "timestamp": 1770873311.8170764,
+  "timestamp": 1770874105.1108632,
   "round": 1,
   "active_ids": [],
   "combatants": [
@@ -12,7 +12,7 @@
       "hp": null,
       "max_hp": null,
       "temp_hp": 0,
-      "state": "alive",
+      "state": "left",
       "effects": {
         "temp_hp": false,
         "concentration": false,
