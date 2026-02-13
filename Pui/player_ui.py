@@ -201,7 +201,7 @@ class PlayerUiState(QObject):
                     self._actor_log(name, "покидает бой")
                 elif curr_state == "alive":
                     if prev_state == "dead":
-                        self._actor_log(name, "воскрешен")
+                        self._actor_log(name, "воскресает")
                     elif prev_state == "left":
                         self._actor_log(name, "возвращается в бой")
                     else:
@@ -246,9 +246,9 @@ class PlayerUiState(QObject):
             curr_incapacitated = bool(curr_effects.get("incapacitated"))
             if not state_changed and prev_incapacitated != curr_incapacitated:
                 if curr_incapacitated:
-                    self._actor_log(name, "становится недееспособным")
+                    self._actor_log(name, "теряет возможность действовать")
                 else:
-                    self._actor_log(name, "снова дееспособен")
+                    self._actor_log(name, "снова может действовать")
 
             prev_custom = previous.get("custom_effects", {})
             curr_custom = current.get("custom_effects", {})

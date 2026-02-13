@@ -407,10 +407,10 @@ ApplicationWindow {
                     : deathFrameOpaqueRects[0]
             )
             // Fast tuning controls for death texture fitting
-            property real deathFitScaleX: 1.0
-            property real deathFitScaleY: 1.0
+            property real deathFitScaleX: 1.425
+            property real deathFitScaleY: 1.863
             property real deathOverlayOffsetX: 0
-            property real deathOverlayOffsetY: 6
+            property real deathOverlayOffsetY: 0
             property int leftTavernFrameIndex: -1
             property string leftTavernFrameSource: ""
             property var leftTavernFrames: [
@@ -802,7 +802,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 radius: 0
                 color: "#120D12"
-                opacity: Math.min(1, statusDim + incapacitatedDim + deathDim)
+                opacity: Math.min(1, statusDim + incapacitatedDim + deathDim + (deathFrameIndex === 4 ? 0.35 : 0.0))
                 visible: opacity > 0
                 Behavior on opacity {
                     NumberAnimation { duration: 240; easing.type: Easing.OutQuad }
