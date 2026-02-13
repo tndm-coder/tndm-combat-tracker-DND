@@ -304,6 +304,7 @@ ApplicationWindow {
                 "textures/temphp3.png"
             ]
             property bool concentrationTempActive: concentrationActive && tempHpValue > 0
+            property bool turnOverlayActive: isActive && stateValue === "alive"
             property int concentrationTempTargetFrameWidth: concentrationFrameWidth
             property int concentrationTempTargetFrameHeight: concentrationFrameHeight
             property var concentrationTempFrameWidths: [1187, 1152, 1173]
@@ -327,7 +328,44 @@ ApplicationWindow {
             property bool useAlternateTempHpFrame: false
             property real tempHpPrimaryTargetOpacity: 1.0
             property real tempHpSecondaryTargetOpacity: 0.0
-            property int overlayRightTrim: 8
+            property int turnFrameIndex: 0
+            property string turnPrimarySource: ""
+            property string turnSecondarySource: ""
+            property bool useAlternateTurnFrame: false
+            property real turnPrimaryTargetOpacity: 1.0
+            property real turnSecondaryTargetOpacity: 0.0
+            property var activeTurnFrames: [
+                "textures/turn1.png",
+                "textures/turn2.png"
+            ]
+            property var turnConcentrationFrames: [
+                "textures/turnconc1.png",
+                "textures/turnconc2.png"
+            ]
+            property var turnTempHpFrames: [
+                "textures/turntemphp1.png",
+                "textures/turntemphp2.png"
+            ]
+            property var turnConcentrationTempFrames: [
+                "textures/turnconctemphp1.png",
+                "textures/turnconctemphp2.png"
+            ]
+            property var turnFrames: {
+                if (!turnOverlayActive) {
+                    return []
+                }
+                if (concentrationActive && tempHpValue > 0) {
+                    return turnConcentrationTempFrames
+                }
+                if (concentrationActive) {
+                    return turnConcentrationFrames
+                }
+                if (tempHpValue > 0) {
+                    return turnTempHpFrames
+                }
+                return activeTurnFrames
+            }
+            property real overlayHeightScale: 1.15
             property bool incapacitatedActive: effects && effects.incapacitated
             property bool incapacitatedEligible: incapacitatedActive && stateValue === "alive"
             property bool tempIncapActive: incapacitatedEligible && tempHpValue > 0
@@ -407,7 +445,7 @@ ApplicationWindow {
                     : deathFrameOpaqueRects[0]
             )
             // Fast tuning controls for death texture fitting
-            property real deathFitScaleX: 1.425
+            property real deathFitScaleX: 1.354
             property real deathFitScaleY: 1.863
             property real deathOverlayOffsetX: 0
             property real deathOverlayOffsetY: 0
@@ -494,7 +532,7 @@ ApplicationWindow {
                     statusFlashColor = damageFillColor
                     statusFlashPeak = 0.45
                     statusFlashAnim.restart()
-                    statusDim = 0.7
+                    statusDim = 0.9
                 } else if (nextState === "unconscious") {
                     statusFlashColor = damageFillColor
                     statusFlashPeak = 0.32
@@ -828,16 +866,17 @@ ApplicationWindow {
                 anchors.margins: overlayInset
                 z: 4
                 opacity: leftCardOpacity
-                visible: concentrationActive || (tempHpValue > 0 && !tempIncapActive && tempIncapFrameIndex < 0)
+                visible: turnOverlayActive || concentrationActive || (tempHpValue > 0 && !tempIncapActive && tempIncapFrameIndex < 0)
 
                 Image {
                     id: concentrationFramePrimary
-                    anchors.fill: parent
-                    anchors.rightMargin: overlayRightTrim
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height * overlayHeightScale
                     source: concentrationPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationActive && !concentrationTempActive
+                    visible: concentrationActive && !concentrationTempActive && !turnOverlayActive
                     opacity: 1.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
@@ -847,12 +886,13 @@ ApplicationWindow {
 
                 Image {
                     id: concentrationFrameSecondary
-                    anchors.fill: parent
-                    anchors.rightMargin: overlayRightTrim
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height * overlayHeightScale
                     source: concentrationSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationActive && !concentrationTempActive
+                    visible: concentrationActive && !concentrationTempActive && !turnOverlayActive
                     opacity: 0.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
@@ -862,12 +902,13 @@ ApplicationWindow {
 
                 Image {
                     id: tempHpFramePrimary
-                    anchors.fill: parent
-                    anchors.rightMargin: overlayRightTrim
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height * overlayHeightScale
                     source: tempHpPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: tempHpValue > 0 && !concentrationTempActive && !tempIncapActive && tempIncapFrameIndex < 0
+                    visible: tempHpValue > 0 && !concentrationTempActive && !tempIncapActive && tempIncapFrameIndex < 0 && !turnOverlayActive
                     opacity: 1.0
                     transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
@@ -877,12 +918,13 @@ ApplicationWindow {
 
                 Image {
                     id: tempHpFrameSecondary
-                    anchors.fill: parent
-                    anchors.rightMargin: overlayRightTrim
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height * overlayHeightScale
                     source: tempHpSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: tempHpValue > 0 && !concentrationTempActive && !tempIncapActive && tempIncapFrameIndex < 0
+                    visible: tempHpValue > 0 && !concentrationTempActive && !tempIncapActive && tempIncapFrameIndex < 0 && !turnOverlayActive
                     opacity: 0.0
                     transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
@@ -892,12 +934,13 @@ ApplicationWindow {
 
                 Image {
                     id: concentrationTempFramePrimary
-                    anchors.fill: parent
-                    anchors.rightMargin: overlayRightTrim
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height * overlayHeightScale
                     source: concentrationTempPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationTempActive
+                    visible: concentrationTempActive && !turnOverlayActive
                     opacity: 1.0
                     transform: Scale {
                         xScale: (concentrationCanvasWidth / concentrationTempTargetFrameWidth) * (concentrationTempTargetFrameWidth / concentrationTempFrameWidths[concentrationTempPrimaryFrameMetaIndex])
@@ -912,12 +955,13 @@ ApplicationWindow {
 
                 Image {
                     id: concentrationTempFrameSecondary
-                    anchors.fill: parent
-                    anchors.rightMargin: overlayRightTrim
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height * overlayHeightScale
                     source: concentrationTempSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationTempActive
+                    visible: concentrationTempActive && !turnOverlayActive
                     opacity: 0.0
                     transform: Scale {
                         xScale: (concentrationCanvasWidth / concentrationTempTargetFrameWidth) * (concentrationTempTargetFrameWidth / concentrationTempFrameWidths[concentrationTempSecondaryFrameMetaIndex])
@@ -971,6 +1015,78 @@ ApplicationWindow {
                         concentrationTempFramePrimary.opacity = concentrationTempPrimaryTargetOpacity
                         concentrationTempFrameSecondary.opacity = concentrationTempSecondaryTargetOpacity
                         useAlternateConcentrationTempFrame = !useAlternateConcentrationTempFrame
+                    }
+                }
+
+                Image {
+                    id: turnFramePrimary
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height * overlayHeightScale
+                    source: turnPrimarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: turnOverlayActive
+                    opacity: 1.0
+                    transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1500; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Image {
+                    id: turnFrameSecondary
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height * overlayHeightScale
+                    source: turnSecondarySource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: turnOverlayActive
+                    opacity: 0.0
+                    transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
+                    Behavior on opacity {
+                        NumberAnimation { duration: 1500; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Timer {
+                    id: turnTimer
+                    interval: 1500
+                    running: turnOverlayActive && turnFrames.length > 0
+                    repeat: true
+                    triggeredOnStart: true
+                    onRunningChanged: {
+                        if (running) {
+                            turnFrameIndex = 0
+                            useAlternateTurnFrame = false
+                            turnFramePrimary.opacity = 1.0
+                            turnFrameSecondary.opacity = 0.0
+                            turnPrimaryTargetOpacity = 1.0
+                            turnSecondaryTargetOpacity = 0.0
+                            var initialTurnSource = turnFrames[turnFrameIndex]
+                            if (turnPrimarySource !== initialTurnSource) {
+                                turnPrimarySource = initialTurnSource
+                            }
+                            if (turnSecondarySource !== initialTurnSource) {
+                                turnSecondarySource = initialTurnSource
+                            }
+                        }
+                    }
+                    onTriggered: {
+                        turnFrameIndex = (turnFrameIndex + 1) % turnFrames.length
+                        if (useAlternateTurnFrame) {
+                            turnPrimarySource = turnFrames[turnFrameIndex]
+                            turnPrimaryTargetOpacity = 1.0
+                            turnSecondaryTargetOpacity = 0.0
+                        } else {
+                            turnSecondarySource = turnFrames[turnFrameIndex]
+                            turnPrimaryTargetOpacity = 0.0
+                            turnSecondaryTargetOpacity = 1.0
+                        }
+                        turnFramePrimary.opacity = turnPrimaryTargetOpacity
+                        turnFrameSecondary.opacity = turnSecondaryTargetOpacity
+                        useAlternateTurnFrame = !useAlternateTurnFrame
                     }
                 }
 
@@ -1706,7 +1822,7 @@ ApplicationWindow {
                 PauseAnimation { duration: 100 }
                 ScriptAction { script: setDeathFrame(4) }
                 ParallelAnimation {
-                    NumberAnimation { target: card; property: "deathDim"; to: 0.55; duration: 120; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: card; property: "deathDim"; to: 0.85; duration: 120; easing.type: Easing.OutQuad }
                     NumberAnimation { target: card; property: "incapacitatedScaleFactor"; to: incapacitatedShrinkScale; duration: 120; easing.type: Easing.OutQuad }
                 }
             }

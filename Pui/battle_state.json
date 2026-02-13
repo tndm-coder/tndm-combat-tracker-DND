@@ -1,30 +1,50 @@
 {
   "running": true,
-  "timestamp": 1770992857.9677505,
+  "timestamp": 1770996428.2842865,
   "round": 1,
-  "active_ids": [],
+  "active_ids": [
+    "id_2284053255600"
+  ],
   "combatants": [
     {
       "id": "id_2284053255600",
       "name": "ы 1",
       "display_name": "ы",
       "kind": "monster",
-      "hp": 0,
+      "hp": 1,
       "max_hp": 9,
       "temp_hp": 0,
-      "state": "dead",
+      "state": "alive",
       "effects": {
         "temp_hp": false,
-        "concentration": false,
-        "dead": true,
+        "concentration": true,
+        "dead": false,
         "unconscious": false,
-        "incapacitated": true
+        "incapacitated": false
       },
       "custom_effects": {
         "крысв": {
           "duration": null
         }
       }
+    },
+    {
+      "id": "id_2284054309360",
+      "name": "ывм 1",
+      "display_name": "ывм",
+      "kind": "monster",
+      "hp": 9,
+      "max_hp": 9,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
     }
   ]
 }
