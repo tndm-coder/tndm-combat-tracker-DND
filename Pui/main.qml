@@ -15,23 +15,17 @@ ApplicationWindow {
         source: "fonts/8bitoperator_jve.ttf"
     }
 
-    property int columns: {
-        var count = playerModel ? playerModel.count : 0
-        if (count <= 2) return 1
-        if (count <= 8) return 2
-        return 3
-    }
-    property int rowCount: {
-        var count = playerModel ? playerModel.count : 0
-        if (count === 0) return 1
-        return Math.ceil(count / columns)
-    }
+    property int columns: 3
+    property int rowCount: 3
+    property int maxVisibleCards: columns * rowCount
+    property int battlefieldPadding: 24
     property int columnGap: 20
     property int rowGap: 16
     property int cardMinHeight: 88
     property int cardMaxHeight: 180
+    property int cardWidth: Math.floor((battlefieldArea.width - 2 * battlefieldPadding - (columns - 1) * columnGap) / columns)
     property int cardHeight: {
-        var usable = height - header.height - 40
+        var usable = battlefieldArea.height - 2 * battlefieldPadding
         var candidate = Math.floor((usable - (rowCount - 1) * rowGap) / rowCount)
         return Math.max(cardMinHeight, Math.min(cardMaxHeight, candidate))
     }
@@ -180,21 +174,30 @@ ApplicationWindow {
         }
     }
 
-    GridView {
-        id: grid
+    Item {
+        id: battlefieldArea
         anchors.top: header.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.margins: 24
+    }
+
+    GridView {
+        id: grid
+        width: columns * (cardWidth + columnGap) - columnGap
+        height: rowCount * (cardHeight + rowGap) - rowGap
+        anchors.centerIn: battlefieldArea
         model: playerModel
-        cellWidth: Math.floor((width - (columns - 1) * columnGap) / columns)
+        clip: true
+        interactive: false
+        cellWidth: cardWidth + columnGap
         cellHeight: cardHeight + rowGap
         flow: GridView.TopToBottom
         layoutDirection: Qt.LeftToRight
         delegate: Rectangle {
             id: card
-            width: grid.cellWidth
+            visible: index < maxVisibleCards
+            width: cardWidth
             height: grid.cellHeight - rowGap
             radius: 0
             color: panelMid
@@ -2125,6 +2128,17 @@ ApplicationWindow {
                 PropertyAnimation { target: smokeOverlay; property: "opacity"; from: smokeOverlay.opacity; to: 0.0; duration: 280; easing.type: Easing.OutQuad }
             }
         }
+    }
+
+    Text {
+        anchors.top: grid.bottom
+        anchors.topMargin: 18
+        anchors.horizontalCenter: grid.horizontalCenter
+        visible: playerModel && playerModel.count > maxVisibleCards
+        text: "И их там еще целая армия!"
+        color: inkLight
+        font.pixelSize: 28
+        font.family: pixelFont.name
     }
 
     Item {
