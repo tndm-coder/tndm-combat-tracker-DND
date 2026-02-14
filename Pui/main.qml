@@ -848,6 +848,51 @@ ApplicationWindow {
                 incapacitatedDim = 0.0
             }
 
+            function restorePersistentStateVisuals() {
+                clearIncapacitatedVisuals()
+                clearDeathVisuals()
+                clearLeftVisuals()
+                clearUnconsciousVisuals()
+
+                if (stateValue === "dead") {
+                    setDeathFrame(deathFrames.length - 1)
+                    deathDim = 0.85
+                    statusDim = 0.9
+                    incapacitatedScaleFactor = incapacitatedShrinkScale
+                    return
+                }
+
+                if (stateValue === "left") {
+                    setLeftTavernFrame(leftTavernFrames.length - 1)
+                    setLeftWantedFrame(leftWantedFrames.length - 1)
+                    leftGrayDim = 0.32
+                    leftCardOpacity = 0.72
+                    leftScaleFactor = incapacitatedShrinkScale
+                    statusDim = 0
+                    return
+                }
+
+                if (stateValue === "unconscious") {
+                    setUnconsciousFrame(unconsciousFrames.length - 1)
+                    setUnconsciousHeartFrame(unconsciousHeartFrames.length - 1)
+                    unconsciousGrayDim = 0.52
+                    statusDim = 0.55
+                    unconsciousHeartbeatTimer.restart()
+                    return
+                }
+
+                statusDim = 0
+                if (tempIncapActive) {
+                    setTempIncapFrame(tempIncapFrames.length - 1)
+                    incapacitatedDim = 0.28
+                    incapacitatedScaleFactor = incapacitatedShrinkScale
+                } else if (incapacitatedActive) {
+                    setIncapacitatedFrame(incapacitatedFrames.length - 1)
+                    incapacitatedDim = 0.28
+                    incapacitatedScaleFactor = incapacitatedShrinkScale
+                }
+            }
+
             function stopTempIncapAnimations() {
                 tempIncapForward.stop()
                 tempIncapReverse.stop()
@@ -1903,6 +1948,7 @@ ApplicationWindow {
             }
 
             Component.onCompleted: {
+                restorePersistentStateVisuals()
                 if (concentrationActive) {
                     concentrationVisualActive = true
                     concentrationPrimarySource = concentrationFrames[concentrationFrames.length - 1]

@@ -1,146 +1,33 @@
 {
   "running": true,
-  "timestamp": 1771104368.0448842,
+  "timestamp": 1771105846.218862,
   "round": 1,
   "active_ids": [
-    "id_2027885541904",
-    "id_2027885541456",
-    "id_2027885539440",
-    "id_2027885542576",
-    "id_2027885532272",
-    "id_2027885541008",
-    "id_2027885542800",
-    "id_2027885531376"
+    "id_2027887088528"
   ],
   "combatants": [
     {
-      "id": "id_2027884436784",
-      "name": "10 1",
-      "display_name": "10",
+      "id": "id_2027887088528",
+      "name": "dscsdv 1",
+      "display_name": "dscsdv",
       "kind": "monster",
-      "hp": 0,
-      "max_hp": 10,
+      "hp": 1,
+      "max_hp": 1,
       "temp_hp": 1,
-      "state": "unconscious",
+      "state": "alive",
       "effects": {
         "temp_hp": true,
         "concentration": true,
         "dead": false,
-        "unconscious": true,
-        "incapacitated": true
-      },
-      "custom_effects": {
-        "вамвачс чс м": {
-          "duration": null
-        },
-        "вамвачс чссч  м": {
-          "duration": null
-        },
-        "вамваччс с чссч  м": {
-          "duration": null
-        },
-        "вамвачс чс ччс с чссч  м": {
-          "duration": null
-        },
-        "вамвчс чс ачс чс ччс с чссч  м": {
-          "duration": null
-        }
-      }
-    },
-    {
-      "id": "id_2027885540112",
-      "name": "10 2",
-      "display_name": "10",
-      "kind": "monster",
-      "hp": 0,
-      "max_hp": 7,
-      "temp_hp": 1,
-      "state": "left",
-      "effects": {
-        "temp_hp": true,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": true
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2027885541904",
-      "name": "10 3",
-      "display_name": "10",
-      "kind": "monster",
-      "hp": 6,
-      "max_hp": 6,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
         "unconscious": false,
         "incapacitated": false
       },
       "custom_effects": {}
     },
     {
-      "id": "id_2027885541456",
-      "name": "10 4",
-      "display_name": "10",
-      "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2027885539440",
-      "name": "10 5",
-      "display_name": "10",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2027885542576",
-      "name": "10 6",
-      "display_name": "10",
-      "kind": "monster",
-      "hp": 1,
-      "max_hp": 1,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2027885532272",
-      "name": "10 7",
-      "display_name": "10",
+      "id": "id_2027884436784",
+      "name": "sdvsdv 1",
+      "display_name": "sdvsdv",
       "kind": "monster",
       "hp": 10,
       "max_hp": 10,
@@ -156,63 +43,9 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027885541008",
-      "name": "10 8",
-      "display_name": "10",
-      "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2027885542800",
-      "name": "10 9",
-      "display_name": "10",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2027885531376",
-      "name": "10 10",
-      "display_name": "10",
-      "kind": "monster",
-      "hp": 10,
-      "max_hp": 10,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_2027882626672",
-      "name": "вчс 1",
-      "display_name": "вчс",
+      "id": "id_2027887089200",
+      "name": "sdvsdv 2",
+      "display_name": "sdvsdv",
       "kind": "monster",
       "hp": 2,
       "max_hp": 2,
@@ -228,12 +61,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027887088528",
-      "name": "вчс 2",
-      "display_name": "вчс",
+      "id": "id_2027882626672",
+      "name": "sdvsdv 3",
+      "display_name": "sdvsdv",
       "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
+      "hp": 1,
+      "max_hp": 1,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
@@ -246,12 +79,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027887088752",
-      "name": "вчс 3",
-      "display_name": "вчс",
+      "id": "id_2027882620624",
+      "name": "sdvsdv 4",
+      "display_name": "sdvsdv",
       "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
+      "hp": 6,
+      "max_hp": 6,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
@@ -264,12 +97,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027887088976",
-      "name": "вчс 4",
-      "display_name": "вчс",
+      "id": "id_2027884434992",
+      "name": "20 1",
+      "display_name": "20",
       "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
+      "hp": 9,
+      "max_hp": 9,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
@@ -282,9 +115,9 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027887089200",
-      "name": "вчс 5",
-      "display_name": "вчс",
+      "id": "id_2027882613232",
+      "name": "20 2",
+      "display_name": "20",
       "kind": "monster",
       "hp": 4,
       "max_hp": 4,
@@ -300,9 +133,99 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027887089424",
-      "name": "вчс 6",
-      "display_name": "вчс",
+      "id": "id_2027882613456",
+      "name": "20 3",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 7,
+      "max_hp": 7,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882613680",
+      "name": "20 4",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 7,
+      "max_hp": 7,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882617264",
+      "name": "20 5",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 4,
+      "max_hp": 4,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882617488",
+      "name": "20 6",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 6,
+      "max_hp": 6,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882617712",
+      "name": "20 7",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 7,
+      "max_hp": 7,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882617936",
+      "name": "20 8",
+      "display_name": "20",
       "kind": "monster",
       "hp": 3,
       "max_hp": 3,
@@ -318,9 +241,99 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027887089648",
-      "name": "вчс 7",
-      "display_name": "вчс",
+      "id": "id_2027882618160",
+      "name": "20 9",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 5,
+      "max_hp": 5,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882618384",
+      "name": "20 10",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 1,
+      "max_hp": 1,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882618608",
+      "name": "20 11",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 3,
+      "max_hp": 3,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882618832",
+      "name": "20 12",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 2,
+      "max_hp": 2,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882619056",
+      "name": "20 13",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 3,
+      "max_hp": 3,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882619280",
+      "name": "20 14",
+      "display_name": "20",
       "kind": "monster",
       "hp": 8,
       "max_hp": 8,
@@ -336,12 +349,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027887089872",
-      "name": "вчс 8",
-      "display_name": "вчс",
+      "id": "id_2027882619504",
+      "name": "20 15",
+      "display_name": "20",
       "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
+      "hp": 7,
+      "max_hp": 7,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
@@ -354,12 +367,12 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027887090096",
-      "name": "вчс 9",
-      "display_name": "вчс",
+      "id": "id_2027882619728",
+      "name": "20 16",
+      "display_name": "20",
       "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
+      "hp": 3,
+      "max_hp": 3,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
@@ -372,12 +385,66 @@
       "custom_effects": {}
     },
     {
-      "id": "id_2027887090320",
-      "name": "вчс 10",
-      "display_name": "вчс",
+      "id": "id_2027882619952",
+      "name": "20 17",
+      "display_name": "20",
       "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
+      "hp": 7,
+      "max_hp": 7,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882620176",
+      "name": "20 18",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 5,
+      "max_hp": 5,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027882620400",
+      "name": "20 19",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 5,
+      "max_hp": 5,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027886576368",
+      "name": "20 20",
+      "display_name": "20",
+      "kind": "monster",
+      "hp": 4,
+      "max_hp": 4,
       "temp_hp": 0,
       "state": "alive",
       "effects": {
