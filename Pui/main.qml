@@ -15,11 +15,70 @@ ApplicationWindow {
         source: "fonts/8bitoperator_jve.ttf"
     }
 
-    property int maxVisibleCards: 9
-    property int fixedCardWidth: 450
-    property int fixedCardHeight: 180
+    property int maxVisibleCards: 50
+    property int baseCardWidth: 450
+    property int baseCardHeight: 180
     property int fixedColumnGap: 20
     property int fixedRowGap: 16
+    property int visibleCombatants: Math.min(grid.count, maxVisibleCards)
+    property var cardLayoutByCount: ({
+        1: { columns: 1, rows: 1, scale: 1.00 },
+        2: { columns: 2, rows: 1, scale: 1.00 },
+        3: { columns: 3, rows: 1, scale: 1.00 },
+        4: { columns: 3, rows: 2, scale: 1.00 },
+        5: { columns: 3, rows: 2, scale: 1.00 },
+        6: { columns: 3, rows: 2, scale: 1.00 },
+        7: { columns: 3, rows: 3, scale: 1.00 },
+        8: { columns: 3, rows: 3, scale: 1.00 },
+        9: { columns: 3, rows: 3, scale: 1.00 },
+        10: { columns: 3, rows: 4, scale: 0.95 },
+        11: { columns: 3, rows: 4, scale: 0.905 },
+        12: { columns: 3, rows: 4, scale: 0.865 },
+        13: { columns: 3, rows: 5, scale: 0.83 },
+        14: { columns: 3, rows: 5, scale: 0.80 },
+        15: { columns: 3, rows: 5, scale: 0.775 },
+        16: { columns: 4, rows: 4, scale: 0.74 },
+        17: { columns: 4, rows: 5, scale: 0.725 },
+        18: { columns: 4, rows: 5, scale: 0.705 },
+        19: { columns: 4, rows: 5, scale: 0.685 },
+        20: { columns: 4, rows: 5, scale: 0.67 },
+        21: { columns: 4, rows: 6, scale: 0.655 },
+        22: { columns: 4, rows: 6, scale: 0.64 },
+        23: { columns: 4, rows: 6, scale: 0.625 },
+        24: { columns: 4, rows: 6, scale: 0.61 },
+        25: { columns: 4, rows: 7, scale: 0.60 },
+        26: { columns: 4, rows: 7, scale: 0.59 },
+        27: { columns: 5, rows: 6, scale: 0.58 },
+        28: { columns: 5, rows: 6, scale: 0.565 },
+        29: { columns: 5, rows: 6, scale: 0.555 },
+        30: { columns: 5, rows: 6, scale: 0.545 },
+        31: { columns: 5, rows: 7, scale: 0.54 },
+        32: { columns: 5, rows: 7, scale: 0.53 },
+        33: { columns: 5, rows: 7, scale: 0.52 },
+        34: { columns: 5, rows: 7, scale: 0.515 },
+        35: { columns: 5, rows: 7, scale: 0.505 },
+        36: { columns: 5, rows: 8, scale: 0.50 },
+        37: { columns: 5, rows: 8, scale: 0.495 },
+        38: { columns: 5, rows: 8, scale: 0.485 },
+        39: { columns: 6, rows: 7, scale: 0.48 },
+        40: { columns: 6, rows: 7, scale: 0.475 },
+        41: { columns: 6, rows: 7, scale: 0.47 },
+        42: { columns: 6, rows: 7, scale: 0.465 },
+        43: { columns: 6, rows: 8, scale: 0.455 },
+        44: { columns: 6, rows: 8, scale: 0.45 },
+        45: { columns: 6, rows: 8, scale: 0.445 },
+        46: { columns: 6, rows: 8, scale: 0.44 },
+        47: { columns: 6, rows: 8, scale: 0.435 },
+        48: { columns: 6, rows: 8, scale: 0.43 },
+        49: { columns: 6, rows: 9, scale: 0.43 },
+        50: { columns: 6, rows: 9, scale: 0.425 }
+    })
+    property var activeLayout: cardLayoutByCount[visibleCombatants] || cardLayoutByCount[50]
+    property real dynamicCardScale: visibleCombatants > 0 ? activeLayout.scale : 1.0
+    property int dynamicColumns: visibleCombatants > 0 ? activeLayout.columns : 1
+    property int dynamicRows: visibleCombatants > 0 ? activeLayout.rows : 1
+    property int dynamicCardWidth: Math.round(baseCardWidth * dynamicCardScale)
+    property int dynamicCardHeight: Math.round(baseCardHeight * dynamicCardScale)
     property color inkLight: "#F1E4D1"
     property color inkMuted: "#C9B7A0"
     property color inkSoft: "#9A8672"
@@ -172,22 +231,40 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
 
-        GridView {
-            id: grid
-            width: cellWidth * 3
-            height: cellHeight * 3
-            anchors.centerIn: parent
-            model: playerModel
-            cellWidth: fixedCardWidth + fixedColumnGap
-            cellHeight: fixedCardHeight + fixedRowGap
-            flow: GridView.FlowLeftToRight
-            layoutDirection: Qt.LeftToRight
-            interactive: false
-            clip: true
-            delegate: Rectangle {
+        Column {
+            anchors.fill: parent
+            spacing: 8
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: grid.count >= 51
+                text: "Их там еще целая армия!"
+                color: accentBright
+                font.pixelSize: 30
+                font.family: pixelFont.name
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Item {
+                width: parent.width
+                height: parent.height - (grid.count >= 51 ? 38 : 0)
+
+                GridView {
+                    id: grid
+                    width: dynamicColumns * cellWidth
+                    height: dynamicRows * cellHeight
+                    anchors.centerIn: parent
+                    model: playerModel
+                    cellWidth: dynamicCardWidth + fixedColumnGap
+                    cellHeight: dynamicCardHeight + fixedRowGap
+                    flow: GridView.FlowLeftToRight
+                    layoutDirection: Qt.LeftToRight
+                    interactive: false
+                    clip: true
+                    delegate: Rectangle {
                 id: card
-                width: fixedCardWidth
-                height: fixedCardHeight
+                width: dynamicCardWidth
+                height: dynamicCardHeight
                 visible: index < maxVisibleCards
                 radius: 0
             color: panelMid
@@ -2347,6 +2424,8 @@ ApplicationWindow {
                     PauseAnimation { id: fadePause }
                     NumberAnimation { id: fadeOut; target: particle; property: "opacity"; to: 0.0; easing.type: Easing.OutQuad }
                     ScriptAction { script: particle.stopParticle() }
+                }
+                    }
                 }
             }
         }
