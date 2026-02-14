@@ -327,10 +327,29 @@ ApplicationWindow {
                 return list
             }
             property int customEffectSlots: root.visibleCombatants <= 10 ? 4 : (root.visibleCombatants <= 20 ? 2 : (root.visibleCombatants <= 30 ? 1 : 0))
+            property int customEffectColumns: customEffectSlots === 4 ? 2 : 1
+            property var customEffectSourceList: {
+                var list = []
+                if (custom_effects) {
+                    if (custom_effects.list && custom_effects.list.length) {
+                        list = custom_effects.list.slice(0)
+                    } else {
+                        for (var customName in custom_effects) {
+                            if (custom_effects[customName]) {
+                                list.push(customName)
+                            }
+                        }
+                    }
+                }
+                if (list.length === 0) {
+                    list = effectList.slice(0)
+                }
+                return list
+            }
             property var customEffectList: {
                 var list = []
-                for (var i = 0; i < effectList.length; ++i) {
-                    var effectName = effectList[i]
+                for (var i = 0; i < customEffectSourceList.length; ++i) {
+                    var effectName = customEffectSourceList[i]
                     if (!effectName || !effectName.trim || effectName.trim().length === 0) {
                         continue
                     }
@@ -1745,8 +1764,9 @@ ApplicationWindow {
                         }
                     }
 
-                    Column {
-                        id: customEffectsColumn
+                    Grid {
+                        id: customEffectsGrid
+                        columns: customEffectColumns
                         spacing: Math.max(2, Math.round(4 * cardUiScale))
                         width: parent.width
                         clip: true
@@ -1755,7 +1775,7 @@ ApplicationWindow {
                         Repeater {
                             model: displayCustomEffects
                             delegate: Rectangle {
-                                width: customEffectsColumn.width
+                                width: (customEffectsGrid.width - customEffectsGrid.spacing * (customEffectsGrid.columns - 1)) / customEffectsGrid.columns
                                 height: Math.max(14, Math.round(22 * cardUiScale))
                                 radius: 0
                                 color: "#1A141C"
