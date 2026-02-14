@@ -375,9 +375,6 @@ ApplicationWindow {
                 for (var j = 0; j < filledCount; ++j) {
                     list[j] = customEffectList[j]
                 }
-                if (customEffectList.length > customEffectSlots && customEffectSlots > 0) {
-                    list[customEffectSlots - 1] = "…"
-                }
                 return list
             }
             property bool concentrationActive: effects && effects.concentration
@@ -451,25 +448,20 @@ ApplicationWindow {
             property bool useAlternateTurnFrame: false
             property real turnPrimaryTargetOpacity: 1.0
             property real turnSecondaryTargetOpacity: 0.0
-            property var activeTurnFrames: [
-                "textures/turn1.png",
-                "textures/turn2.png",
-                "textures/turn2.png"
-            ]
             property var turnConcentrationFrames: [
-                "textures/turnconc1.png",
-                "textures/turnconc2.png",
-                "textures/turnconc2.png"
+                "textures/conc1.png",
+                "textures/conc2.png",
+                "textures/conc3.png"
             ]
             property var turnTempHpFrames: [
-                "textures/turntemphp1.png",
-                "textures/turntemphp2.png",
-                "textures/turntemphp2.png"
+                "textures/temphp1.png",
+                "textures/temphp2.png",
+                "textures/temphp3.png"
             ]
             property var turnConcentrationTempFrames: [
-                "textures/turnconctemphp1.png",
-                "textures/turnconctemphp2.png",
-                "textures/turnconctemphp2.png"
+                "textures/conctemp1.png",
+                "textures/conctemp2.png",
+                "textures/conctemp3.png"
             ]
             property real overlayHeightScale: 1.15
             property bool incapacitatedActive: effects && effects.incapacitated
@@ -828,7 +820,6 @@ ApplicationWindow {
                 if (key === "conctemp") return turnConcentrationTempFrames
                 if (key === "conc") return turnConcentrationFrames
                 if (key === "temphp") return turnTempHpFrames
-                if (key === "turn") return activeTurnFrames
                 return []
             }
 
@@ -837,7 +828,7 @@ ApplicationWindow {
                 if (concentrationActive && tempHpValue > 0) return "conctemp"
                 if (concentrationActive) return "conc"
                 if (tempHpValue > 0) return "temphp"
-                return "turn"
+                return ""
             }
 
             function refreshTurnVisual() {
