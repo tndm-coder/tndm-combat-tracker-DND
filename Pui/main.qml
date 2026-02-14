@@ -312,7 +312,6 @@ ApplicationWindow {
             property int tempHpValue: temp_hp
             property string lastState: stateValue
             property var lastTempHp: tempHpValue
-            property int maxEffects: 10
             property var effectList: {
                 var list = []
                 if (effects) {
@@ -327,11 +326,33 @@ ApplicationWindow {
                 }
                 return list
             }
-            property var visibleEffects: {
-                if (effectList.length > maxEffects) {
-                    return effectList.slice(0, maxEffects - 1).concat(["…"])
+            property int customEffectSlots: root.visibleCombatants <= 10 ? 4 : (root.visibleCombatants <= 20 ? 2 : (root.visibleCombatants <= 30 ? 1 : 0))
+            property var customEffectList: {
+                var list = []
+                for (var i = 0; i < effectList.length; ++i) {
+                    var effectName = effectList[i]
+                    if (!effectName || !effectName.trim || effectName.trim().length === 0) {
+                        continue
+                    }
+                    var lowerName = effectName.toLowerCase()
+                    var isAnimatedEffect = lowerName.indexOf("конц") === 0
+                        || lowerName.indexOf("временн") === 0
+                        || lowerName.indexOf("недеесп") === 0
+                    if (!isAnimatedEffect) {
+                        list.push(effectName)
+                    }
                 }
-                return effectList
+                return list
+            }
+            property var visibleCustomEffects: {
+                if (customEffectSlots <= 0) {
+                    return []
+                }
+                var list = customEffectList.slice(0, customEffectSlots)
+                if (customEffectList.length > customEffectSlots && customEffectSlots > 0) {
+                    list[customEffectSlots - 1] = "…"
+                }
+                return list
             }
             property bool concentrationActive: effects && effects.concentration
             property bool lastConcentration: concentrationActive
@@ -1717,31 +1738,32 @@ ApplicationWindow {
                         }
                     }
 
-                    Flow {
-                        spacing: 6
+                    Column {
+                        id: customEffectsColumn
+                        spacing: Math.max(2, Math.round(4 * cardUiScale))
                         width: parent.width
-                        visible: !stateValue || stateValue === "alive"
+                        clip: true
+                        visible: (!stateValue || stateValue === "alive") && visibleCustomEffects.length > 0
+
                         Repeater {
-                            model: visibleEffects
+                            model: visibleCustomEffects
                             delegate: Rectangle {
+                                width: customEffectsColumn.width
+                                height: Math.max(14, Math.round(22 * cardUiScale))
                                 radius: 0
-                                color: modelData.indexOf("Временные") === 0 ? "#243E55" : modelData.indexOf("Конц") === 0 ? "#34244A" : modelData.indexOf("Недеесп") === 0 ? "#3F2A1D" : (modelData.indexOf("Отрав") === 0 || modelData.indexOf("Яд") === 0) ? "#263A1A" : panelDark
+                                color: "#1A141C"
                                 border.width: 1
-                                border.color: (modelData.indexOf("Отрав") === 0 || modelData.indexOf("Яд") === 0) ? accentPoison : panelEdge
-                                height: 20
-                                implicitWidth: chipText.implicitWidth + 12
-                                opacity: 0.0
-                                SequentialAnimation on opacity {
-                                    running: true
-                                    NumberAnimation { from: 0.0; to: 1.0; duration: 220; easing.type: Easing.OutQuad }
-                                }
+                                border.color: "#3B2D35"
+
                                 Text {
-                                    id: chipText
                                     anchors.centerIn: parent
+                                    width: parent.width - 10
                                     text: modelData
-                                    color: (modelData.indexOf("Отрав") === 0 || modelData.indexOf("Яд") === 0) ? accentPoison : inkSoft
-                                    font.pixelSize: 12
+                                    color: inkLight
+                                    font.pixelSize: Math.max(9, Math.round(14 * cardUiScale))
                                     font.family: pixelFont.name
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
                                 }
                             }
                         }
