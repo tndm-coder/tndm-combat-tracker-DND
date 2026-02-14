@@ -591,6 +591,7 @@ ApplicationWindow {
             ]
             property string pendingStateVisual: ""
             property bool suppressIncapacitatedReverseAfterLeft: false
+            property string pendingIncapacitatedMode: ""
             property real unconsciousGrayDim: 0.0
             property int unconsciousFrameIndex: -1
             property string unconsciousFrameSource: ""
@@ -607,6 +608,10 @@ ApplicationWindow {
             ]
             property int unconsciousHeartbeatStep: 0
             property real overlayInset: 0
+            property real textureScaleFactor: 2.0
+            property int textureFadeDuration: 180
+            property real textureRenderWidth: width * textureScaleFactor
+            property real textureRenderHeight: height * textureScaleFactor
             property int damageFrameIndex: -1
             property string damageFrameSource: ""
             property var damageFrames: [
@@ -1117,106 +1122,90 @@ ApplicationWindow {
                 Image {
                     id: concentrationFramePrimary
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height * overlayHeightScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: concentrationPrimarySource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: concentrationVisualActive && !concentrationTempVisualActive && !turnVisualActive
                     opacity: 1.0
-                    transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
                 Image {
                     id: concentrationFrameSecondary
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height * overlayHeightScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: concentrationSecondarySource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: concentrationVisualActive && !concentrationTempVisualActive && !turnVisualActive
                     opacity: 0.0
-                    transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
                 Image {
                     id: tempHpFramePrimary
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height * overlayHeightScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: tempHpPrimarySource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: tempHpVisualActive && !concentrationTempVisualActive && !tempIncapActive && tempIncapFrameIndex < 0 && !turnVisualActive
                     opacity: 1.0
-                    transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
                 Image {
                     id: tempHpFrameSecondary
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height * overlayHeightScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: tempHpSecondarySource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: tempHpVisualActive && !concentrationTempVisualActive && !tempIncapActive && tempIncapFrameIndex < 0 && !turnVisualActive
                     opacity: 0.0
-                    transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
                 Image {
                     id: concentrationTempFramePrimary
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height * overlayHeightScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: concentrationTempPrimarySource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: concentrationTempVisualActive && !turnVisualActive
                     opacity: 1.0
-                    transform: Scale {
-                        xScale: (concentrationCanvasWidth / concentrationTempTargetFrameWidth) * (concentrationTempTargetFrameWidth / concentrationTempFrameWidths[concentrationTempPrimaryFrameMetaIndex])
-                        yScale: (concentrationCanvasHeight / concentrationTempTargetFrameHeight) * (concentrationTempTargetFrameHeight / concentrationTempFrameHeights[concentrationTempPrimaryFrameMetaIndex])
-                        origin.x: width / 2
-                        origin.y: height / 2
-                    }
                     Behavior on opacity {
-                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
                 Image {
                     id: concentrationTempFrameSecondary
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height * overlayHeightScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: concentrationTempSecondarySource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: concentrationTempVisualActive && !turnVisualActive
                     opacity: 0.0
-                    transform: Scale {
-                        xScale: (concentrationCanvasWidth / concentrationTempTargetFrameWidth) * (concentrationTempTargetFrameWidth / concentrationTempFrameWidths[concentrationTempSecondaryFrameMetaIndex])
-                        yScale: (concentrationCanvasHeight / concentrationTempTargetFrameHeight) * (concentrationTempTargetFrameHeight / concentrationTempFrameHeights[concentrationTempSecondaryFrameMetaIndex])
-                        origin.x: width / 2
-                        origin.y: height / 2
-                    }
                     Behavior on opacity {
-                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -1266,32 +1255,30 @@ ApplicationWindow {
                 Image {
                     id: turnFramePrimary
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height * overlayHeightScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: turnPrimarySource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: turnVisualActive
                     opacity: 1.0
-                    transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
                 Image {
                     id: turnFrameSecondary
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height * overlayHeightScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: turnSecondarySource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: turnVisualActive
                     opacity: 0.0
-                    transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -1445,12 +1432,16 @@ ApplicationWindow {
                 Image {
                     id: damageFrameImage
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: damageFrameSource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: damageFrameIndex >= 0
+                    opacity: visible ? 1.0 : 0.0
+                    Behavior on opacity {
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
+                    }
                 }
 
                 Timer {
@@ -1498,12 +1489,16 @@ ApplicationWindow {
                 Image {
                     id: healFrameImage
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: healFrameSource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: healFrameIndex >= 0
+                    opacity: visible ? 1.0 : 0.0
+                    Behavior on opacity {
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
+                    }
                 }
 
                 Timer {
@@ -1552,21 +1547,15 @@ ApplicationWindow {
                     id: tempIncapFramePrimary
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: 6
-                    width: parent.width
-                    height: parent.height
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: tempIncapPrimarySource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: tempIncapFrameIndex >= 0
-                    opacity: 1.0
-                    transform: Scale {
-                        xScale: tempIncapScaleX
-                        yScale: tempIncapScaleY
-                        origin.x: width / 2
-                        origin.y: height / 2
-                    }
+                    opacity: visible ? 1.0 : 0.0
                     Behavior on opacity {
-                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -1582,16 +1571,14 @@ ApplicationWindow {
                     id: incapacitatedFrameImage
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: 6
-                    width: parent.width
-                    height: parent.height
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: incapacitatedFrameSource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     visible: incapacitatedFrameIndex >= 0
-                    transform: Scale {
-                        xScale: incapacitatedScaleX
-                        yScale: incapacitatedScaleY
-                        origin.x: width / 2
-                        origin.y: height / 2
+                    opacity: visible ? 1.0 : 0.0
+                    Behavior on opacity {
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
             }
@@ -1607,8 +1594,8 @@ ApplicationWindow {
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: deathOverlayOffsetY
                     anchors.horizontalCenterOffset: deathOverlayOffsetX
-                    width: parent.width
-                    height: parent.height
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: deathFrameSource
                     sourceClipRect: Qt.rect(
                         activeDeathFrameOpaqueRect.x,
@@ -1616,14 +1603,12 @@ ApplicationWindow {
                         activeDeathFrameOpaqueRect.width,
                         activeDeathFrameOpaqueRect.height
                     )
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: deathFrameIndex >= 0
-                    transform: Scale {
-                        xScale: deathFitScaleX
-                        yScale: deathFitScaleY
-                        origin.x: width / 2
-                        origin.y: height / 2
+                    opacity: visible ? 1.0 : 0.0
+                    Behavior on opacity {
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
             }
@@ -1637,8 +1622,8 @@ ApplicationWindow {
                 Image {
                     id: leftTavernFrameImage
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: leftTavernFrameSource
                     sourceClipRect: Qt.rect(
                         activeLeftTavernOpaqueRect.x,
@@ -1646,14 +1631,12 @@ ApplicationWindow {
                         activeLeftTavernOpaqueRect.width,
                         activeLeftTavernOpaqueRect.height
                     )
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: leftTavernFrameIndex >= 0
-                    transform: Scale {
-                        xScale: leftTavernFitScaleX * leftTavernForcedScaleX * leftTavernScaleBoostX
-                        yScale: leftTavernFitScaleY * leftTavernForcedScaleY * leftTavernScaleBoostY
-                        origin.x: width / 2
-                        origin.y: height / 2
+                    opacity: visible ? 1.0 : 0.0
+                    Behavior on opacity {
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -1661,11 +1644,15 @@ ApplicationWindow {
                     id: leftWantedFrameImage
                     anchors.centerIn: parent
                     source: leftWantedFrameSource
-                    width: parent.width * leftWantedScale
-                    height: parent.height * leftWantedScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: leftWantedFrameIndex >= 0
+                    opacity: visible ? 1.0 : 0.0
+                    Behavior on opacity {
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
+                    }
                 }
             }
 
@@ -1678,23 +1665,31 @@ ApplicationWindow {
                 Image {
                     id: unconsciousFrameImage
                     anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     source: unconsciousFrameSource
-                    fillMode: Image.Stretch
+                    fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: unconsciousFrameIndex >= 0
+                    opacity: visible ? 1.0 : 0.0
+                    Behavior on opacity {
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
+                    }
                 }
 
                 Image {
                     id: unconsciousHeartFrameImage
                     anchors.centerIn: parent
                     source: unconsciousHeartFrameSource
-                    width: parent.width * leftWantedScale
-                    height: parent.height * leftWantedScale
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: unconsciousHeartFrameIndex >= 0
+                    opacity: visible ? 1.0 : 0.0
+                    Behavior on opacity {
+                        NumberAnimation { duration: textureFadeDuration; easing.type: Easing.InOutQuad }
+                    }
                 }
             }
 
@@ -2022,20 +2017,29 @@ ApplicationWindow {
                 if (lastTempIncapActive === tempIncapActive) {
                     return
                 }
-                if (stateValue === "dead" || stateValue === "left") {
+                if (stateValue === "dead" || stateValue === "left" || stateValue === "unconscious") {
                     clearIncapacitatedVisuals()
+                    pendingIncapacitatedMode = ""
+                    incapTransitionTimer.stop()
                     lastTempIncapActive = tempIncapActive
                     return
                 }
                 if (tempIncapActive) {
-                    startTempIncapForward()
+                    if (incapacitatedFrameIndex >= 0) {
+                        pendingIncapacitatedMode = "temp"
+                        startIncapacitatedReverse()
+                        incapTransitionTimer.restart()
+                    } else {
+                        startTempIncapForward()
+                    }
                 } else if (incapacitatedActive && stateValue === "alive") {
-                    stopTempIncapAnimations()
-                    setTempIncapFrame(-1)
-                    stopIncapacitatedAnimations()
-                    incapacitatedDim = 0.28
-                    incapacitatedScaleFactor = incapacitatedShrinkScale
-                    setIncapacitatedFrame(4)
+                    if (tempIncapFrameIndex >= 0) {
+                        pendingIncapacitatedMode = "base"
+                        startTempIncapReverse()
+                        incapTransitionTimer.restart()
+                    } else {
+                        startIncapacitatedForward()
+                    }
                 } else {
                     startTempIncapReverse()
                 }
@@ -2046,6 +2050,20 @@ ApplicationWindow {
                 id: tempHpAppear
                 running: false
                 PropertyAnimation { target: tempHpFill; property: "opacity"; from: 0.0; to: 1.0; duration: 90; easing.type: Easing.OutQuad }
+            }
+
+            Timer {
+                id: incapTransitionTimer
+                interval: 620
+                repeat: false
+                onTriggered: {
+                    if (pendingIncapacitatedMode === "temp" && stateValue === "alive" && tempIncapActive) {
+                        startTempIncapForward()
+                    } else if (pendingIncapacitatedMode === "base" && stateValue === "alive" && incapacitatedActive) {
+                        startIncapacitatedForward()
+                    }
+                    pendingIncapacitatedMode = ""
+                }
             }
 
             onConcentrationActiveChanged: {
@@ -2401,6 +2419,7 @@ ApplicationWindow {
                     return
                 }
                 if (stateValue === "unconscious") {
+                    clearIncapacitatedVisuals()
                     pendingStateVisual = ""
                     statusDelayTimer.stop()
                     applyStateVisuals(stateValue)
@@ -2413,19 +2432,10 @@ ApplicationWindow {
                     statusDelayTimer.restart()
                 } else if (lastState === "alive" && stateValue !== "alive" && (incapacitatedActive || incapacitatedFrameIndex >= 0 || tempIncapFrameIndex >= 0 || tempIncapActive)) {
                     pendingStateVisual = stateValue
-                    if (tempIncapActive || tempIncapFrameIndex >= 0) {
-                        startTempIncapReverse()
-                    } else {
-                        startIncapacitatedReverse()
-                    }
+                    clearIncapacitatedVisuals()
                     statusDelayTimer.restart()
                 } else {
                     applyStateVisuals(stateValue)
-                    if (stateValue === "alive" && tempIncapActive && tempIncapFrameIndex < 0) {
-                        startTempIncapForward()
-                    } else if (stateValue === "alive" && incapacitatedActive && incapacitatedFrameIndex < 0) {
-                        startIncapacitatedForward()
-                    }
                 }
                 lastState = stateValue
             }
@@ -2447,11 +2457,7 @@ ApplicationWindow {
                             }
                         } else if (deferredState === "alive") {
                             clearUnconsciousVisuals()
-                            if (tempIncapActive && tempIncapFrameIndex < 0) {
-                                startTempIncapForward()
-                            } else if (incapacitatedActive && incapacitatedFrameIndex < 0) {
-                                startIncapacitatedForward()
-                            }
+                            clearIncapacitatedVisuals()
                         }
                         pendingStateVisual = ""
                     }
@@ -2651,8 +2657,8 @@ ApplicationWindow {
                 Image {
                     anchors.centerIn: parent
                     source: particle.textureSource
-                    width: parent.width
-                    height: parent.height
+                    width: textureRenderWidth
+                    height: textureRenderHeight
                     opacity: parent.opacity
                     smooth: true
                 }
