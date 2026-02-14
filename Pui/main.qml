@@ -2272,7 +2272,12 @@ ApplicationWindow {
                 ScriptAction { script: setUnconsciousHeartFrame(0) }
                 PauseAnimation { duration: 100 }
                 ScriptAction { script: setUnconsciousHeartFrame(1) }
-                ScriptAction { script: unconsciousGrayDim = 0.52; unconsciousHeartbeatStep = 0 }
+                ScriptAction {
+                    script: {
+                        unconsciousGrayDim = 0.52
+                        unconsciousHeartbeatStep = 0
+                    }
+                }
                 ScriptAction { script: unconsciousHeartbeatTimer.restart() }
             }
 
@@ -2291,7 +2296,12 @@ ApplicationWindow {
                 PauseAnimation { duration: 100 }
                 ScriptAction { script: setUnconsciousFrame(0) }
                 PauseAnimation { duration: 100 }
-                ScriptAction { script: setUnconsciousFrame(-1); unconsciousGrayDim = 0.0 }
+                ScriptAction {
+                    script: {
+                        setUnconsciousFrame(-1)
+                        unconsciousGrayDim = 0.0
+                    }
+                }
             }
 
             Timer {
@@ -2315,13 +2325,37 @@ ApplicationWindow {
                 loops: 1
                 ScriptAction { script: unconsciousHeartbeatStep = 0 }
                 PauseAnimation { duration: 125 }
-                ScriptAction { script: setUnconsciousHeartFrame(0); unconsciousHeartFlashAnim.restart(); unconsciousHeartbeatStep = 1 }
+                ScriptAction {
+                    script: {
+                        setUnconsciousHeartFrame(0)
+                        unconsciousHeartFlashAnim.restart()
+                        unconsciousHeartbeatStep = 1
+                    }
+                }
                 PauseAnimation { duration: 125 }
-                ScriptAction { script: setUnconsciousHeartFrame(1); unconsciousHeartFlashAnim.restart(); unconsciousHeartbeatStep = 2 }
+                ScriptAction {
+                    script: {
+                        setUnconsciousHeartFrame(1)
+                        unconsciousHeartFlashAnim.restart()
+                        unconsciousHeartbeatStep = 2
+                    }
+                }
                 PauseAnimation { duration: 125 }
-                ScriptAction { script: setUnconsciousHeartFrame(0); unconsciousHeartFlashAnim.restart(); unconsciousHeartbeatStep = 3 }
+                ScriptAction {
+                    script: {
+                        setUnconsciousHeartFrame(0)
+                        unconsciousHeartFlashAnim.restart()
+                        unconsciousHeartbeatStep = 3
+                    }
+                }
                 PauseAnimation { duration: 125 }
-                ScriptAction { script: setUnconsciousHeartFrame(1); unconsciousHeartFlashAnim.restart(); unconsciousHeartbeatStep = 0 }
+                ScriptAction {
+                    script: {
+                        setUnconsciousHeartFrame(1)
+                        unconsciousHeartFlashAnim.restart()
+                        unconsciousHeartbeatStep = 0
+                    }
+                }
             }
 
             onIsActiveChanged: refreshTurnVisual()
