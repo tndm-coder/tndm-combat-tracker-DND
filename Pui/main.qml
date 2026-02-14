@@ -126,6 +126,7 @@ ApplicationWindow {
 
     Column {
         id: header
+        z: 5
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -226,6 +227,7 @@ ApplicationWindow {
 
     Item {
         id: battlefieldArea
+        z: 20
         anchors.top: header.bottom
         anchors.left: parent.left
         anchors.right: parent.right
@@ -249,7 +251,7 @@ ApplicationWindow {
                     flow: GridView.FlowLeftToRight
                     layoutDirection: Qt.LeftToRight
                     interactive: false
-                    clip: true
+                    clip: false
                     delegate: Rectangle {
                 id: card
                 width: dynamicCardWidth
@@ -2657,8 +2659,8 @@ ApplicationWindow {
                 Image {
                     anchors.centerIn: parent
                     source: particle.textureSource
-                    width: textureRenderWidth
-                    height: textureRenderHeight
+                    width: parent.width
+                    height: parent.height
                     opacity: parent.opacity
                     smooth: true
                 }

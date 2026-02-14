@@ -1,9 +1,8 @@
 {
   "running": true,
-  "timestamp": 1771084090.572254,
+  "timestamp": 1771084779.1683772,
   "round": 1,
   "active_ids": [
-    "id_2027884436784",
     "id_2027885541904",
     "id_2027885541456",
     "id_2027885539440",
@@ -19,16 +18,16 @@
       "name": "10 1",
       "display_name": "10",
       "kind": "monster",
-      "hp": 10,
+      "hp": 0,
       "max_hp": 10,
       "temp_hp": 1,
-      "state": "alive",
+      "state": "unconscious",
       "effects": {
         "temp_hp": true,
         "concentration": true,
         "dead": false,
-        "unconscious": false,
-        "incapacitated": false
+        "unconscious": true,
+        "incapacitated": true
       },
       "custom_effects": {
         "вамвачс чс м": {
@@ -56,12 +55,12 @@
       "hp": 0,
       "max_hp": 7,
       "temp_hp": 1,
-      "state": "unconscious",
+      "state": "left",
       "effects": {
         "temp_hp": true,
         "concentration": false,
         "dead": false,
-        "unconscious": true,
+        "unconscious": false,
         "incapacitated": true
       },
       "custom_effects": {}
