@@ -15,17 +15,7 @@ ApplicationWindow {
         source: "fonts/8bitoperator_jve.ttf"
     }
 
-    property int columns: {
-        var count = playerModel ? playerModel.count : 0
-        if (count <= 2) return 1
-        if (count <= 8) return 2
-        return 3
-    }
-    property int rowCount: {
-        var count = playerModel ? playerModel.count : 0
-        if (count === 0) return 1
-        return Math.ceil(count / columns)
-    }
+    property int maxVisibleCards: 9
     property int fixedCardWidth: 450
     property int fixedCardHeight: 180
     property int fixedColumnGap: 20
@@ -175,23 +165,31 @@ ApplicationWindow {
         }
     }
 
-    GridView {
-        id: grid
+    Item {
+        id: battlefieldArea
         anchors.top: header.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.margins: 24
-        model: playerModel
-        cellWidth: fixedCardWidth + fixedColumnGap
-        cellHeight: fixedCardHeight + fixedRowGap
-        flow: GridView.TopToBottom
-        layoutDirection: Qt.LeftToRight
-        delegate: Rectangle {
-            id: card
-            width: fixedCardWidth
-            height: fixedCardHeight
-            radius: 0
+
+        GridView {
+            id: grid
+            width: cellWidth * 3
+            height: cellHeight * 3
+            anchors.centerIn: parent
+            model: playerModel
+            cellWidth: fixedCardWidth + fixedColumnGap
+            cellHeight: fixedCardHeight + fixedRowGap
+            flow: GridView.FlowLeftToRight
+            layoutDirection: Qt.LeftToRight
+            interactive: false
+            clip: true
+            delegate: Rectangle {
+                id: card
+                width: fixedCardWidth
+                height: fixedCardHeight
+                visible: index < maxVisibleCards
+                radius: 0
             color: panelMid
             gradient: Gradient {
                 GradientStop { position: 0.0; color: "#2E2229" }
@@ -2119,6 +2117,19 @@ ApplicationWindow {
                 running: false
                 PropertyAnimation { target: smokeOverlay; property: "opacity"; from: smokeOverlay.opacity; to: 0.0; duration: 280; easing.type: Easing.OutQuad }
             }
+            }
+        }
+
+        Text {
+            anchors.top: grid.bottom
+            anchors.topMargin: 10
+            anchors.horizontalCenter: grid.horizontalCenter
+            visible: playerModel && playerModel.count > maxVisibleCards
+            text: "И их там еще целая армия!"
+            color: inkMuted
+            font.pixelSize: 30
+            font.family: pixelFont.name
+            horizontalAlignment: Text.AlignHCenter
         }
     }
 
