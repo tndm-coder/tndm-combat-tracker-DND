@@ -387,7 +387,9 @@ ApplicationWindow {
             property var concentrationFrames: [
                 "textures/conc1.png",
                 "textures/conc2.png",
-                "textures/conc3.png"
+                "textures/conc3.png",
+                "textures/conc4.png",
+                "textures/conc5.png"
             ]
             property int concentrationFrameWidth: 1179
             property int concentrationFrameHeight: 694
@@ -409,7 +411,9 @@ ApplicationWindow {
             property var tempHpFrames: [
                 "textures/temphp1.png",
                 "textures/temphp2.png",
-                "textures/temphp3.png"
+                "textures/temphp3.png",
+                "textures/temphp4.png",
+                "textures/temphp5.png"
             ]
             property bool concentrationTempActive: concentrationActive && tempHpValue > 0
             property bool turnOverlayActive: isActive && stateValue === "alive"
@@ -427,7 +431,9 @@ ApplicationWindow {
             property var concentrationTempFrames: [
                 "textures/conctemp1.png",
                 "textures/conctemp2.png",
-                "textures/conctemp3.png"
+                "textures/conctemp3.png",
+                "textures/conctemp4.png",
+                "textures/conctemp5.png"
             ]
             property bool useAlternateConcentrationTempFrame: false
             property real concentrationTempPrimaryTargetOpacity: 1.0
@@ -451,17 +457,23 @@ ApplicationWindow {
             property var turnConcentrationFrames: [
                 "textures/conc1.png",
                 "textures/conc2.png",
-                "textures/conc3.png"
+                "textures/conc3.png",
+                "textures/conc4.png",
+                "textures/conc5.png"
             ]
             property var turnTempHpFrames: [
                 "textures/temphp1.png",
                 "textures/temphp2.png",
-                "textures/temphp3.png"
+                "textures/temphp3.png",
+                "textures/temphp4.png",
+                "textures/temphp5.png"
             ]
             property var turnConcentrationTempFrames: [
                 "textures/conctemp1.png",
                 "textures/conctemp2.png",
-                "textures/conctemp3.png"
+                "textures/conctemp3.png",
+                "textures/conctemp4.png",
+                "textures/conctemp5.png"
             ]
             property real overlayHeightScale: 1.15
             property bool incapacitatedActive: effects && effects.incapacitated
@@ -579,6 +591,21 @@ ApplicationWindow {
             ]
             property string pendingStateVisual: ""
             property bool suppressIncapacitatedReverseAfterLeft: false
+            property real unconsciousGrayDim: 0.0
+            property int unconsciousFrameIndex: -1
+            property string unconsciousFrameSource: ""
+            property var unconsciousFrames: [
+                "textures/unc1.png",
+                "textures/unc2.png",
+                "textures/unc3.png"
+            ]
+            property int unconsciousHeartFrameIndex: -1
+            property string unconsciousHeartFrameSource: ""
+            property var unconsciousHeartFrames: [
+                "textures/heart1.png",
+                "textures/heart2.png"
+            ]
+            property int unconsciousHeartbeatStep: 0
             property real overlayInset: 0
             property int damageFrameIndex: -1
             property string damageFrameSource: ""
@@ -695,6 +722,57 @@ ApplicationWindow {
                 if (leftWantedFrameSource !== nextSource) {
                     leftWantedFrameSource = nextSource
                 }
+            }
+
+            function setUnconsciousFrame(index) {
+                unconsciousFrameIndex = index
+                var nextSource = (index >= 0 && index < unconsciousFrames.length) ? unconsciousFrames[index] : ""
+                if (unconsciousFrameSource !== nextSource) {
+                    unconsciousFrameSource = nextSource
+                }
+            }
+
+            function setUnconsciousHeartFrame(index) {
+                unconsciousHeartFrameIndex = index
+                var nextSource = (index >= 0 && index < unconsciousHeartFrames.length) ? unconsciousHeartFrames[index] : ""
+                if (unconsciousHeartFrameSource !== nextSource) {
+                    unconsciousHeartFrameSource = nextSource
+                }
+            }
+
+            function stopUnconsciousAnimations() {
+                unconsciousForward.stop()
+                unconsciousReverse.stop()
+                unconsciousHeartbeatTimer.stop()
+            }
+
+            function startUnconsciousForward() {
+                clearIncapacitatedVisuals()
+                clearDeathVisuals()
+                clearLeftVisuals()
+                stopUnconsciousAnimations()
+                unconsciousGrayDim = 0.0
+                setUnconsciousFrame(0)
+                setUnconsciousHeartFrame(-1)
+                unconsciousForward.restart()
+            }
+
+            function startUnconsciousReverse() {
+                stopUnconsciousAnimations()
+                if (unconsciousFrameIndex < 0) {
+                    setUnconsciousFrame(2)
+                }
+                if (unconsciousHeartFrameIndex < 0) {
+                    setUnconsciousHeartFrame(1)
+                }
+                unconsciousReverse.restart()
+            }
+
+            function clearUnconsciousVisuals() {
+                stopUnconsciousAnimations()
+                setUnconsciousHeartFrame(-1)
+                setUnconsciousFrame(-1)
+                unconsciousGrayDim = 0.0
             }
 
             function stopDeathAnimations() {
@@ -837,7 +915,7 @@ ApplicationWindow {
                     pendingTurnVisualKey = ""
                     if (turnVisualActive) {
                         turnFrameDirection = -1
-                        turnFrameIndex = 2
+                        turnFrameIndex = turnVisualFramesForKey(turnVisualKey).length - 1
                         turnTimer.restart()
                     }
                     return
@@ -861,7 +939,7 @@ ApplicationWindow {
                 if (turnVisualKey !== nextKey) {
                     pendingTurnVisualKey = nextKey
                     turnFrameDirection = -1
-                    turnFrameIndex = 2
+                    turnFrameIndex = turnVisualFramesForKey(turnVisualKey).length - 1
                     turnTimer.restart()
                     return
                 }
@@ -979,6 +1057,15 @@ ApplicationWindow {
             }
 
             SequentialAnimation {
+                id: unconsciousHeartFlashAnim
+                running: false
+                ScriptAction { script: flashColor = damageFillColor }
+                PropertyAnimation { target: flashOverlay; property: "opacity"; from: 0.0; to: 0.22; duration: 1 }
+                PauseAnimation { duration: 50 }
+                PropertyAnimation { target: flashOverlay; property: "opacity"; to: 0.0; duration: 1 }
+            }
+
+            SequentialAnimation {
                 id: shakeAnim
                 running: false
                 NumberAnimation { target: card; property: "shakeOffset"; from: 0; to: -6; duration: 40; easing.type: Easing.OutQuad }
@@ -999,7 +1086,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 radius: 0
                 color: "#120D12"
-                opacity: Math.min(1, statusDim + incapacitatedDim + deathDim + (deathFrameIndex === 4 ? 0.35 : 0.0))
+                opacity: Math.min(1, statusDim + incapacitatedDim + deathDim + unconsciousGrayDim + (deathFrameIndex === 4 ? 0.35 : 0.0))
                 visible: opacity > 0
                 Behavior on opacity {
                     NumberAnimation { duration: 240; easing.type: Easing.OutQuad }
@@ -1140,21 +1227,21 @@ ApplicationWindow {
                     repeat: true
                     onTriggered: {
                         var frames = concentrationTempFrames
-                        if (frames.length < 3) {
+                        if (frames.length < 2) {
                             concentrationTempTimer.stop()
                             concentrationTempVisualActive = false
                             return
                         }
 
                         concentrationTempFrameIndex += concentrationTempFrameDirection
-                        if (concentrationTempFrameIndex < 0 || concentrationTempFrameIndex > 2) {
+                        if (concentrationTempFrameIndex < 0 || concentrationTempFrameIndex >= frames.length) {
                             concentrationTempTimer.stop()
                             if (concentrationTempFrameDirection < 0) {
                                 concentrationTempVisualActive = false
                                 concentrationTempPrimarySource = ""
                                 concentrationTempSecondarySource = ""
                             } else {
-                                concentrationTempFrameIndex = 2
+                                concentrationTempFrameIndex = concentrationTempFrames.length - 1
                             }
                             return
                         }
@@ -1215,14 +1302,14 @@ ApplicationWindow {
                     repeat: true
                     onTriggered: {
                         var frames = turnVisualFramesForKey(turnVisualKey)
-                        if (frames.length < 3) {
+                        if (frames.length < 2) {
                             turnTimer.stop()
                             turnVisualActive = false
                             return
                         }
 
                         turnFrameIndex += turnFrameDirection
-                        if (turnFrameIndex < 0 || turnFrameIndex > 2) {
+                        if (turnFrameIndex < 0 || turnFrameIndex >= frames.length) {
                             turnTimer.stop()
                             if (turnFrameDirection < 0) {
                                 if (pendingTurnVisualKey) {
@@ -1244,7 +1331,7 @@ ApplicationWindow {
                                     turnSecondarySource = ""
                                 }
                             } else {
-                                turnFrameIndex = 2
+                                turnFrameIndex = turnVisualFramesForKey(turnVisualKey).length - 1
                             }
                             return
                         }
@@ -1271,21 +1358,21 @@ ApplicationWindow {
                     repeat: true
                     onTriggered: {
                         var frames = tempHpFrames
-                        if (frames.length < 3) {
+                        if (frames.length < 2) {
                             tempHpTimer.stop()
                             tempHpVisualActive = false
                             return
                         }
 
                         tempHpFrameIndex += tempHpFrameDirection
-                        if (tempHpFrameIndex < 0 || tempHpFrameIndex > 2) {
+                        if (tempHpFrameIndex < 0 || tempHpFrameIndex >= frames.length) {
                             tempHpTimer.stop()
                             if (tempHpFrameDirection < 0) {
                                 tempHpVisualActive = false
                                 tempHpPrimarySource = ""
                                 tempHpSecondarySource = ""
                             } else {
-                                tempHpFrameIndex = 2
+                                tempHpFrameIndex = tempHpFrames.length - 1
                             }
                             return
                         }
@@ -1312,21 +1399,21 @@ ApplicationWindow {
                     repeat: true
                     onTriggered: {
                         var frames = concentrationFrames
-                        if (frames.length < 3) {
+                        if (frames.length < 2) {
                             concentrationTimer.stop()
                             concentrationVisualActive = false
                             return
                         }
 
                         concentrationFrameIndex += concentrationFrameDirection
-                        if (concentrationFrameIndex < 0 || concentrationFrameIndex > 2) {
+                        if (concentrationFrameIndex < 0 || concentrationFrameIndex >= frames.length) {
                             concentrationTimer.stop()
                             if (concentrationFrameDirection < 0) {
                                 concentrationVisualActive = false
                                 concentrationPrimarySource = ""
                                 concentrationSecondarySource = ""
                             } else {
-                                concentrationFrameIndex = 2
+                                concentrationFrameIndex = concentrationFrames.length - 1
                             }
                             return
                         }
@@ -1544,7 +1631,7 @@ ApplicationWindow {
             Item {
                 id: leftOverlayLayer
                 anchors.fill: parent
-                z: 11
+                z: 12
                 visible: leftTavernFrameIndex >= 0
 
                 Image {
@@ -1579,6 +1666,35 @@ ApplicationWindow {
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: leftWantedFrameIndex >= 0
+                }
+            }
+
+            Item {
+                id: unconsciousOverlayLayer
+                anchors.fill: parent
+                z: 11
+                visible: unconsciousFrameIndex >= 0
+
+                Image {
+                    id: unconsciousFrameImage
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                    source: unconsciousFrameSource
+                    fillMode: Image.Stretch
+                    smooth: true
+                    visible: unconsciousFrameIndex >= 0
+                }
+
+                Image {
+                    id: unconsciousHeartFrameImage
+                    anchors.centerIn: parent
+                    source: unconsciousHeartFrameSource
+                    width: parent.width * leftWantedScale
+                    height: parent.height * leftWantedScale
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    visible: unconsciousHeartFrameIndex >= 0
                 }
             }
 
@@ -1792,24 +1908,24 @@ ApplicationWindow {
             Component.onCompleted: {
                 if (concentrationActive) {
                     concentrationVisualActive = true
-                    concentrationPrimarySource = concentrationFrames[2]
-                    concentrationSecondarySource = concentrationFrames[2]
+                    concentrationPrimarySource = concentrationFrames[concentrationFrames.length - 1]
+                    concentrationSecondarySource = concentrationFrames[concentrationFrames.length - 1]
                     concentrationFramePrimary.opacity = 1.0
                     concentrationFrameSecondary.opacity = 0.0
                 }
                 if (tempHpValue > 0) {
                     tempHpVisualActive = true
-                    tempHpPrimarySource = tempHpFrames[2]
-                    tempHpSecondarySource = tempHpFrames[2]
+                    tempHpPrimarySource = tempHpFrames[tempHpFrames.length - 1]
+                    tempHpSecondarySource = tempHpFrames[tempHpFrames.length - 1]
                     tempHpFramePrimary.opacity = 1.0
                     tempHpFrameSecondary.opacity = 0.0
                 }
                 if (concentrationTempActive) {
                     concentrationTempVisualActive = true
-                    concentrationTempPrimarySource = concentrationTempFrames[2]
-                    concentrationTempSecondarySource = concentrationTempFrames[2]
-                    concentrationTempPrimaryFrameMetaIndex = 2
-                    concentrationTempSecondaryFrameMetaIndex = 2
+                    concentrationTempPrimarySource = concentrationTempFrames[concentrationTempFrames.length - 1]
+                    concentrationTempSecondarySource = concentrationTempFrames[concentrationTempFrames.length - 1]
+                    concentrationTempPrimaryFrameMetaIndex = concentrationTempFrames.length - 1
+                    concentrationTempSecondaryFrameMetaIndex = concentrationTempFrames.length - 1
                     concentrationTempFramePrimary.opacity = 1.0
                     concentrationTempFrameSecondary.opacity = 0.0
                 }
@@ -1818,8 +1934,8 @@ ApplicationWindow {
                     turnVisualActive = true
                     turnVisualKey = initTurnKey
                     var initTurnFrames = turnVisualFramesForKey(initTurnKey)
-                    turnPrimarySource = initTurnFrames[2]
-                    turnSecondarySource = initTurnFrames[2]
+                    turnPrimarySource = initTurnFrames[initTurnFrames.length - 1]
+                    turnSecondarySource = initTurnFrames[initTurnFrames.length - 1]
                     turnFramePrimary.opacity = 1.0
                     turnFrameSecondary.opacity = 0.0
                 }
@@ -1895,7 +2011,7 @@ ApplicationWindow {
                     tempHpTimer.restart()
                 } else if (tempHpValue <= 0 && tempHpVisualActive) {
                     tempHpFrameDirection = -1
-                    tempHpFrameIndex = 2
+                    tempHpFrameIndex = tempHpFrames.length - 1
                     tempHpTimer.restart()
                 }
                 refreshTurnVisual()
@@ -1945,7 +2061,7 @@ ApplicationWindow {
                     concentrationTimer.restart()
                 } else if (concentrationVisualActive) {
                     concentrationFrameDirection = -1
-                    concentrationFrameIndex = 2
+                    concentrationFrameIndex = concentrationFrames.length - 1
                     concentrationTimer.restart()
                 }
                 refreshTurnVisual()
@@ -1967,7 +2083,7 @@ ApplicationWindow {
                     concentrationTempTimer.restart()
                 } else if (concentrationTempVisualActive) {
                     concentrationTempFrameDirection = -1
-                    concentrationTempFrameIndex = 2
+                    concentrationTempFrameIndex = concentrationTempFrames.length - 1
                     concentrationTempTimer.restart()
                 }
             }
@@ -1980,11 +2096,13 @@ ApplicationWindow {
                     return
                 }
                 if (stateValue === "dead") {
+                    clearUnconsciousVisuals()
                     clearIncapacitatedVisuals()
                     lastIncapacitated = incapacitatedActive
                     return
                 }
                 if (stateValue === "left") {
+                    clearUnconsciousVisuals()
                     suppressIncapacitatedReverseAfterLeft = false
                     clearIncapacitatedVisuals()
                     lastIncapacitated = incapacitatedActive
@@ -2142,6 +2260,70 @@ ApplicationWindow {
                 ScriptAction { script: setLeftTavernFrame(-1) }
             }
 
+            SequentialAnimation {
+                id: unconsciousForward
+                running: false
+                ScriptAction { script: setUnconsciousFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setUnconsciousFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setUnconsciousFrame(2) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setUnconsciousHeartFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setUnconsciousHeartFrame(1) }
+                ScriptAction { script: unconsciousGrayDim = 0.52; unconsciousHeartbeatStep = 0 }
+                ScriptAction { script: unconsciousHeartbeatTimer.restart() }
+            }
+
+            SequentialAnimation {
+                id: unconsciousReverse
+                running: false
+                ScriptAction { script: unconsciousHeartbeatTimer.stop() }
+                ScriptAction { script: setUnconsciousHeartFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setUnconsciousHeartFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setUnconsciousHeartFrame(-1) }
+                ScriptAction { script: setUnconsciousFrame(2) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setUnconsciousFrame(1) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setUnconsciousFrame(0) }
+                PauseAnimation { duration: 100 }
+                ScriptAction { script: setUnconsciousFrame(-1); unconsciousGrayDim = 0.0 }
+            }
+
+            Timer {
+                id: unconsciousHeartbeatTimer
+                interval: 2000
+                repeat: true
+                running: false
+                onTriggered: {
+                    if (stateValue !== "unconscious" || unconsciousFrameIndex < 2) {
+                        unconsciousHeartbeatTimer.stop()
+                        return
+                    }
+                    unconsciousHeartbeatStep = 0
+                    unconsciousHeartbeatPulse.start()
+                }
+            }
+
+            SequentialAnimation {
+                id: unconsciousHeartbeatPulse
+                running: false
+                loops: 1
+                ScriptAction { script: unconsciousHeartbeatStep = 0 }
+                PauseAnimation { duration: 125 }
+                ScriptAction { script: setUnconsciousHeartFrame(0); unconsciousHeartFlashAnim.restart(); unconsciousHeartbeatStep = 1 }
+                PauseAnimation { duration: 125 }
+                ScriptAction { script: setUnconsciousHeartFrame(1); unconsciousHeartFlashAnim.restart(); unconsciousHeartbeatStep = 2 }
+                PauseAnimation { duration: 125 }
+                ScriptAction { script: setUnconsciousHeartFrame(0); unconsciousHeartFlashAnim.restart(); unconsciousHeartbeatStep = 3 }
+                PauseAnimation { duration: 125 }
+                ScriptAction { script: setUnconsciousHeartFrame(1); unconsciousHeartFlashAnim.restart(); unconsciousHeartbeatStep = 0 }
+            }
+
             onIsActiveChanged: refreshTurnVisual()
 
             onStateValueChanged: {
@@ -2159,6 +2341,7 @@ ApplicationWindow {
                     return
                 }
                 if (stateValue === "dead") {
+                    clearUnconsciousVisuals()
                     clearLeftVisuals()
                     pendingStateVisual = ""
                     statusDelayTimer.stop()
@@ -2173,6 +2356,7 @@ ApplicationWindow {
                     clearDeathVisuals()
                 }
                 if (stateValue === "left") {
+                    clearUnconsciousVisuals()
                     pendingStateVisual = ""
                     statusDelayTimer.stop()
                     applyStateVisuals(stateValue)
@@ -2182,7 +2366,18 @@ ApplicationWindow {
                     lastState = stateValue
                     return
                 }
-                if (lastState === "alive" && stateValue !== "alive" && (incapacitatedActive || incapacitatedFrameIndex >= 0 || tempIncapFrameIndex >= 0 || tempIncapActive)) {
+                if (stateValue === "unconscious") {
+                    pendingStateVisual = ""
+                    statusDelayTimer.stop()
+                    applyStateVisuals(stateValue)
+                    if (unconsciousFrameIndex < 0 || unconsciousHeartFrameIndex < 1) {
+                        startUnconsciousForward()
+                    }
+                } else if (lastState === "unconscious" && stateValue === "alive") {
+                    pendingStateVisual = stateValue
+                    startUnconsciousReverse()
+                    statusDelayTimer.restart()
+                } else if (lastState === "alive" && stateValue !== "alive" && (incapacitatedActive || incapacitatedFrameIndex >= 0 || tempIncapFrameIndex >= 0 || tempIncapActive)) {
                     pendingStateVisual = stateValue
                     if (tempIncapActive || tempIncapFrameIndex >= 0) {
                         startTempIncapReverse()
@@ -2212,7 +2407,12 @@ ApplicationWindow {
                         suppressIncapacitatedReverseAfterLeft = false
                         if (deferredState === "dead" && deathFrameIndex < 0) {
                             startDeathForward()
+                        } else if (deferredState === "unconscious") {
+                            if (unconsciousFrameIndex < 0 || unconsciousHeartFrameIndex < 1) {
+                                startUnconsciousForward()
+                            }
                         } else if (deferredState === "alive") {
+                            clearUnconsciousVisuals()
                             if (tempIncapActive && tempIncapFrameIndex < 0) {
                                 startTempIncapForward()
                             } else if (incapacitatedActive && incapacitatedFrameIndex < 0) {
