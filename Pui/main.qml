@@ -15,7 +15,7 @@ ApplicationWindow {
         source: "fonts/8bitoperator_jve.ttf"
     }
 
-    property int maxVisibleCards: 50
+    property int maxVisibleCards: 48
     property int baseCardWidth: 450
     property int baseCardHeight: 180
     property int fixedColumnGap: 20
@@ -73,7 +73,7 @@ ApplicationWindow {
         49: { columns: 6, rows: 9, scale: 0.42 },
         50: { columns: 6, rows: 9, scale: 0.42 }
     })
-    property var activeLayout: cardLayoutByCount[visibleCombatants] || cardLayoutByCount[50]
+    property var activeLayout: cardLayoutByCount[visibleCombatants] || cardLayoutByCount[48]
     property real dynamicCardScale: visibleCombatants > 0 ? activeLayout.scale : 1.0
     property int dynamicColumns: visibleCombatants > 0 ? activeLayout.columns : 1
     property int dynamicRows: visibleCombatants > 0 ? activeLayout.rows : 1
@@ -233,21 +233,10 @@ ApplicationWindow {
 
         Column {
             anchors.fill: parent
-            spacing: 8
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                visible: grid.count >= 51
-                text: "Их там еще целая армия!"
-                color: accentBright
-                font.pixelSize: 30
-                font.family: pixelFont.name
-                horizontalAlignment: Text.AlignHCenter
-            }
 
             Item {
                 width: parent.width
-                height: parent.height - (grid.count >= 51 ? 38 : 0)
+                height: parent.height
 
                 GridView {
                     id: grid
@@ -285,6 +274,7 @@ ApplicationWindow {
                 z: -1
             }
             property real baseScale: 0.9
+            property real cardUiScale: Math.max(0.42, width / root.baseCardWidth)
             property real activeScaleBoost: is_active ? 1.03 : 1.0
             scale: baseScale * incapacitatedScaleFactor * leftScaleFactor * activeScaleBoost
             transformOrigin: Item.Center
@@ -855,7 +845,7 @@ ApplicationWindow {
 
             Rectangle {
                 id: statusBar
-                height: 36
+                height: Math.max(24, Math.round(36 * cardUiScale))
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.top: parent.top
@@ -883,7 +873,7 @@ ApplicationWindow {
                     anchors.centerIn: parent
                     text: isActive ? "Ходит" : (stateValue === "dead" ? "Мертв" : stateValue === "unconscious" ? "Без сознания" : stateValue === "left" ? "Покинул бой" : "Жив")
                     color: isActive ? "#111111" : inkLight
-                    font.pixelSize: 17
+                    font.pixelSize: Math.max(12, Math.round(19 * cardUiScale))
                     font.family: pixelFont.name
                 }
             }
@@ -1567,24 +1557,35 @@ ApplicationWindow {
                 anchors.bottomMargin: 12
                 anchors.topMargin: statusBar.height + 16
 
-                Text {
-                    id: nameText
-                    text: displayName
-                    color: inkLight
-                    font.pixelSize: 20
-                    font.family: pixelFont.name
-                    elide: Text.ElideRight
+                Rectangle {
+                    id: nameContainer
+                    height: Math.max(20, Math.round(30 * cardUiScale))
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.top: parent.top
+                    color: "#1A141C"
+                    border.width: 1
+                    border.color: "#3B2D35"
                     z: 3
+
+                    Text {
+                        id: nameText
+                        anchors.centerIn: parent
+                        width: parent.width - 10
+                        text: displayName
+                        color: inkLight
+                        font.pixelSize: Math.max(11, Math.round(21 * cardUiScale))
+                        font.family: pixelFont.name
+                        horizontalAlignment: Text.AlignHCenter
+                        elide: Text.ElideRight
+                    }
                 }
 
                 Rectangle {
                     id: smokeOverlay
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    anchors.top: nameText.bottom
+                    anchors.top: nameContainer.bottom
                     anchors.bottom: parent.bottom
                     color: accentSmoke
                     opacity: 0.0
@@ -1596,7 +1597,7 @@ ApplicationWindow {
                     id: detailsColumn
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    anchors.top: nameText.bottom
+                    anchors.top: nameContainer.bottom
                     anchors.bottom: parent.bottom
                     spacing: 8
 
@@ -1606,13 +1607,13 @@ ApplicationWindow {
                         Text {
                             text: hp === null ? "HP —" : ("HP " + hp + " / " + max_hp)
                             color: inkMuted
-                            font.pixelSize: 16
+                            font.pixelSize: Math.max(10, Math.round(16 * cardUiScale))
                             font.family: pixelFont.name
                         }
                         Text {
                             text: tempHpValue > 0 ? ("+ " + tempHpValue) : ""
                             color: accentCool
-                            font.pixelSize: 14
+                            font.pixelSize: Math.max(9, Math.round(14 * cardUiScale))
                             font.family: pixelFont.name
                             visible: tempHpValue > 0
                         }
@@ -1620,7 +1621,7 @@ ApplicationWindow {
 
                     Rectangle {
                         id: hpBar
-                        height: 12
+                        height: Math.max(6, Math.round(12 * cardUiScale))
                         radius: 0
                         visible: showHpBar
                         color: barBackground
@@ -2197,17 +2198,6 @@ ApplicationWindow {
             }
         }
 
-        Text {
-            anchors.top: grid.bottom
-            anchors.topMargin: 10
-            anchors.horizontalCenter: grid.horizontalCenter
-            visible: playerModel && playerModel.count > maxVisibleCards
-            text: "И их там еще целая армия!"
-            color: inkMuted
-            font.pixelSize: 30
-            font.family: pixelFont.name
-            horizontalAlignment: Text.AlignHCenter
-        }
     }
 
     Item {
