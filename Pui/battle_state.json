@@ -1,6 +1,6 @@
 {
   "running": true,
-  "timestamp": 1771012528.867576,
+  "timestamp": 1771062732.8913696,
   "round": 1,
   "active_ids": [
     "id_2284053255600"
@@ -35,14 +35,122 @@
       "kind": "monster",
       "hp": 0,
       "max_hp": 9,
-      "temp_hp": 1,
-      "state": "left",
+      "temp_hp": 0,
+      "state": "alive",
       "effects": {
-        "temp_hp": true,
+        "temp_hp": false,
         "concentration": false,
         "dead": false,
         "unconscious": false,
-        "incapacitated": true
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2284052691648",
+      "name": "ывм 1",
+      "display_name": "ывм",
+      "kind": "monster",
+      "hp": 4,
+      "max_hp": 4,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2284052691920",
+      "name": "ывм 1",
+      "display_name": "ывм",
+      "kind": "monster",
+      "hp": 8,
+      "max_hp": 8,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2284053318992",
+      "name": "ывмывм 1",
+      "display_name": "ывмывм",
+      "kind": "monster",
+      "hp": 5,
+      "max_hp": 5,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2284053319248",
+      "name": "ывмывм 1",
+      "display_name": "ывмывм",
+      "kind": "monster",
+      "hp": 3,
+      "max_hp": 3,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2284053239744",
+      "name": "ывмывм 1",
+      "display_name": "ывмывм",
+      "kind": "monster",
+      "hp": 3,
+      "max_hp": 3,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2284053240464",
+      "name": "ывмывм 1",
+      "display_name": "ывмывм",
+      "kind": "monster",
+      "hp": 2,
+      "max_hp": 2,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
       },
       "custom_effects": {}
     }

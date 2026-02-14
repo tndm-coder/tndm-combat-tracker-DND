@@ -276,6 +276,8 @@ ApplicationWindow {
             property bool concentrationActive: effects && effects.concentration
             property bool lastConcentration: concentrationActive
             property int concentrationFrameIndex: 0
+            property int concentrationFrameDirection: 1
+            property bool concentrationVisualActive: false
             property string concentrationPrimarySource: ""
             property string concentrationSecondarySource: ""
             property var concentrationFrames: [
@@ -296,6 +298,8 @@ ApplicationWindow {
             property real tempHpScaleX: (concentrationCanvasWidth / tempHpFrameWidth) * tempHpScaleAdjustX
             property real tempHpScaleY: (concentrationCanvasHeight / tempHpFrameHeight) * tempHpScaleAdjustY
             property int tempHpFrameIndex: 0
+            property int tempHpFrameDirection: 1
+            property bool tempHpVisualActive: false
             property string tempHpPrimarySource: ""
             property string tempHpSecondarySource: ""
             property var tempHpFrames: [
@@ -310,6 +314,8 @@ ApplicationWindow {
             property var concentrationTempFrameWidths: [1187, 1152, 1173]
             property var concentrationTempFrameHeights: [547, 510, 492]
             property int concentrationTempFrameIndex: 0
+            property int concentrationTempFrameDirection: 1
+            property bool concentrationTempVisualActive: false
             property int concentrationTempPrimaryFrameMetaIndex: 0
             property int concentrationTempSecondaryFrameMetaIndex: 0
             property string concentrationTempPrimarySource: ""
@@ -329,6 +335,10 @@ ApplicationWindow {
             property real tempHpPrimaryTargetOpacity: 1.0
             property real tempHpSecondaryTargetOpacity: 0.0
             property int turnFrameIndex: 0
+            property int turnFrameDirection: 1
+            property bool turnVisualActive: false
+            property string turnVisualKey: ""
+            property string pendingTurnVisualKey: ""
             property string turnPrimarySource: ""
             property string turnSecondarySource: ""
             property bool useAlternateTurnFrame: false
@@ -336,35 +346,24 @@ ApplicationWindow {
             property real turnSecondaryTargetOpacity: 0.0
             property var activeTurnFrames: [
                 "textures/turn1.png",
+                "textures/turn2.png",
                 "textures/turn2.png"
             ]
             property var turnConcentrationFrames: [
                 "textures/turnconc1.png",
+                "textures/turnconc2.png",
                 "textures/turnconc2.png"
             ]
             property var turnTempHpFrames: [
                 "textures/turntemphp1.png",
+                "textures/turntemphp2.png",
                 "textures/turntemphp2.png"
             ]
             property var turnConcentrationTempFrames: [
                 "textures/turnconctemphp1.png",
+                "textures/turnconctemphp2.png",
                 "textures/turnconctemphp2.png"
             ]
-            property var turnFrames: {
-                if (!turnOverlayActive) {
-                    return []
-                }
-                if (concentrationActive && tempHpValue > 0) {
-                    return turnConcentrationTempFrames
-                }
-                if (concentrationActive) {
-                    return turnConcentrationFrames
-                }
-                if (tempHpValue > 0) {
-                    return turnTempHpFrames
-                }
-                return activeTurnFrames
-            }
             property real overlayHeightScale: 1.15
             property bool incapacitatedActive: effects && effects.incapacitated
             property bool incapacitatedEligible: incapacitatedActive && stateValue === "alive"
@@ -718,6 +717,68 @@ ApplicationWindow {
                 tempIncapReverse.restart()
             }
 
+            function turnVisualFramesForKey(key) {
+                if (key === "conctemp") return turnConcentrationTempFrames
+                if (key === "conc") return turnConcentrationFrames
+                if (key === "temphp") return turnTempHpFrames
+                if (key === "turn") return activeTurnFrames
+                return []
+            }
+
+            function desiredTurnVisualKey() {
+                if (!turnOverlayActive) return ""
+                if (concentrationActive && tempHpValue > 0) return "conctemp"
+                if (concentrationActive) return "conc"
+                if (tempHpValue > 0) return "temphp"
+                return "turn"
+            }
+
+            function refreshTurnVisual() {
+                var nextKey = desiredTurnVisualKey()
+                if (!nextKey) {
+                    pendingTurnVisualKey = ""
+                    if (turnVisualActive) {
+                        turnFrameDirection = -1
+                        turnFrameIndex = 2
+                        turnTimer.restart()
+                    }
+                    return
+                }
+
+                if (!turnVisualActive) {
+                    var startFrames = turnVisualFramesForKey(nextKey)
+                    turnVisualActive = true
+                    turnVisualKey = nextKey
+                    turnFrameDirection = 1
+                    turnFrameIndex = 0
+                    useAlternateTurnFrame = false
+                    turnFramePrimary.opacity = 1.0
+                    turnFrameSecondary.opacity = 0.0
+                    turnPrimarySource = startFrames[0]
+                    turnSecondarySource = startFrames[0]
+                    turnTimer.restart()
+                    return
+                }
+
+                if (turnVisualKey !== nextKey) {
+                    pendingTurnVisualKey = nextKey
+                    turnFrameDirection = -1
+                    turnFrameIndex = 2
+                    turnTimer.restart()
+                    return
+                }
+
+                var replayFrames = turnVisualFramesForKey(nextKey)
+                turnFrameDirection = 1
+                turnFrameIndex = 0
+                useAlternateTurnFrame = false
+                turnFramePrimary.opacity = 1.0
+                turnFrameSecondary.opacity = 0.0
+                turnPrimarySource = replayFrames[0]
+                turnSecondarySource = replayFrames[0]
+                turnTimer.restart()
+            }
+
             transform: [
                 Translate { x: shakeOffset; y: liftOffset }
             ]
@@ -866,7 +927,7 @@ ApplicationWindow {
                 anchors.margins: overlayInset
                 z: 4
                 opacity: leftCardOpacity
-                visible: turnOverlayActive || concentrationActive || (tempHpValue > 0 && !tempIncapActive && tempIncapFrameIndex < 0)
+                visible: turnVisualActive || concentrationVisualActive || tempHpVisualActive || concentrationTempVisualActive
 
                 Image {
                     id: concentrationFramePrimary
@@ -876,11 +937,11 @@ ApplicationWindow {
                     source: concentrationPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationActive && !concentrationTempActive && !turnOverlayActive
+                    visible: concentrationVisualActive && !concentrationTempVisualActive && !turnVisualActive
                     opacity: 1.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -892,11 +953,11 @@ ApplicationWindow {
                     source: concentrationSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationActive && !concentrationTempActive && !turnOverlayActive
+                    visible: concentrationVisualActive && !concentrationTempVisualActive && !turnVisualActive
                     opacity: 0.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -908,11 +969,11 @@ ApplicationWindow {
                     source: tempHpPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: tempHpValue > 0 && !concentrationTempActive && !tempIncapActive && tempIncapFrameIndex < 0 && !turnOverlayActive
+                    visible: tempHpVisualActive && !concentrationTempVisualActive && !tempIncapActive && tempIncapFrameIndex < 0 && !turnVisualActive
                     opacity: 1.0
                     transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -924,11 +985,11 @@ ApplicationWindow {
                     source: tempHpSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: tempHpValue > 0 && !concentrationTempActive && !tempIncapActive && tempIncapFrameIndex < 0 && !turnOverlayActive
+                    visible: tempHpVisualActive && !concentrationTempVisualActive && !tempIncapActive && tempIncapFrameIndex < 0 && !turnVisualActive
                     opacity: 0.0
                     transform: Scale { xScale: tempHpScaleX; yScale: tempHpScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -940,7 +1001,7 @@ ApplicationWindow {
                     source: concentrationTempPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationTempActive && !turnOverlayActive
+                    visible: concentrationTempVisualActive && !turnVisualActive
                     opacity: 1.0
                     transform: Scale {
                         xScale: (concentrationCanvasWidth / concentrationTempTargetFrameWidth) * (concentrationTempTargetFrameWidth / concentrationTempFrameWidths[concentrationTempPrimaryFrameMetaIndex])
@@ -949,7 +1010,7 @@ ApplicationWindow {
                         origin.y: height / 2
                     }
                     Behavior on opacity {
-                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -961,7 +1022,7 @@ ApplicationWindow {
                     source: concentrationTempSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: concentrationTempActive && !turnOverlayActive
+                    visible: concentrationTempVisualActive && !turnVisualActive
                     opacity: 0.0
                     transform: Scale {
                         xScale: (concentrationCanvasWidth / concentrationTempTargetFrameWidth) * (concentrationTempTargetFrameWidth / concentrationTempFrameWidths[concentrationTempSecondaryFrameMetaIndex])
@@ -970,44 +1031,43 @@ ApplicationWindow {
                         origin.y: height / 2
                     }
                     Behavior on opacity {
-                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
                     }
                 }
 
                 Timer {
                     id: concentrationTempTimer
-                    interval: 1000
-                    running: concentrationTempActive && concentrationTempFrames.length > 0
+                    interval: 100
+                    running: false
                     repeat: true
-                    triggeredOnStart: true
-                    onRunningChanged: {
-                        if (running) {
-                            concentrationTempFrameIndex = 0
-                            useAlternateConcentrationTempFrame = false
-                            concentrationTempFramePrimary.opacity = 1.0
-                            concentrationTempFrameSecondary.opacity = 0.0
-                            concentrationTempPrimaryTargetOpacity = 1.0
-                            concentrationTempSecondaryTargetOpacity = 0.0
-                            var initialConcentrationTempSource = concentrationTempFrames[concentrationTempFrameIndex]
-                            if (concentrationTempPrimarySource !== initialConcentrationTempSource) {
-                                concentrationTempPrimarySource = initialConcentrationTempSource
-                            }
-                            if (concentrationTempSecondarySource !== initialConcentrationTempSource) {
-                                concentrationTempSecondarySource = initialConcentrationTempSource
-                            }
-                            concentrationTempPrimaryFrameMetaIndex = concentrationTempFrameIndex
-                            concentrationTempSecondaryFrameMetaIndex = concentrationTempFrameIndex
-                        }
-                    }
                     onTriggered: {
-                        concentrationTempFrameIndex = (concentrationTempFrameIndex + 1) % concentrationTempFrames.length
+                        var frames = concentrationTempFrames
+                        if (frames.length < 3) {
+                            concentrationTempTimer.stop()
+                            concentrationTempVisualActive = false
+                            return
+                        }
+
+                        concentrationTempFrameIndex += concentrationTempFrameDirection
+                        if (concentrationTempFrameIndex < 0 || concentrationTempFrameIndex > 2) {
+                            concentrationTempTimer.stop()
+                            if (concentrationTempFrameDirection < 0) {
+                                concentrationTempVisualActive = false
+                                concentrationTempPrimarySource = ""
+                                concentrationTempSecondarySource = ""
+                            } else {
+                                concentrationTempFrameIndex = 2
+                            }
+                            return
+                        }
+
                         if (useAlternateConcentrationTempFrame) {
-                            concentrationTempPrimarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                            concentrationTempPrimarySource = frames[concentrationTempFrameIndex]
                             concentrationTempPrimaryFrameMetaIndex = concentrationTempFrameIndex
                             concentrationTempPrimaryTargetOpacity = 1.0
                             concentrationTempSecondaryTargetOpacity = 0.0
                         } else {
-                            concentrationTempSecondarySource = concentrationTempFrames[concentrationTempFrameIndex]
+                            concentrationTempSecondarySource = frames[concentrationTempFrameIndex]
                             concentrationTempSecondaryFrameMetaIndex = concentrationTempFrameIndex
                             concentrationTempPrimaryTargetOpacity = 0.0
                             concentrationTempSecondaryTargetOpacity = 1.0
@@ -1026,11 +1086,11 @@ ApplicationWindow {
                     source: turnPrimarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: turnOverlayActive
+                    visible: turnVisualActive
                     opacity: 1.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 1500; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -1042,45 +1102,61 @@ ApplicationWindow {
                     source: turnSecondarySource
                     fillMode: Image.Stretch
                     smooth: true
-                    visible: turnOverlayActive
+                    visible: turnVisualActive
                     opacity: 0.0
                     transform: Scale { xScale: overlayScaleX; yScale: overlayScaleY; origin.x: width / 2; origin.y: height / 2 }
                     Behavior on opacity {
-                        NumberAnimation { duration: 1500; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
                     }
                 }
 
                 Timer {
                     id: turnTimer
-                    interval: 1500
-                    running: turnOverlayActive && turnFrames.length > 0
+                    interval: 100
+                    running: false
                     repeat: true
-                    triggeredOnStart: true
-                    onRunningChanged: {
-                        if (running) {
-                            turnFrameIndex = 0
-                            useAlternateTurnFrame = false
-                            turnFramePrimary.opacity = 1.0
-                            turnFrameSecondary.opacity = 0.0
-                            turnPrimaryTargetOpacity = 1.0
-                            turnSecondaryTargetOpacity = 0.0
-                            var initialTurnSource = turnFrames[turnFrameIndex]
-                            if (turnPrimarySource !== initialTurnSource) {
-                                turnPrimarySource = initialTurnSource
-                            }
-                            if (turnSecondarySource !== initialTurnSource) {
-                                turnSecondarySource = initialTurnSource
-                            }
-                        }
-                    }
                     onTriggered: {
-                        turnFrameIndex = (turnFrameIndex + 1) % turnFrames.length
+                        var frames = turnVisualFramesForKey(turnVisualKey)
+                        if (frames.length < 3) {
+                            turnTimer.stop()
+                            turnVisualActive = false
+                            return
+                        }
+
+                        turnFrameIndex += turnFrameDirection
+                        if (turnFrameIndex < 0 || turnFrameIndex > 2) {
+                            turnTimer.stop()
+                            if (turnFrameDirection < 0) {
+                                if (pendingTurnVisualKey) {
+                                    var nextFrames = turnVisualFramesForKey(pendingTurnVisualKey)
+                                    turnVisualKey = pendingTurnVisualKey
+                                    pendingTurnVisualKey = ""
+                                    turnVisualActive = true
+                                    turnFrameDirection = 1
+                                    turnFrameIndex = 0
+                                    useAlternateTurnFrame = false
+                                    turnFramePrimary.opacity = 1.0
+                                    turnFrameSecondary.opacity = 0.0
+                                    turnPrimarySource = nextFrames[0]
+                                    turnSecondarySource = nextFrames[0]
+                                    turnTimer.restart()
+                                } else {
+                                    turnVisualActive = false
+                                    turnPrimarySource = ""
+                                    turnSecondarySource = ""
+                                }
+                            } else {
+                                turnFrameIndex = 2
+                            }
+                            return
+                        }
+
                         if (useAlternateTurnFrame) {
-                            turnPrimarySource = turnFrames[turnFrameIndex]
+                            turnPrimarySource = frames[turnFrameIndex]
                             turnPrimaryTargetOpacity = 1.0
                             turnSecondaryTargetOpacity = 0.0
                         } else {
-                            turnSecondarySource = turnFrames[turnFrameIndex]
+                            turnSecondarySource = frames[turnFrameIndex]
                             turnPrimaryTargetOpacity = 0.0
                             turnSecondaryTargetOpacity = 1.0
                         }
@@ -1092,35 +1168,36 @@ ApplicationWindow {
 
                 Timer {
                     id: tempHpTimer
-                    interval: 1000
-                    running: tempHpValue > 0 && tempHpFrames.length > 0 && !tempIncapActive && tempIncapFrameIndex < 0
+                    interval: 100
+                    running: false
                     repeat: true
-                    triggeredOnStart: true
-                    onRunningChanged: {
-                        if (running) {
-                            tempHpFrameIndex = 0
-                            useAlternateTempHpFrame = false
-                            tempHpFramePrimary.opacity = 1.0
-                            tempHpFrameSecondary.opacity = 0.0
-                            tempHpPrimaryTargetOpacity = 1.0
-                            tempHpSecondaryTargetOpacity = 0.0
-                            var initialTempHpSource = tempHpFrames[tempHpFrameIndex]
-                            if (tempHpPrimarySource !== initialTempHpSource) {
-                                tempHpPrimarySource = initialTempHpSource
-                            }
-                            if (tempHpSecondarySource !== initialTempHpSource) {
-                                tempHpSecondarySource = initialTempHpSource
-                            }
-                        }
-                    }
                     onTriggered: {
-                        tempHpFrameIndex = (tempHpFrameIndex + 1) % tempHpFrames.length
+                        var frames = tempHpFrames
+                        if (frames.length < 3) {
+                            tempHpTimer.stop()
+                            tempHpVisualActive = false
+                            return
+                        }
+
+                        tempHpFrameIndex += tempHpFrameDirection
+                        if (tempHpFrameIndex < 0 || tempHpFrameIndex > 2) {
+                            tempHpTimer.stop()
+                            if (tempHpFrameDirection < 0) {
+                                tempHpVisualActive = false
+                                tempHpPrimarySource = ""
+                                tempHpSecondarySource = ""
+                            } else {
+                                tempHpFrameIndex = 2
+                            }
+                            return
+                        }
+
                         if (useAlternateTempHpFrame) {
-                            tempHpPrimarySource = tempHpFrames[tempHpFrameIndex]
+                            tempHpPrimarySource = frames[tempHpFrameIndex]
                             tempHpPrimaryTargetOpacity = 1.0
                             tempHpSecondaryTargetOpacity = 0.0
                         } else {
-                            tempHpSecondarySource = tempHpFrames[tempHpFrameIndex]
+                            tempHpSecondarySource = frames[tempHpFrameIndex]
                             tempHpPrimaryTargetOpacity = 0.0
                             tempHpSecondaryTargetOpacity = 1.0
                         }
@@ -1132,35 +1209,36 @@ ApplicationWindow {
 
                 Timer {
                     id: concentrationTimer
-                    interval: 1000
-                    running: concentrationActive && concentrationFrames.length > 0
+                    interval: 100
+                    running: false
                     repeat: true
-                    triggeredOnStart: true
-                    onRunningChanged: {
-                        if (running) {
-                            concentrationFrameIndex = 0
-                            useAlternateFrame = false
-                            concentrationFramePrimary.opacity = 1.0
-                            concentrationFrameSecondary.opacity = 0.0
-                            primaryTargetOpacity = 1.0
-                            secondaryTargetOpacity = 0.0
-                            var initialConcentrationSource = concentrationFrames[concentrationFrameIndex]
-                            if (concentrationPrimarySource !== initialConcentrationSource) {
-                                concentrationPrimarySource = initialConcentrationSource
-                            }
-                            if (concentrationSecondarySource !== initialConcentrationSource) {
-                                concentrationSecondarySource = initialConcentrationSource
-                            }
-                        }
-                    }
                     onTriggered: {
-                        concentrationFrameIndex = (concentrationFrameIndex + 1) % concentrationFrames.length
+                        var frames = concentrationFrames
+                        if (frames.length < 3) {
+                            concentrationTimer.stop()
+                            concentrationVisualActive = false
+                            return
+                        }
+
+                        concentrationFrameIndex += concentrationFrameDirection
+                        if (concentrationFrameIndex < 0 || concentrationFrameIndex > 2) {
+                            concentrationTimer.stop()
+                            if (concentrationFrameDirection < 0) {
+                                concentrationVisualActive = false
+                                concentrationPrimarySource = ""
+                                concentrationSecondarySource = ""
+                            } else {
+                                concentrationFrameIndex = 2
+                            }
+                            return
+                        }
+
                         if (useAlternateFrame) {
-                            concentrationPrimarySource = concentrationFrames[concentrationFrameIndex]
+                            concentrationPrimarySource = frames[concentrationFrameIndex]
                             primaryTargetOpacity = 1.0
                             secondaryTargetOpacity = 0.0
                         } else {
-                            concentrationSecondarySource = concentrationFrames[concentrationFrameIndex]
+                            concentrationSecondarySource = frames[concentrationFrameIndex]
                             primaryTargetOpacity = 0.0
                             secondaryTargetOpacity = 1.0
                         }
@@ -1303,7 +1381,7 @@ ApplicationWindow {
                         origin.y: height / 2
                     }
                     Behavior on opacity {
-                        NumberAnimation { duration: 1000; easing.type: Easing.InOutQuad }
+                        NumberAnimation { duration: 100; easing.type: Easing.InOutQuad }
                     }
                 }
 
@@ -1600,6 +1678,42 @@ ApplicationWindow {
                 }
             }
 
+            Component.onCompleted: {
+                if (concentrationActive) {
+                    concentrationVisualActive = true
+                    concentrationPrimarySource = concentrationFrames[2]
+                    concentrationSecondarySource = concentrationFrames[2]
+                    concentrationFramePrimary.opacity = 1.0
+                    concentrationFrameSecondary.opacity = 0.0
+                }
+                if (tempHpValue > 0) {
+                    tempHpVisualActive = true
+                    tempHpPrimarySource = tempHpFrames[2]
+                    tempHpSecondarySource = tempHpFrames[2]
+                    tempHpFramePrimary.opacity = 1.0
+                    tempHpFrameSecondary.opacity = 0.0
+                }
+                if (concentrationTempActive) {
+                    concentrationTempVisualActive = true
+                    concentrationTempPrimarySource = concentrationTempFrames[2]
+                    concentrationTempSecondarySource = concentrationTempFrames[2]
+                    concentrationTempPrimaryFrameMetaIndex = 2
+                    concentrationTempSecondaryFrameMetaIndex = 2
+                    concentrationTempFramePrimary.opacity = 1.0
+                    concentrationTempFrameSecondary.opacity = 0.0
+                }
+                var initTurnKey = desiredTurnVisualKey()
+                if (initTurnKey) {
+                    turnVisualActive = true
+                    turnVisualKey = initTurnKey
+                    var initTurnFrames = turnVisualFramesForKey(initTurnKey)
+                    turnPrimarySource = initTurnFrames[2]
+                    turnSecondarySource = initTurnFrames[2]
+                    turnFramePrimary.opacity = 1.0
+                    turnFrameSecondary.opacity = 0.0
+                }
+            }
+
             onHpValueChanged: {
                 if (hpValue === null || lastHp === null || hpValue === undefined || lastHp === undefined) {
                     lastHp = hpValue
@@ -1658,6 +1772,22 @@ ApplicationWindow {
                     flashAnim.restart()
                     startHealSequence(hpRatio)
                 }
+                if (tempHpValue > 0 && !tempHpVisualActive) {
+                    tempHpVisualActive = true
+                    tempHpFrameDirection = 1
+                    tempHpFrameIndex = 0
+                    useAlternateTempHpFrame = false
+                    tempHpFramePrimary.opacity = 1.0
+                    tempHpFrameSecondary.opacity = 0.0
+                    tempHpPrimarySource = tempHpFrames[0]
+                    tempHpSecondarySource = tempHpFrames[0]
+                    tempHpTimer.restart()
+                } else if (tempHpValue <= 0 && tempHpVisualActive) {
+                    tempHpFrameDirection = -1
+                    tempHpFrameIndex = 2
+                    tempHpTimer.restart()
+                }
+                refreshTurnVisual()
                 lastTempHp = tempHpValue
             }
 
@@ -1692,14 +1822,46 @@ ApplicationWindow {
             }
 
             onConcentrationActiveChanged: {
-                if (lastConcentration === concentrationActive) {
-                    return
-                }
                 if (concentrationActive) {
+                    concentrationVisualActive = true
+                    concentrationFrameDirection = 1
                     concentrationFrameIndex = 0
+                    useAlternateFrame = false
+                    concentrationFramePrimary.opacity = 1.0
+                    concentrationFrameSecondary.opacity = 0.0
+                    concentrationPrimarySource = concentrationFrames[0]
+                    concentrationSecondarySource = concentrationFrames[0]
+                    concentrationTimer.restart()
+                } else if (concentrationVisualActive) {
+                    concentrationFrameDirection = -1
+                    concentrationFrameIndex = 2
+                    concentrationTimer.restart()
                 }
+                refreshTurnVisual()
                 lastConcentration = concentrationActive
             }
+
+            onConcentrationTempActiveChanged: {
+                if (concentrationTempActive) {
+                    concentrationTempVisualActive = true
+                    concentrationTempFrameDirection = 1
+                    concentrationTempFrameIndex = 0
+                    useAlternateConcentrationTempFrame = false
+                    concentrationTempFramePrimary.opacity = 1.0
+                    concentrationTempFrameSecondary.opacity = 0.0
+                    concentrationTempPrimarySource = concentrationTempFrames[0]
+                    concentrationTempSecondarySource = concentrationTempFrames[0]
+                    concentrationTempPrimaryFrameMetaIndex = 0
+                    concentrationTempSecondaryFrameMetaIndex = 0
+                    concentrationTempTimer.restart()
+                } else if (concentrationTempVisualActive) {
+                    concentrationTempFrameDirection = -1
+                    concentrationTempFrameIndex = 2
+                    concentrationTempTimer.restart()
+                }
+            }
+
+            onTurnOverlayActiveChanged: refreshTurnVisual()
 
 
             onIncapacitatedActiveChanged: {
@@ -1869,7 +2031,10 @@ ApplicationWindow {
                 ScriptAction { script: setLeftTavernFrame(-1) }
             }
 
+            onIsActiveChanged: refreshTurnVisual()
+
             onStateValueChanged: {
+                refreshTurnVisual()
                 if (lastState === stateValue) {
                     return
                 }
