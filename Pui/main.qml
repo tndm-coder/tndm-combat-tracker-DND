@@ -344,11 +344,18 @@ ApplicationWindow {
                 }
                 return list
             }
-            property var visibleCustomEffects: {
+            property var displayCustomEffects: {
                 if (customEffectSlots <= 0) {
                     return []
                 }
-                var list = customEffectList.slice(0, customEffectSlots)
+                var list = []
+                for (var i = 0; i < customEffectSlots; ++i) {
+                    list.push("")
+                }
+                var filledCount = Math.min(customEffectList.length, customEffectSlots)
+                for (var j = 0; j < filledCount; ++j) {
+                    list[j] = customEffectList[j]
+                }
                 if (customEffectList.length > customEffectSlots && customEffectSlots > 0) {
                     list[customEffectSlots - 1] = "…"
                 }
@@ -1743,10 +1750,10 @@ ApplicationWindow {
                         spacing: Math.max(2, Math.round(4 * cardUiScale))
                         width: parent.width
                         clip: true
-                        visible: (!stateValue || stateValue === "alive") && visibleCustomEffects.length > 0
+                        visible: customEffectSlots > 0
 
                         Repeater {
-                            model: visibleCustomEffects
+                            model: displayCustomEffects
                             delegate: Rectangle {
                                 width: customEffectsColumn.width
                                 height: Math.max(14, Math.round(22 * cardUiScale))

@@ -1,6 +1,6 @@
 {
   "running": true,
-  "timestamp": 1771081377.6797307,
+  "timestamp": 1771081667.4622405,
   "round": 1,
   "active_ids": [
     "id_2027884436784",
@@ -33,6 +33,9 @@
       },
       "custom_effects": {
         "вамвам": {
+          "duration": null
+        },
+        "вамвачс чс м": {
           "duration": null
         }
       }
