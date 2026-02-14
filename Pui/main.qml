@@ -233,7 +233,7 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
 
-        Column {
+        Item {
             anchors.fill: parent
 
             Item {
