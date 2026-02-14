@@ -1,25 +1,26 @@
 {
   "running": true,
-  "timestamp": 1771108466.7379456,
+  "timestamp": 1771112110.981063,
   "round": 1,
   "active_ids": [
-    "id_1466723090032",
-    "id_1466718452688",
-    "id_1466718452240",
-    "id_1466718452464"
+    "id_1466718417456",
+    "id_1466718412976",
+    "id_1466718413200",
+    "id_1466718413424",
+    "id_1466718413648"
   ],
   "combatants": [
     {
-      "id": "id_1466723090032",
-      "name": "eeg 1",
-      "display_name": "eeg",
+      "id": "id_1466718417456",
+      "name": "ew 1",
+      "display_name": "ew",
       "kind": "monster",
-      "hp": 10,
-      "max_hp": 10,
-      "temp_hp": 0,
+      "hp": 1,
+      "max_hp": 4,
+      "temp_hp": 2,
       "state": "alive",
       "effects": {
-        "temp_hp": false,
+        "temp_hp": true,
         "concentration": false,
         "dead": false,
         "unconscious": false,
@@ -28,34 +29,16 @@
       "custom_effects": {}
     },
     {
-      "id": "id_1466718452688",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466718452240",
-      "name": "eeg 3",
-      "display_name": "eeg",
+      "id": "id_1466718412976",
+      "name": "ew 2",
+      "display_name": "ew",
       "kind": "monster",
       "hp": 7,
       "max_hp": 7,
-      "temp_hp": 0,
+      "temp_hp": 2,
       "state": "alive",
       "effects": {
-        "temp_hp": false,
+        "temp_hp": true,
         "concentration": false,
         "dead": false,
         "unconscious": false,
@@ -64,16 +47,16 @@
       "custom_effects": {}
     },
     {
-      "id": "id_1466718452464",
-      "name": "eeg 4",
-      "display_name": "eeg",
+      "id": "id_1466718413200",
+      "name": "ew 3",
+      "display_name": "ew",
       "kind": "monster",
       "hp": 1,
       "max_hp": 1,
-      "temp_hp": 0,
+      "temp_hp": 2,
       "state": "alive",
       "effects": {
-        "temp_hp": false,
+        "temp_hp": true,
         "concentration": false,
         "dead": false,
         "unconscious": false,
@@ -82,268 +65,16 @@
       "custom_effects": {}
     },
     {
-      "id": "id_1466721152912",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466718699120",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466718698896",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 9,
-      "max_hp": 9,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466718694192",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466718686128",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722959664",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722963248",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 2,
-      "max_hp": 2,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722970640",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722504496",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 2,
-      "max_hp": 2,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722507184",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722507408",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 4,
-      "max_hp": 4,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722507632",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722507856",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722510768",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 10,
-      "max_hp": 10,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722510992",
-      "name": "eeg 3",
-      "display_name": "eeg",
+      "id": "id_1466718413424",
+      "name": "ew 4",
+      "display_name": "ew",
       "kind": "monster",
       "hp": 1,
       "max_hp": 1,
-      "temp_hp": 0,
+      "temp_hp": 2,
       "state": "alive",
       "effects": {
-        "temp_hp": false,
+        "temp_hp": true,
         "concentration": false,
         "dead": false,
         "unconscious": false,
@@ -352,520 +83,16 @@
       "custom_effects": {}
     },
     {
-      "id": "id_1466722511216",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722511440",
-      "name": "eeg 1",
-      "display_name": "eeg",
+      "id": "id_1466718413648",
+      "name": "ew 5",
+      "display_name": "ew",
       "kind": "monster",
       "hp": 2,
       "max_hp": 2,
-      "temp_hp": 0,
+      "temp_hp": 2,
       "state": "alive",
       "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722513904",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 1,
-      "max_hp": 1,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722514128",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 4,
-      "max_hp": 4,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722514352",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722514576",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 2,
-      "max_hp": 2,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722534576",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 6,
-      "max_hp": 6,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722534800",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 6,
-      "max_hp": 6,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722535024",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722535248",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 10,
-      "max_hp": 10,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722538384",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 4,
-      "max_hp": 4,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722538608",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722538832",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722516592",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722512560",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 9,
-      "max_hp": 9,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722512336",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722512112",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 2,
-      "max_hp": 2,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722511888",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 7,
-      "max_hp": 7,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722503824",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 3,
-      "max_hp": 3,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722503600",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722503376",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 8,
-      "max_hp": 8,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722503152",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 5,
-      "max_hp": 5,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722967280",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 4,
-      "max_hp": 4,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722963024",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 7,
-      "max_hp": 7,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722963472",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 7,
-      "max_hp": 7,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722966832",
-      "name": "eeg 1",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 10,
-      "max_hp": 10,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722972880",
-      "name": "eeg 2",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 9,
-      "max_hp": 9,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722972656",
-      "name": "eeg 3",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 2,
-      "max_hp": 2,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
-        "concentration": false,
-        "dead": false,
-        "unconscious": false,
-        "incapacitated": false
-      },
-      "custom_effects": {}
-    },
-    {
-      "id": "id_1466722972432",
-      "name": "eeg 4",
-      "display_name": "eeg",
-      "kind": "monster",
-      "hp": 9,
-      "max_hp": 9,
-      "temp_hp": 0,
-      "state": "alive",
-      "effects": {
-        "temp_hp": false,
+        "temp_hp": true,
         "concentration": false,
         "dead": false,
         "unconscious": false,

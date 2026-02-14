@@ -57,13 +57,13 @@ ApplicationWindow {
         33: { columns: 5, rows: 7, scale: 0.48 },
         34: { columns: 5, rows: 7, scale: 0.48 },
         35: { columns: 5, rows: 7, scale: 0.48 },
-        36: { columns: 5, rows: 8, scale: 0.45 },
-        37: { columns: 5, rows: 8, scale: 0.45 },
-        38: { columns: 5, rows: 8, scale: 0.45 },
-        39: { columns: 6, rows: 7, scale: 0.45 },
-        40: { columns: 6, rows: 7, scale: 0.45 },
-        41: { columns: 6, rows: 7, scale: 0.45 },
-        42: { columns: 6, rows: 7, scale: 0.45 },
+        36: { columns: 5, rows: 8, scale: 0.43 },
+        37: { columns: 5, rows: 8, scale: 0.43 },
+        38: { columns: 5, rows: 8, scale: 0.43 },
+        39: { columns: 6, rows: 7, scale: 0.43 },
+        40: { columns: 6, rows: 7, scale: 0.43 },
+        41: { columns: 6, rows: 7, scale: 0.43 },
+        42: { columns: 6, rows: 7, scale: 0.43 },
         43: { columns: 6, rows: 8, scale: 0.42 },
         44: { columns: 6, rows: 8, scale: 0.42 },
         45: { columns: 6, rows: 8, scale: 0.42 },
@@ -545,23 +545,9 @@ ApplicationWindow {
                 "textures/death4.png",
                 "textures/death5.png"
             ]
-            property var deathFrameOpaqueRects: [
-                { x: 33, y: 64, width: 1491, height: 840 },
-                { x: 27, y: 55, width: 1486, height: 871 },
-                { x: 26, y: 54, width: 1493, height: 873 },
-                { x: 26, y: 54, width: 1492, height: 873 },
-                { x: 26, y: 55, width: 1493, height: 872 }
-            ]
-            property var activeDeathFrameOpaqueRect: (
-                deathFrameIndex >= 0 && deathFrameIndex < deathFrameOpaqueRects.length
-                    ? deathFrameOpaqueRects[deathFrameIndex]
-                    : deathFrameOpaqueRects[0]
-            )
             // Fast tuning controls for death texture fitting
             property real deathFitScaleX: 1.354
             property real deathFitScaleY: 1.863
-            property real deathOverlayOffsetX: 0
-            property real deathOverlayOffsetY: 0
             property int leftTavernFrameIndex: -1
             property string leftTavernFrameSource: ""
             property var leftTavernFrames: [
@@ -569,16 +555,6 @@ ApplicationWindow {
                 "textures/tavern2.png",
                 "textures/tavern3.png"
             ]
-            property var leftTavernFrameOpaqueRects: [
-                { x: 26, y: 55, width: 1493, height: 872 },
-                { x: 26, y: 55, width: 1493, height: 872 },
-                { x: 26, y: 55, width: 1493, height: 872 }
-            ]
-            property var activeLeftTavernOpaqueRect: (
-                leftTavernFrameIndex >= 0 && leftTavernFrameIndex < leftTavernFrameOpaqueRects.length
-                    ? leftTavernFrameOpaqueRects[leftTavernFrameIndex]
-                    : leftTavernFrameOpaqueRects[0]
-            )
             property real leftTavernFitScaleX: 1.0
             property real leftTavernFitScaleY: 1.0
             property real leftTavernForcedScaleX: width > 0 ? (width + 10) / width : 1.0
@@ -594,6 +570,7 @@ ApplicationWindow {
             ]
             property string pendingStateVisual: ""
             property bool suppressIncapacitatedReverseAfterLeft: false
+            property bool suppressIncapacitatedTransitionAnimation: false
             property string pendingIncapacitatedMode: ""
             property real unconsciousGrayDim: 0.0
             property int unconsciousFrameIndex: -1
@@ -658,6 +635,19 @@ ApplicationWindow {
                 healFrameSource = healFrames[0]
                 healFrameTimer.restart()
                 healShakeAnim.restart()
+            }
+
+            function isStateTransitionWithoutHpAnimation() {
+                if (lastState === stateValue) {
+                    return false
+                }
+                if ((stateValue === "dead" || stateValue === "unconscious") && lastState === "alive") {
+                    return true
+                }
+                if ((lastState === "dead" || lastState === "unconscious") && stateValue === "alive") {
+                    return true
+                }
+                return false
             }
 
             function applyStateVisuals(nextState) {
@@ -1594,7 +1584,6 @@ ApplicationWindow {
                 Image {
                     id: tempIncapFramePrimary
                     anchors.centerIn: parent
-                    anchors.verticalCenterOffset: 6
                     width: textureRenderWidth
                     height: textureRenderHeight
                     source: tempIncapPrimarySource
@@ -1618,7 +1607,6 @@ ApplicationWindow {
                 Image {
                     id: incapacitatedFrameImage
                     anchors.centerIn: parent
-                    anchors.verticalCenterOffset: 6
                     width: textureRenderWidth
                     height: textureRenderHeight
                     source: incapacitatedFrameSource
@@ -1640,17 +1628,9 @@ ApplicationWindow {
                 Image {
                     id: deathFrameImage
                     anchors.centerIn: parent
-                    anchors.verticalCenterOffset: deathOverlayOffsetY
-                    anchors.horizontalCenterOffset: deathOverlayOffsetX
                     width: textureRenderWidth
                     height: textureRenderHeight
                     source: deathFrameSource
-                    sourceClipRect: Qt.rect(
-                        activeDeathFrameOpaqueRect.x,
-                        activeDeathFrameOpaqueRect.y,
-                        activeDeathFrameOpaqueRect.width,
-                        activeDeathFrameOpaqueRect.height
-                    )
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: deathFrameIndex >= 0
@@ -1673,12 +1653,6 @@ ApplicationWindow {
                     width: textureRenderWidth
                     height: textureRenderHeight
                     source: leftTavernFrameSource
-                    sourceClipRect: Qt.rect(
-                        activeLeftTavernOpaqueRect.x,
-                        activeLeftTavernOpaqueRect.y,
-                        activeLeftTavernOpaqueRect.width,
-                        activeLeftTavernOpaqueRect.height
-                    )
                     fillMode: Image.PreserveAspectFit
                     smooth: true
                     visible: leftTavernFrameIndex >= 0
@@ -2000,6 +1974,12 @@ ApplicationWindow {
                     return
                 }
                 if (hpValue < lastHp) {
+                    if (isStateTransitionWithoutHpAnimation()) {
+                        lastHp = hpValue
+                        lastHpRatio = hpRatio
+                        pendingDamageHpRatio = hpRatio
+                        return
+                    }
                     flashColor = damageFillColor
                     flashPeak = 0.35
                     flashAnim.restart()
@@ -2009,6 +1989,12 @@ ApplicationWindow {
                     hpLossTrailAnimation.restart()
                     startDamageSequence(hpRatio)
                 } else if (hpValue > lastHp) {
+                    if (isStateTransitionWithoutHpAnimation()) {
+                        lastHp = hpValue
+                        lastHpRatio = hpRatio
+                        pendingHealHpRatio = hpRatio
+                        return
+                    }
                     flashColor = hpFillColor
                     flashPeak = 0.28
                     flashAnim.restart()
@@ -2046,7 +2032,6 @@ ApplicationWindow {
                     flashColor = hpFillColor
                     flashPeak = 0.28
                     flashAnim.restart()
-                    startHealSequence(hpRatio)
                 }
                 if (tempHpValue > 0 && !tempHpVisualActive) {
                     tempHpVisualActive = true
@@ -2099,7 +2084,12 @@ ApplicationWindow {
                         startIncapacitatedForward()
                     }
                 } else {
-                    startTempIncapReverse()
+                    if (suppressIncapacitatedTransitionAnimation && stateValue === "alive") {
+                        clearIncapacitatedVisuals()
+                        suppressIncapacitatedTransitionAnimation = false
+                    } else {
+                        startTempIncapReverse()
+                    }
                 }
                 lastTempIncapActive = tempIncapActive
             }
@@ -2183,6 +2173,7 @@ ApplicationWindow {
                     return
                 }
                 if (stateValue === "dead") {
+                    suppressIncapacitatedTransitionAnimation = true
                     clearUnconsciousVisuals()
                     clearIncapacitatedVisuals()
                     lastIncapacitated = incapacitatedActive
@@ -2208,7 +2199,12 @@ ApplicationWindow {
                 if (incapacitatedActive && stateValue === "alive") {
                     startIncapacitatedForward()
                 } else {
-                    startIncapacitatedReverse()
+                    if (suppressIncapacitatedTransitionAnimation && stateValue === "alive") {
+                        clearIncapacitatedVisuals()
+                        suppressIncapacitatedTransitionAnimation = false
+                    } else {
+                        startIncapacitatedReverse()
+                    }
                 }
                 lastIncapacitated = incapacitatedActive
             }
@@ -2458,6 +2454,7 @@ ApplicationWindow {
                     return
                 }
                 if (lastState === "left" && stateValue !== "left") {
+                    suppressIncapacitatedTransitionAnimation = true
                     pendingStateVisual = stateValue
                     suppressIncapacitatedReverseAfterLeft = true
                     statusDelayTimer.stop()
@@ -2467,6 +2464,7 @@ ApplicationWindow {
                     return
                 }
                 if (stateValue === "dead") {
+                    suppressIncapacitatedTransitionAnimation = true
                     clearUnconsciousVisuals()
                     clearLeftVisuals()
                     pendingStateVisual = ""
@@ -2493,6 +2491,7 @@ ApplicationWindow {
                     return
                 }
                 if (stateValue === "unconscious") {
+                    suppressIncapacitatedTransitionAnimation = true
                     clearIncapacitatedVisuals()
                     pendingStateVisual = ""
                     statusDelayTimer.stop()
@@ -2501,6 +2500,7 @@ ApplicationWindow {
                         startUnconsciousForward()
                     }
                 } else if (lastState === "unconscious" && stateValue === "alive") {
+                    suppressIncapacitatedTransitionAnimation = true
                     pendingStateVisual = stateValue
                     startUnconsciousReverse()
                     statusDelayTimer.restart()
@@ -2509,6 +2509,9 @@ ApplicationWindow {
                     clearIncapacitatedVisuals()
                     statusDelayTimer.restart()
                 } else {
+                    if (stateValue === "alive") {
+                        suppressIncapacitatedTransitionAnimation = false
+                    }
                     applyStateVisuals(stateValue)
                 }
                 lastState = stateValue
