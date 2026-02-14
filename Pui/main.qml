@@ -483,6 +483,7 @@ ApplicationWindow {
             property bool tempIncapActive: incapacitatedEligible && tempHpValue > 0
             property bool lastIncapacitated: incapacitatedActive
             property bool lastTempIncapActive: tempIncapActive
+            property bool visualsHydrated: false
             property real incapacitatedOpacity: incapacitatedEligible ? 1 : 0
             property real incapacitatedDim: 0.0
             property real deathDim: 0.0
@@ -1982,6 +1983,11 @@ ApplicationWindow {
                     turnFramePrimary.opacity = 1.0
                     turnFrameSecondary.opacity = 0.0
                 }
+                lastState = stateValue
+                lastIncapacitated = incapacitatedActive
+                lastTempIncapActive = tempIncapActive
+                lastConcentration = concentrationActive
+                visualsHydrated = true
             }
 
             onHpValueChanged: {
@@ -2062,6 +2068,10 @@ ApplicationWindow {
             }
 
             onTempIncapActiveChanged: {
+                if (!visualsHydrated) {
+                    lastTempIncapActive = tempIncapActive
+                    return
+                }
                 if (lastTempIncapActive === tempIncapActive) {
                     return
                 }
@@ -2115,6 +2125,10 @@ ApplicationWindow {
             }
 
             onConcentrationActiveChanged: {
+                if (!visualsHydrated) {
+                    lastConcentration = concentrationActive
+                    return
+                }
                 if (concentrationActive) {
                     concentrationVisualActive = true
                     concentrationFrameDirection = 1
@@ -2135,6 +2149,9 @@ ApplicationWindow {
             }
 
             onConcentrationTempActiveChanged: {
+                if (!visualsHydrated) {
+                    return
+                }
                 if (concentrationTempActive) {
                     concentrationTempVisualActive = true
                     concentrationTempFrameDirection = 1
@@ -2158,6 +2175,10 @@ ApplicationWindow {
 
 
             onIncapacitatedActiveChanged: {
+                if (!visualsHydrated) {
+                    lastIncapacitated = incapacitatedActive
+                    return
+                }
                 if (lastIncapacitated === incapacitatedActive) {
                     return
                 }
@@ -2427,6 +2448,11 @@ ApplicationWindow {
             onIsActiveChanged: refreshTurnVisual()
 
             onStateValueChanged: {
+                if (!visualsHydrated) {
+                    lastState = stateValue
+                    refreshTurnVisual()
+                    return
+                }
                 refreshTurnVisual()
                 if (lastState === stateValue) {
                     return
