@@ -1,6 +1,6 @@
 {
   "running": true,
-  "timestamp": 1771074508.286157,
+  "timestamp": 1771075167.5943573,
   "round": 1,
   "active_ids": [
     "id_2027882172208",
@@ -165,6 +165,24 @@
       "kind": "monster",
       "hp": 5,
       "max_hp": 5,
+      "temp_hp": 0,
+      "state": "alive",
+      "effects": {
+        "temp_hp": false,
+        "concentration": false,
+        "dead": false,
+        "unconscious": false,
+        "incapacitated": false
+      },
+      "custom_effects": {}
+    },
+    {
+      "id": "id_2027886509680",
+      "name": "ывмывм 1",
+      "display_name": "ывмывм",
+      "kind": "monster",
+      "hp": 3,
+      "max_hp": 3,
       "temp_hp": 0,
       "state": "alive",
       "effects": {

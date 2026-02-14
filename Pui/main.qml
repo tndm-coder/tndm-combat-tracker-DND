@@ -26,15 +26,10 @@ ApplicationWindow {
         if (count === 0) return 1
         return Math.ceil(count / columns)
     }
-    property int columnGap: 20
-    property int rowGap: 16
-    property int cardMinHeight: 88
-    property int cardMaxHeight: 180
-    property int cardHeight: {
-        var usable = height - header.height - 40
-        var candidate = Math.floor((usable - (rowCount - 1) * rowGap) / rowCount)
-        return Math.max(cardMinHeight, Math.min(cardMaxHeight, candidate))
-    }
+    property int fixedCardWidth: 450
+    property int fixedCardHeight: 180
+    property int fixedColumnGap: 20
+    property int fixedRowGap: 16
     property color inkLight: "#F1E4D1"
     property color inkMuted: "#C9B7A0"
     property color inkSoft: "#9A8672"
@@ -188,14 +183,14 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
         anchors.margins: 24
         model: playerModel
-        cellWidth: Math.floor((width - (columns - 1) * columnGap) / columns)
-        cellHeight: cardHeight + rowGap
+        cellWidth: fixedCardWidth + fixedColumnGap
+        cellHeight: fixedCardHeight + fixedRowGap
         flow: GridView.TopToBottom
         layoutDirection: Qt.LeftToRight
         delegate: Rectangle {
             id: card
-            width: grid.cellWidth
-            height: grid.cellHeight - rowGap
+            width: fixedCardWidth
+            height: fixedCardHeight
             radius: 0
             color: panelMid
             gradient: Gradient {
