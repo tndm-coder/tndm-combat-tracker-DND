@@ -57,13 +57,13 @@ ApplicationWindow {
         33: { columns: 5, rows: 7, scale: 0.48 },
         34: { columns: 5, rows: 7, scale: 0.48 },
         35: { columns: 5, rows: 7, scale: 0.48 },
-        36: { columns: 5, rows: 8, scale: 0.43 },
-        37: { columns: 5, rows: 8, scale: 0.43 },
-        38: { columns: 5, rows: 8, scale: 0.43 },
-        39: { columns: 6, rows: 7, scale: 0.43 },
-        40: { columns: 6, rows: 7, scale: 0.43 },
-        41: { columns: 6, rows: 7, scale: 0.43 },
-        42: { columns: 6, rows: 7, scale: 0.43 },
+        36: { columns: 5, rows: 8, scale: 0.45 },
+        37: { columns: 5, rows: 8, scale: 0.45 },
+        38: { columns: 5, rows: 8, scale: 0.45 },
+        39: { columns: 6, rows: 7, scale: 0.45 },
+        40: { columns: 6, rows: 7, scale: 0.45 },
+        41: { columns: 6, rows: 7, scale: 0.45 },
+        42: { columns: 6, rows: 7, scale: 0.45 },
         43: { columns: 6, rows: 8, scale: 0.42 },
         44: { columns: 6, rows: 8, scale: 0.42 },
         45: { columns: 6, rows: 8, scale: 0.42 },
@@ -545,9 +545,23 @@ ApplicationWindow {
                 "textures/death4.png",
                 "textures/death5.png"
             ]
+            property var deathFrameOpaqueRects: [
+                { x: 33, y: 64, width: 1491, height: 840 },
+                { x: 27, y: 55, width: 1486, height: 871 },
+                { x: 26, y: 54, width: 1493, height: 873 },
+                { x: 26, y: 54, width: 1492, height: 873 },
+                { x: 26, y: 55, width: 1493, height: 872 }
+            ]
+            property var activeDeathFrameOpaqueRect: (
+                deathFrameIndex >= 0 && deathFrameIndex < deathFrameOpaqueRects.length
+                    ? deathFrameOpaqueRects[deathFrameIndex]
+                    : deathFrameOpaqueRects[0]
+            )
             // Fast tuning controls for death texture fitting
             property real deathFitScaleX: 1.354
             property real deathFitScaleY: 1.863
+            property real deathOverlayOffsetX: 0
+            property real deathOverlayOffsetY: 0
             property int leftTavernFrameIndex: -1
             property string leftTavernFrameSource: ""
             property var leftTavernFrames: [
@@ -555,6 +569,16 @@ ApplicationWindow {
                 "textures/tavern2.png",
                 "textures/tavern3.png"
             ]
+            property var leftTavernFrameOpaqueRects: [
+                { x: 26, y: 55, width: 1493, height: 872 },
+                { x: 26, y: 55, width: 1493, height: 872 },
+                { x: 26, y: 55, width: 1493, height: 872 }
+            ]
+            property var activeLeftTavernOpaqueRect: (
+                leftTavernFrameIndex >= 0 && leftTavernFrameIndex < leftTavernFrameOpaqueRects.length
+                    ? leftTavernFrameOpaqueRects[leftTavernFrameIndex]
+                    : leftTavernFrameOpaqueRects[0]
+            )
             property real leftTavernFitScaleX: 1.0
             property real leftTavernFitScaleY: 1.0
             property real leftTavernForcedScaleX: width > 0 ? (width + 10) / width : 1.0
@@ -664,12 +688,6 @@ ApplicationWindow {
                 } else if (nextState === "left") {
                     statusDim = 0
                 } else if (nextState === "alive") {
-                    if (lastState === "dead" || lastState === "unconscious") {
-                        statusFlashColor = accentBright
-                        statusFlashPeak = 0.4
-                        statusFlashAnim.restart()
-                        liftAnim.restart()
-                    }
                     statusDim = 0
                 }
             }
@@ -1584,6 +1602,7 @@ ApplicationWindow {
                 Image {
                     id: tempIncapFramePrimary
                     anchors.centerIn: parent
+                    anchors.verticalCenterOffset: 6
                     width: textureRenderWidth
                     height: textureRenderHeight
                     source: tempIncapPrimarySource
@@ -1607,6 +1626,7 @@ ApplicationWindow {
                 Image {
                     id: incapacitatedFrameImage
                     anchors.centerIn: parent
+                    anchors.verticalCenterOffset: 6
                     width: textureRenderWidth
                     height: textureRenderHeight
                     source: incapacitatedFrameSource
@@ -1628,11 +1648,25 @@ ApplicationWindow {
                 Image {
                     id: deathFrameImage
                     anchors.centerIn: parent
+                    anchors.verticalCenterOffset: deathOverlayOffsetY
+                    anchors.horizontalCenterOffset: deathOverlayOffsetX
                     width: textureRenderWidth
                     height: textureRenderHeight
                     source: deathFrameSource
+                    sourceClipRect: Qt.rect(
+                        activeDeathFrameOpaqueRect.x,
+                        activeDeathFrameOpaqueRect.y,
+                        activeDeathFrameOpaqueRect.width,
+                        activeDeathFrameOpaqueRect.height
+                    )
                     fillMode: Image.PreserveAspectFit
                     smooth: true
+                    transform: Scale {
+                        origin.x: deathFrameImage.width / 2
+                        origin.y: deathFrameImage.height / 2
+                        xScale: deathFitScaleX
+                        yScale: deathFitScaleY
+                    }
                     visible: deathFrameIndex >= 0
                     opacity: visible ? 1.0 : 0.0
                     Behavior on opacity {
@@ -1653,8 +1687,20 @@ ApplicationWindow {
                     width: textureRenderWidth
                     height: textureRenderHeight
                     source: leftTavernFrameSource
+                    sourceClipRect: Qt.rect(
+                        activeLeftTavernOpaqueRect.x,
+                        activeLeftTavernOpaqueRect.y,
+                        activeLeftTavernOpaqueRect.width,
+                        activeLeftTavernOpaqueRect.height
+                    )
                     fillMode: Image.PreserveAspectFit
                     smooth: true
+                    transform: Scale {
+                        origin.x: leftTavernFrameImage.width / 2
+                        origin.y: leftTavernFrameImage.height / 2
+                        xScale: leftTavernFitScaleX * leftTavernForcedScaleX * leftTavernScaleBoostX
+                        yScale: leftTavernFitScaleY * leftTavernForcedScaleY * leftTavernScaleBoostY
+                    }
                     visible: leftTavernFrameIndex >= 0
                     opacity: visible ? 1.0 : 0.0
                     Behavior on opacity {
@@ -1668,8 +1714,14 @@ ApplicationWindow {
                     source: leftWantedFrameSource
                     width: textureRenderWidth
                     height: textureRenderHeight
-                    fillMode: Image.PreserveAspectFit
+                    // Wanted frames are authored on a taller canvas (1536x1024),
+                    // unlike the rest of the battle-card overlays (900x360).
+                    // Using AspectFit makes the poster appear undersized and misaligned
+                    // relative to the card content, so we crop instead.
+                    fillMode: Image.PreserveAspectCrop
                     smooth: true
+                    scale: leftWantedScale
+                    transformOrigin: Item.Center
                     visible: leftWantedFrameIndex >= 0
                     opacity: visible ? 1.0 : 0.0
                     Behavior on opacity {
@@ -2027,11 +2079,6 @@ ApplicationWindow {
                     flashPeak = 0.35
                     flashAnim.restart()
                     startDamageSequence(hpRatio)
-                }
-                if (tempHpValue > lastTempHp && !(hpValue > lastHp) && !healFrameTimer.running) {
-                    flashColor = hpFillColor
-                    flashPeak = 0.28
-                    flashAnim.restart()
                 }
                 if (tempHpValue > 0 && !tempHpVisualActive) {
                     tempHpVisualActive = true

@@ -1,9 +1,8 @@
 {
   "running": true,
-  "timestamp": 1771112110.981063,
+  "timestamp": 1771113854.5123978,
   "round": 1,
   "active_ids": [
-    "id_1466718417456",
     "id_1466718412976",
     "id_1466718413200",
     "id_1466718413424",
@@ -15,16 +14,16 @@
       "name": "ew 1",
       "display_name": "ew",
       "kind": "monster",
-      "hp": 1,
+      "hp": 0,
       "max_hp": 4,
       "temp_hp": 2,
-      "state": "alive",
+      "state": "left",
       "effects": {
         "temp_hp": true,
         "concentration": false,
         "dead": false,
         "unconscious": false,
-        "incapacitated": false
+        "incapacitated": true
       },
       "custom_effects": {}
     },
