@@ -7,7 +7,8 @@ from copy import deepcopy
 
 from combatants import Monster, Player
 
-EXPORT_DIR = r"C:\Users\8twii\PycharmProjects\CombatTracker\pui"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+EXPORT_DIR = os.getenv("BATTLE_STATE_EXPORT_DIR", os.path.join(BASE_DIR, "Pui"))
 EXPORT_FILE = os.path.join(EXPORT_DIR, "battle_state.json")
 
 

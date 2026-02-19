@@ -16,6 +16,7 @@ __pycache__/
 # Local temp artifacts
 *.tmp
 Pui/battle_state.json.tmp
+Pui/battle_state.json
 test_file.txt
 
 # Local patches

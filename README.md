@@ -86,15 +86,10 @@ python Pui/player_ui.py
 
 `Player UI` читает файл состояния боя `battle_state.json`, который пишет `BattleStateExporter`.
 
-Проверьте значения в `battle_state_exporter.py`:
+По умолчанию экспорт идет в папку `Pui` внутри проекта. При необходимости можно переопределить путь через переменную окружения:
 
-- `EXPORT_DIR`
-- `EXPORT_FILE`
-
-Если в файле указан путь разработчика, замените его на ваш локальный путь к папке `Pui`, например:
-
-```python
-EXPORT_DIR = r"/workspace/tndm-combat-tracker-DND/Pui"
+```bash
+export BATTLE_STATE_EXPORT_DIR="/путь/к/нужной/папке"
 ```
 
 После этого `Pui/player_ui.py` будет получать актуальные данные боя.
@@ -129,7 +124,7 @@ python -m compileall DMui Pui battle_engine.py combatants.py combatant_factory.p
 Безопасный вариант (не падает, если часть путей уже отсутствует):
 
 ```bash
-git rm -r --cached --ignore-unmatch __pycache__ DMui/__pycache__ Pui/__pycache__ .idea test_file.txt Pui/battle_state.json.tmp
+git rm -r --cached --ignore-unmatch __pycache__ DMui/__pycache__ Pui/__pycache__ .idea test_file.txt Pui/battle_state.json.tmp Pui/battle_state.json
 ```
 
 Если git сообщает про `staged content different` (часто на `.idea/workspace.xml`),
@@ -137,7 +132,7 @@ git rm -r --cached --ignore-unmatch __pycache__ DMui/__pycache__ Pui/__pycache__
 
 ```bash
 git restore --staged .idea/workspace.xml
-git rm -r --cached --ignore-unmatch __pycache__ DMui/__pycache__ Pui/__pycache__ .idea test_file.txt Pui/battle_state.json.tmp
+git rm -r --cached --ignore-unmatch __pycache__ DMui/__pycache__ Pui/__pycache__ .idea test_file.txt Pui/battle_state.json.tmp Pui/battle_state.json
 ```
 
 Либо выполните форс-удаление из индекса:
@@ -166,4 +161,4 @@ git commit -m "chore: remove tracked local artifacts and legacy web ui"
 
 ## Лицензия
 
-Лицензия пока не добавлена. При необходимости создайте файл `LICENSE` (например, MIT).
+Проект распространяется под лицензией MIT. См. файл `LICENSE`.
