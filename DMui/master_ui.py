@@ -255,16 +255,10 @@ class MasterUI(QWidget):
         panel_layout = QVBoxLayout()
         panel_layout.setContentsMargins(0, 6, 0, 0)
 
-        open_here_btn = QPushButton("Открыть на этом мониторе")
-        open_other_btn = QPushButton("Открыть на другом мониторе")
-        borderless_btn = QPushButton("Окно/Без рамок")
-        fullscreen_btn = QPushButton("Полный экран/Окно")
-        open_here_btn.clicked.connect(self.open_player_ui_current_monitor)
-        open_other_btn.clicked.connect(self.open_player_ui_other_monitor)
-        borderless_btn.clicked.connect(self.toggle_player_ui_borderless)
-        fullscreen_btn.clicked.connect(self.toggle_player_ui_fullscreen)
-        for w in [open_here_btn, open_other_btn, borderless_btn, fullscreen_btn]:
-            panel_layout.addWidget(w)
+        player_ui_hint = QLabel("Запуск Player UI: python Pui/player_ui.py")
+        player_ui_hint.setWordWrap(True)
+        player_ui_hint.setStyleSheet("QLabel { color: #8a8a8a; }")
+        panel_layout.addWidget(player_ui_hint)
         panel_layout.addStretch(1)
         player_ui_panel.setLayout(panel_layout)
 
@@ -565,18 +559,6 @@ class MasterUI(QWidget):
         self.round_counter = 0
         self.round_label.setText(f"Раунд боя: {self.round_counter}")
         self.refresh_table()
-
-    def open_player_ui_current_monitor(self):
-        print("TODO: открыть Player UI на текущем мониторе")
-
-    def open_player_ui_other_monitor(self):
-        print("TODO: открыть Player UI на другом мониторе")
-
-    def toggle_player_ui_borderless(self):
-        print("TODO: переключить режим окно/без рамок для Player UI")
-
-    def toggle_player_ui_fullscreen(self):
-        print("TODO: переключить режим полный экран/окно для Player UI")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

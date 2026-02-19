@@ -32,10 +32,7 @@
 ├── Pui/
 │   ├── player_ui.py
 │   ├── main.qml
-│   ├── battle_state.json
-│   ├── index.html
-│   ├── app.js
-│   └── style.css
+│   └── battle_state.json
 ├── battle_engine.py
 ├── battle_state_exporter.py
 ├── combatants.py
@@ -115,24 +112,6 @@ EXPORT_DIR = r"/workspace/tndm-combat-tracker-DND/Pui"
 
 ---
 
-## Web-вариант Player UI (опционально)
-
-В папке `Pui` есть веб-вариант (`index.html`, `app.js`, `style.css`), который читает `battle_state.json` через HTTP.
-
-Локальный запуск:
-
-```bash
-cd Pui
-python -m http.server 8000
-```
-
-Откройте в браузере:
-
-```text
-http://localhost:8000
-```
-
----
 
 ## Быстрая проверка
 
@@ -142,12 +121,45 @@ python -m compileall DMui Pui battle_engine.py combatants.py combatant_factory.p
 
 ---
 
+## Очистка репозитория от уже отслеживаемого «мусора»
+
+> `.gitignore` влияет только на **новые** файлы. Если артефакты уже были добавлены в git ранее,
+> их нужно убрать из индекса отдельной командой.
+
+Безопасный вариант (не падает, если часть путей уже отсутствует):
+
+```bash
+git rm -r --cached --ignore-unmatch __pycache__ DMui/__pycache__ Pui/__pycache__ .idea test_file.txt Pui/battle_state.json.tmp
+```
+
+Если git сообщает про `staged content different` (часто на `.idea/workspace.xml`),
+сначала уберите файл из stage, а затем повторите команду:
+
+```bash
+git restore --staged .idea/workspace.xml
+git rm -r --cached --ignore-unmatch __pycache__ DMui/__pycache__ Pui/__pycache__ .idea test_file.txt Pui/battle_state.json.tmp
+```
+
+Либо выполните форс-удаление из индекса:
+
+```bash
+git rm -r -f --cached --ignore-unmatch __pycache__ DMui/__pycache__ Pui/__pycache__ .idea test_file.txt Pui/battle_state.json.tmp
+```
+
+После этого сделайте коммит:
+
+```bash
+git commit -m "chore: remove tracked local artifacts and legacy web ui"
+```
+
+---
+
 ## Планируемые улучшения
 
 - Вынести настройки в `.env` или `config.yaml`.
 - Добавить сохранение/загрузку сессии боя.
 - Добавить сетевую синхронизацию DM UI ↔ Player UI.
-- Закрыть TODO по открытию Player UI на другом мониторе.
+- Добавить управление окном Player UI (монитор, fullscreen, borderless) из DM UI.
 - Добавить тесты на `BattleEngine` и `dice_roll`.
 
 ---
