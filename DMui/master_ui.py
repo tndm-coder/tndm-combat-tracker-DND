@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QPushButton, QTableWidget, QTableWidgetItem,
     QLineEdit, QLabel, QSpinBox, QCheckBox, QComboBox,
     QFrame, QToolButton, QSizePolicy, QGroupBox,
-    QGridLayout, QHeaderView
+    QGridLayout, QHeaderView, QMessageBox
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QFontDatabase
@@ -377,12 +377,30 @@ class MasterUI(QWidget):
             combatant.add_temp_hp(amount)
         self.refresh_table()
 
+    def _show_input_error(self, title, text):
+        QMessageBox.warning(self, title, text)
+
+    def _parse_optional_int(self, value, field_name):
+        raw = value.strip()
+        if not raw:
+            return None
+        try:
+            return int(raw)
+        except ValueError:
+            self._show_input_error(
+                "Ошибка ввода",
+                f"Поле «{field_name}» должно быть целым числом."
+            )
+            return None
+
     def add_player(self):
         name = self.player_name_input.text().strip()
         if not name:
             return
         initiative_text = self.player_initiative_input.text().strip()
-        initiative = int(initiative_text) if initiative_text else None
+        initiative = self._parse_optional_int(initiative_text, "Инициатива")
+        if initiative_text and initiative is None:
+            return
         player = self.factory.create_player(
             name=name,
             initiative=initiative
@@ -399,17 +417,28 @@ class MasterUI(QWidget):
         count = self.monster_count_input.value()
         custom_name = self.monster_custom_name_input.text().strip() or None
         hp_input = self.monster_hp_input.text().strip() or None
-        ac = int(self.monster_ac_input.text()) if self.monster_ac_input.text().strip() else None
-        initiative = int(
-            self.monster_initiative_input.text()) if self.monster_initiative_input.text().strip() else None
-        monsters = self.factory.create_monster(
-            name=name,
-            count=count,
-            initiative=initiative,
-            custom_name=custom_name,
-            ac=ac,
-            hp_input=hp_input
-        )
+        ac_text = self.monster_ac_input.text()
+        init_text = self.monster_initiative_input.text()
+        ac = self._parse_optional_int(ac_text, "Класс брони")
+        if ac_text.strip() and ac is None:
+            return
+        initiative = self._parse_optional_int(init_text, "Инициатива")
+        if init_text.strip() and initiative is None:
+            return
+
+        try:
+            monsters = self.factory.create_monster(
+                name=name,
+                count=count,
+                initiative=initiative,
+                custom_name=custom_name,
+                ac=ac,
+                hp_input=hp_input
+            )
+        except ValueError as exc:
+            self._show_input_error("Ошибка ввода", str(exc))
+            return
+
         for m in monsters:
             self.battle_engine.add_combatant(m)
         self.refresh_table()
