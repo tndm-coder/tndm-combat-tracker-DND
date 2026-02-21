@@ -112,8 +112,7 @@ class BattleEngine:
     def set_state(self, combat, new_state):
         old_state = getattr(combat, "state", "alive")
         combat.state = new_state
-
-        combat.effects["concentration"] = False
+        combat.remove_concentration()
 
         if new_state == "dead":
             if combat.hp is not None:

@@ -94,7 +94,7 @@ class BattleStateExporter:
                 "state": c.state,
                 "effects": {
                     "temp_hp": c.hp is not None and c.temp_hp > 0,
-                    "concentration": bool(c.concentration),
+                    "concentration": c.has_concentration(),
                     "dead": c.state == "dead",
                     "unconscious": c.state == "unconscious",
                     "incapacitated": c.incapacitated,

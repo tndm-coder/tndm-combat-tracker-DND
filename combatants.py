@@ -9,7 +9,7 @@ class Combatant:
         self.temp_hp = 0
         self.ac = ac
         self.effects = effects if effects else {}
-        self.concentration = False
+        self.effects.setdefault("concentration", False)
         self.manually_disabled = False
         self.initiative = initiative if initiative is not None else random.randint(1, 20)
         self.state = "alive"
@@ -30,13 +30,13 @@ class Combatant:
         self.effects["incapacitated"] = bool(value)
 
     def has_concentration(self):
-        return self.concentration
+        return bool(self.effects.get("concentration", False))
 
     def add_concentration(self):
-        self.concentration = True
+        self.effects["concentration"] = True
 
     def remove_concentration(self):
-        self.concentration = False
+        self.effects["concentration"] = False
 
     @property
     def is_alive(self):
